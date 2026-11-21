@@ -1,0 +1,492 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#19362f"><title>Türwache · Dokumentation</title><link rel="icon" href="/icon.svg"><link rel="stylesheet" href="/docs.css"><script src="/docs.js" defer></script></head><body><header><a class="brand" href="/docs"><img src="/icon.svg" width="32" height="32" alt="">türwache<span>.</span></a><span class="header-label" data-de="Dokumentation" data-en="Documentation">Dokumentation</span><div class="header-actions"><button type="button" data-language-button="de" aria-pressed="true">DE</button><button type="button" data-language-button="en" aria-pressed="false">EN</button><a class="back" href="/" data-de="Zur App ↗" data-en="Open app ↗">Zur App ↗</a></div></header><div class="layout"><aside><p class="eyebrow" data-de="DEIN KAMERASERVER" data-en="YOUR CAMERA SERVER">DEIN KAMERASERVER</p><nav aria-label="Documentation"><a href="#index" data-topic="index" data-de="Willkommen" data-en="Welcome">Willkommen</a><a href="#windows" data-topic="windows" data-de="Windows" data-en="Windows">Windows</a><a href="#linux" data-topic="linux" data-de="Linux & Server" data-en="Linux & servers">Linux & Server</a><a href="#raspberry-pi" data-topic="raspberry-pi" data-de="Raspberry Pi" data-en="Raspberry Pi">Raspberry Pi</a><a href="#usage" data-topic="usage" data-de="Kameras & KI" data-en="Cameras & AI">Kameras & KI</a><a href="#network-cameras" data-topic="network-cameras" data-de="Netzwerkkameras" data-en="Network cameras">Netzwerkkameras</a><a href="#operations" data-topic="operations" data-de="Betrieb & Sicherheit" data-en="Operations & security">Betrieb & Sicherheit</a><a href="#architecture" data-topic="architecture" data-de="Handy & Architektur" data-en="Mobile & architecture">Handy & Architektur</a><a href="#saas" data-topic="saas" data-de="Lokaler Betrieb & Hilfe" data-en="Local operation & help">Lokaler Betrieb & Hilfe</a><a href="#github" data-topic="github" data-de="GitHub & Lizenz" data-en="GitHub & licensing">GitHub & Lizenz</a></nav><p class="version">Version 0.13.0<br><span data-de="Anleitungen · privat betreiben" data-en="Source documentation · private hosting">Anleitungen · privat betreiben</span></p></aside><main id="content"><article data-language="de" data-document="index"><h1>Türwache Dokumentation</h1>
+<p>Türwache ist ein privater Kameraserver für Ring und Netzwerkkameras. Die Weboberfläche bündelt Clips, Zeitstrahl, lokale KI und Benachrichtigungen. Wähle Deutsch oder Englisch in der Kopfzeile.</p>
+<h2>Beginnen</h2>
+<ul>
+<li><a href="#windows" data-topic="windows">Windows installieren</a></li>
+<li><a href="#linux" data-topic="linux">Linux und Server installieren</a></li>
+<li><a href="#raspberry-pi" data-topic="raspberry-pi">Raspberry Pi einordnen</a></li>
+<li><a href="#usage" data-topic="usage">Bedienung, KI und Fehler finden</a></li>
+<li><a href="#network-cameras" data-topic="network-cameras">Netzwerkkameras per ONVIF und RTSP verbinden</a></li>
+<li><a href="#operations" data-topic="operations">Sicherheit, Backup und Updates</a></li>
+<li><a href="#architecture" data-topic="architecture">Handy-Apps und Architektur</a></li>
+<li><a href="#saas" data-topic="saas">Lokaler Betrieb und Hilfe</a></li>
+<li><a href="#github" data-topic="github">GitHub, Lizenz und Geschäftsmodell</a></li>
+</ul>
+<h2>Ehrlicher Entwicklungsstand</h2>
+<p>Windows und die eigene Ring Battery Doorbell Pro wurden praktisch getestet. Livebild und neue Aufnahmen enthalten Ton, sofern die Kamera ihn liefert. Der private Kameratest funktionierte ohne Ring-Abo und laut Nutzer ohne Probeabo. Das ist keine Garantie für jedes Ring-Gerät oder eine dauerhafte, offiziell zugesicherte API-Funktion.</p>
+<p>Ring-Konto, Internet und Ring-Cloud bleiben nötig. Das Projekt ersetzt weder die Firmware noch den Cloud-Verbindungsaufbau der Kamera. Ein Akku-Gerät wacht erst auf: Der Beginn eines Ereignisses kann fehlen. Mehrere Kameras können gleichzeitig aufnehmen; pro Kamera teilen Livebild und Aufnahme eine Verbindung. Das Gesamtlimit steht unter Betrieb.</p>
+<p>Der Linux-x86_64-Container wurde einschließlich HTTP-Server, Modelldownload und dauerhaftem Python-Worker getestet. Echte Raspberry-Pi-Hardware, systemd-Dienstbetrieb und iOS-Installation sind noch nicht getestet. KI kann Ereignisse falsch beschreiben oder Personen übersehen. Es gibt keine Zusage von 100 % Sicherheit oder Erkennungsgenauigkeit.</p></article>
+<article data-language="de" data-document="windows" hidden><h1>Windows installieren</h1>
+<h2>Voraussetzungen</h2>
+<p>Windows 10/11, Node.js 24 LTS und bei lokaler Bildanalyse Python 3.12 (64 Bit). Node 22 wird ebenfalls unterstützt; Node 26 ist für diese Version nicht freigegeben. Installer laden keine beliebigen Systemprogramme herunter und öffnen keine Firewall-Ports.</p>
+<ul>
+<li><a href="https://nodejs.org/en/download" target="_blank" rel="noopener noreferrer">Offizielles Node.js</a></li>
+<li><a href="https://www.python.org/downloads/windows/" target="_blank" rel="noopener noreferrer">Offizielles Python</a></li>
+</ul>
+<h2>Installieren und starten</h2>
+<p>Privates Repository klonen oder den bereinigten Quellordner verwenden. PowerShell im Projekt öffnen. Der Ordner sollte dem normalen Benutzer gehören. Nicht als Administrator betreiben.</p>
+<pre><code>
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Install-Windows.ps1 -WithAI -CheckOnly
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Install-Windows.ps1 -WithAI
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Start-Tuerwache.ps1
+</code></pre>
+<p>Ohne lokale Personen-/Gesichtserkennung <code>-WithAI</code> weglassen. Die Installation lädt exakt die npm-Lockdatei, FFmpeg, die Python-Pakete und bei <code>-WithAI</code> drei per SHA256 geprüfte OpenCV-Modelle. Sie startet keinen Server. CheckOnly prüft Voraussetzungen ohne Downloads oder Änderungen.</p>
+<p>Anschließend <a href="http://127.0.0.1:3210" target="_blank" rel="noopener noreferrer">Türwache öffnen</a>: erstes Türwache-Admin-Konto anlegen, danach das Ring-Konto verbinden und dessen Bestätigungscode eingeben. Passwörter nur in die eigene lokale App eingeben.</p>
+<h2>Konfiguration und Start</h2>
+<p>Optional <code>.env.example</code> nach <code>.env</code> kopieren. Die neuen Startskripte laden diese Datei. <code>npm start</code> allein lädt sie nicht. <code>.venv/Scripts/python.exe</code> wird automatisch ausgewählt, sofern <code>AI_PYTHON</code> nicht gesetzt ist. Eine vorhandene <code>.env</code>-Einstellung hat Vorrang vor dieser Vorauswahl, soweit keine Prozessvariable gesetzt ist.</p>
+<p>Der Doppelklick auf <code>Start-Tuerwache.cmd</code> nutzt denselben Starter. Das Fenster offen lassen; mit Strg+C sauber stoppen. Bei einem Update zuerst stoppen und ein Backup anlegen. Kein zweites Exemplar gegen dieselbe Datenablage starten.</p>
+<h2>Ollama optional</h2>
+<p><code>scripts/Start-Ollama.ps1 -Install</code> installiert den optionalen lokalen Modellserver. Dies ist unabhängig von der lokalen OpenCV-Erkennung. Ein bildfähiges Modell installieren, unter KI-Anbieter konfigurieren und gezielt einer Kamera zuordnen. Große VLMs können ohne GPU langsam sein.</p>
+<h2>Autostart</h2>
+<p>Für einen ersten privaten Betrieb kann die Windows-Aufgabenplanung <code>powershell.exe -NoProfile -File C:\Pfad\Tuerwache\scripts\Start-Tuerwache.ps1</code> bei der Benutzeranmeldung starten. Arbeitsverzeichnis auf den Projektordner setzen, keine parallelen Instanzen erlauben und unter einem normalen Benutzer ausführen. Dieser Autostart wird nicht ungefragt eingerichtet. Für einen dauerhaft unbeaufsichtigten Server ist der dokumentierte Linux-systemd-Weg vorzuziehen.</p></article>
+<article data-language="de" data-document="linux" hidden><h1>Linux und Server</h1>
+<h2>Native Installation</h2>
+<p>Zielplattform: Debian/Ubuntu oder Raspberry Pi OS mit 64 Bit. Voraussetzungen: Bash, Node.js 24 LTS mit npm; für lokale KI Python 3.10–3.13, python3-venv, libglib2.0-0 und libgl1. Node über die offizielle Downloadseite installieren; ein veraltetes Distributionspaket reicht möglicherweise nicht. Python-Abhängigkeiten werden in einer eigenen virtuellen Umgebung installiert, nicht systemweit.</p>
+<pre><code>
+sudo apt-get update
+sudo apt-get install -y git ca-certificates python3 python3-venv libglib2.0-0 libgl1
+# Repository klonen, dann in seinen Ordner wechseln.
+bash scripts/install-linux.sh --with-ai --check-only
+bash scripts/install-linux.sh --with-ai
+bash scripts/start-linux.sh
+</code></pre>
+<p>Ohne lokale Bildanalyse <code>--with-ai</code> weglassen. Der Installer benötigt beim eigentlichen Installieren Internet. Er nutzt npm ci, Python-Binärpakete und prüft die Modelldateien gegen das mitgelieferte SHA256-Manifest. Scheitert ein Binärpaket, nicht auf unkontrollierte Builds ausweichen: Python-/CPU-Version prüfen.</p>
+<h2>Als Dienst mit systemd</h2>
+<p>Für dieses einfache Dienstskript ist <code>/opt/tuerwache</code> verbindlich. Ein eigener Benutzer besitzt Quellcode und Daten. Beispiel nach Bereitstellung des Quellcodes:</p>
+<pre><code>
+sudo useradd --system --create-home --home-dir /var/lib/tuerwache --shell /usr/sbin/nologin tuerwache
+sudo install -d -o tuerwache -g tuerwache /opt/tuerwache
+# Bereinigten Quellcode als Benutzer tuerwache nach /opt/tuerwache übertragen.
+cd /opt/tuerwache
+sudo -u tuerwache bash scripts/install-linux.sh --with-ai
+sudo -u tuerwache mkdir -p data
+# Zuerst manuell starten, testen und wieder sauber stoppen.
+sudo -u tuerwache bash scripts/start-linux.sh
+sudo bash scripts/install-service.sh --user tuerwache
+sudo systemctl status tuerwache
+sudo journalctl -u tuerwache -f
+</code></pre>
+<p>Keine bereits verwendeten Konten-/Datenordner überschreiben. Das Dienstskript überschreibt keine vorhandene Unit. Stoppen: <code>sudo systemctl stop tuerwache</code>. Es wartet auf laufende Arbeit bis zu 260 Sekunden. Die Dienst-Härtung erlaubt Schreibzugriff nur auf <code>data</code> und temporäre Dateien. Für einen anderen Clip-Ordner braucht es zusätzlich einen gezielten ReadWritePaths-Eintrag und passende Dateirechte. Für Ollama einen eigenen Dienst verwenden; dieser Installer startet Ollama nicht.</p>
+<h2>Ersteinrichtung aus der Ferne</h2>
+<p>Standardmäßig lauscht der Server nur auf 127.0.0.1. Für die erste Anmeldung einen SSH-Tunnel öffnen:</p>
+<pre><code>
+ssh -L 3210:127.0.0.1:3210 user@server
+</code></pre>
+<p>Dann im eigenen Browser localhost:3210 öffnen. Später HTTPS, erlaubten Host und Zwei-Faktor-Anmeldung einrichten und erst danach unter Server &amp; Zugriff freigeben. <a href="#operations" data-topic="operations">Details zu Betrieb und Sicherheit</a>.</p>
+<h2>Docker</h2>
+<p><code>deploy/compose.yaml</code> ist eine Linux-Vorlage mit Host-Netzwerk und optionalem Caddy-Profil. <code>deploy/.env.example</code> nach <code>deploy/.env</code> kopieren und eigene Domain sowie zufälligen 64-stelligen Hex-Schlüssel setzen. Den Schlüssel getrennt vom Datenbackup sichern. App zunächst mit <code>docker compose -f deploy/compose.yaml up -d --build app</code> starten; der HTTPS-Proxy wird erst mit Profil <code>external</code> bewusst gestartet. Einzelheiten in <code>deploy/README.md</code> im Repository. Diese Vorlage gilt nicht unverändert für Docker Desktop und mehrere Mandanten.</p></article>
+<article data-language="de" data-document="raspberry-pi" hidden><h1>Raspberry Pi</h1>
+<p>Unter emuliertem Linux/ARM64 wurden der Serverstart, der FFmpeg-Start und das Einlernen sowie Wiedererkennen eines Testgesichts geprüft. Auf einem echten Pi stehen der Test mit Ring-Kameras und die Messung von Kameraanzahl, KI-Laufzeit und Temperatur noch aus.</p>
+<p>Als Ausgangspunkt für einen Versuch: Pi 5 mit 8 GB RAM, 64-Bit-OS, aktiver Kühlung und SSD. Dies ist eine Einschätzung, keine gemessene Mindestanforderung. <a href="https://www.raspberrypi.com/products/raspberry-pi-5/" target="_blank" rel="noopener noreferrer">Offizielle Pi-5-Daten</a> bestätigen die 64-Bit-Plattform.</p>
+<h2>Sinnvolle Aufteilung</h2>
+<ul>
+<li>Pi: Ereignisse, kurze Clips, Website und Benachrichtigungen.</li>
+<li>OpenCV-Personen-/Gesichtserkennung: erst eine Kamera testen; Laufzeit, Temperatur und Warteschlange beobachten.</li>
+<li>VLM-Beschreibungen: vorzugsweise anderer Rechner im privaten Netz mit Ollama/LM Studio/llama.cpp oder bewusst gewählter Cloud-Anbieter.</li>
+</ul>
+<p>Ein großes VLM direkt auf dem Pi ist keine Voraussetzung. Daueraufnahme mit Akku-Ring-Geräten ist nicht vorgesehen. Unter <strong>Betrieb</strong> lässt sich das Limit für gleichzeitig genutzte Kamerastreams auf 1 bis 8 einstellen, mit 4 als Standard. Auf dem Pi zuerst mit einem Stream testen und erst nach Messung erhöhen.</p>
+<h2>Installation und Test</h2>
+<p><a href="#linux" data-topic="linux">Linux-Anleitung</a> verwenden. Bei diesem Ziel muss <code>uname -m</code> aarch64 zeigen. Ein 32-Bit-System ist nicht unterstützt. FFmpeg und die fixierten Python-Binärpakete müssen verfügbar sein; ansonsten abbrechen und Plattform prüfen.</p>
+<p>Eine Kamera verbinden, Bewegung und Klingeln einzeln testen, Clip mit Ton abspielen und nach Neustart erneut prüfen. Erst dann lokale KI einschalten. Für den Umzug vom Windows-Server eine verschlüsselte Sicherung verwenden. Die <a href="#operations" data-topic="operations">Wiederherstellung</a> schreibt absolute Clip-Pfade für den neuen Datenordner um.</p>
+<h2>Gesichts-Worker im Heimnetz</h2>
+<p>Auf dem zweiten Rechner Türwache samt OpenCV-Modellen installieren. Einen zufälligen Schlüssel erzeugen (<code>node -e &quot;console.log(require(&#39;node:crypto&#39;).randomBytes(32).toString(&#39;hex&#39;))&quot;</code>) und auf beiden Rechnern als <code>FACE_WORKER_TOKEN</code> setzen. Auf dem Rechner für den Worker in <code>.env</code> die folgenden Werte setzen:</p>
+<pre><code>
+FACE_WORKER_HOST=192.168.1.10
+FACE_WORKER_PORT=3211
+FACE_WORKER_CERT=/path/to/cert.pem
+FACE_WORKER_KEY=/path/to/key.pem
+# AI_PYTHON=/opt/tuerwache/.venv/bin/python
+</code></pre>
+<p>Den Worker mit <code>node --env-file=.env scripts/start-face-worker.mjs</code> starten. Auf dem Pi in <code>.env</code> <code>FACE_WORKER_URL=https://ki.home.arpa:3211</code> auf die tatsächliche Worker-Adresse setzen und Türwache neu starten. Das Zertifikat muss zur Adresse passen und in der Python-Umgebung des Pi vertrauenswürdig sein. In <strong>Standorte → Privatzonen &amp; KI</strong> die Engine für die gewünschten Kameras wählen.</p>
+<p>Übertragen werden ausgerichtete Gesichtsausschnitte an den eigenen Worker. Die gespeicherten Vorlagen, Namen und der Abgleich bleiben auf Türwache. Ist der Worker nicht erreichbar oder sind für die Kamera Privatzonen gesetzt, berechnet Türwache die Merkmale lokal. Auf Loopback ist für einen Test auch HTTP möglich.</p>
+<h2>ONVIF und RTSP</h2>
+<ul>
+<li>Raspberry Pi OS 64 Bit und Node.js 24 verwenden. In Docker wird für die ONVIF-Suche unter Linux das Host-Netzwerk genutzt. Mit der manuellen Adresse funktioniert RTSP auch ohne Multicast.</li>
+<li>Im Kameramenü H.264 und nach Möglichkeit einen Schlüsselbildabstand von rund zwei Sekunden wählen. Damit speichert Türwache den Videostream ohne erneute Kodierung. H.265-Umwandlung und Bewegungserkennung je Kamera bei Bedarf aktivieren und die CPU-Auslastung prüfen.</li>
+<li>Den Pufferordner und die Clips auf einer SSD ablegen. Das Netzwerkkamera-Limit steht unter <strong>Betrieb</strong>. <a href="#network-cameras" data-topic="network-cameras">Netzwerkkameras einrichten</a></li>
+</ul></article>
+<article data-language="de" data-document="usage" hidden><h1>Kameras, KI und Fehler finden</h1>
+<h2>Aufnahmen</h2>
+<p>Türwache- und Ring-Konto sind getrennt. Unter Kameras pro Gerät Überwachung, Bewegung/Klingeln, Dauer, Mindestabstand, Erkennung, Beschreibungsmodell und Discord wählen. Ein gespeichertes Modell allein aktiviert keine Kameraanalyse.</p>
+<p>Eine manuelle Aufnahme unter Übersicht prüfen. Unter Clips stehen gespeicherte Videos; der Zeitstrahl verbindet Ereignisse, Aufnahmezustand und Beschreibungen. Bewegungsmeldung bedeutet nicht automatisch gespeicherte Aufnahme.</p>
+<h2>Warum fehlt ein Clip oder ein Teil des Besuchs?</h2>
+<p>Neue Clips werden vor Veröffentlichung vollständig auf Decoderfehler und größere Zeitlücken geprüft. Eine Warnung im Cliparchiv weist auf beeinträchtigte Aufnahmen hin. Größere Empfangspuffer, längere Paket-Nachforderungen und eine normale MP4-Datei mit vorangestelltem Index verbessern die Übertragung und Wiedergabe; sie erzeugen keine verlorenen Kamerabilder und erhöhen nicht die tatsächliche Kamerabildrate.</p>
+<p>Aufnahmen und Web-Livebild kopieren jetzt das empfangene H.264-Videobild ohne lokale Verkleinerung oder FPS-Filter. Im Livebild wird die gemessene Auflösung und ungefähre Bildrate angezeigt. Die vom Ring-Dienst tatsächlich gelieferte Qualität kann je Sitzung abweichen. Kameraton wird für kompatible Wiedergabe weiterhin nach AAC umgewandelt. Die frühere feste Live-Begrenzung auf 720 Pixel und 15 FPS ist entfernt. HLS hat weiterhin einen Wiedergabepuffer und damit mehr Verzögerung als eine direkte WebRTC-Verbindung.</p>
+<p>Die FPS-Anzeige wird aus dekodierten Bildern des ersten Live-Segments berechnet. Eine im Transport-Header angekündigte Bildrate kann davon abweichen und ist kein Nachweis tatsächlich gelieferter Bilder.</p>
+<ul>
+<li>Aufnahme ausgeschaltet oder Server beim Ereignis nicht aktiv.</li>
+<li>Mindestabstand seit letztem Aufnahmestart noch nicht erreicht.</li>
+<li>Eine andere Aufnahme läuft: aktuell höchstens eine gleichzeitig.</li>
+<li>Akku-Kamera wacht verspätet auf, Live-Verbindung scheitert oder Speicher fehlt.</li>
+<li>Der spätere Teil des Besuchs liegt nach Clipende, ohne weiteres verwertbares Ereignis.</li>
+</ul>
+<p>Ereignisdetails und Aufnahme-/KI-Zustand lesen. Dauer/Abstand pro Kamera ändern; dies kann Akku kosten. Nicht aufgenommene Bilder sind nicht rückwirkend verfügbar. Alte tonlose Clips bekommen keinen Ton. Neue Clips und Livebild verwenden Kameraton, sofern Ring ihn liefert; Playerlautstärke prüfen.</p>
+<h2>Gesichter und VLM</h2>
+<p>OpenCV erkennt Personen und Gesichter lokal. Pro Person bis zu zwölf Fotos mit verschiedenen Blickwinkeln/Lichtbedingungen einlernen, jeweils genau ein klares Gesicht und Einverständnis der Person. Unter Gesichter Vorlagen ergänzen/entfernen oder unbekannte Vorschläge selbst zuordnen.</p>
+<p>Wenn Türwache ein Gesicht findet, aber den Namen selten bestätigt, ergänze eine scharfe Vorlage aus demselben Kamerawinkel. Wähle dafür einen sichtbaren Ausschnitt unter <strong>Unbekannte Gesichter zuordnen</strong> und verwende den vorhandenen Namen. Starte danach im Clip die KI-Auswertung erneut. Türwache nutzt beim Ausschneiden die Originalauflösung und passt bei dunklen Ausschnitten lokal die Helligkeit an. Mehr Licht und eine kurze Sicht von vorn helfen besonders bei kleinen oder unscharfen Gesichtern.</p>
+<p>Automatische Namen erfordern konsistente Bestätigung in mindestens drei verschiedenen Frames mit zeitlichem Abstand. Unsichere oder widersprüchliche Treffer bleiben unbestätigt. Ähnlichkeit ist keine Wahrscheinlichkeit. Ein dauerhafter Python-Worker hält Modelle geladen und verarbeitet Aufträge nacheinander.</p>
+<p>Das VLM bekommt keine lokale Namensliste oder Gesichtsvektoren. Verifizierte Namen werden separat aus der lokalen Mehrbilderkennung ergänzt; dies beweist keine vom Modell beschriebene Handlung. KI-Texte können falsch sein. Referenzänderungen machen ältere automatische Identitätsbelege ungültig. Bereits versandte Discord-Nachrichten werden dadurch nicht zurückgerufen.</p>
+<h2>Modelle auswählen</h2>
+<p>Unter KI-Anbieter Modelle hinzufügen, bearbeiten, prüfen und entfernen. Lokale Server: Ollama, LM Studio, llama.cpp, LocalAI und vLLM. Cloud: gängige Anbieter und OpenAI-kompatible Schnittstellen. Ein bildfähiges Modell ist nötig.</p>
+<p>Mehrere Modelle können gespeichert sein; jede Kamera verwendet genau ihr gewähltes Beschreibungsmodell, ohne automatischen Cloud-Fallback. Lokale Gesichtserkennung kann parallel laufen: Sie bestimmt Identitäten, das VLM beschreibt Bilder.</p>
+<p>Cloud-Aufrufe übertragen ausgewählte Frames und die Ortsbeschreibung. Alle Cloud-Anbieter teilen ein konfigurierbares tägliches Anfragelimit in UTC, inklusive Fehlern. Dies ist kein Geldlimit. Anbieterpreise/Datenbedingungen selbst prüfen.</p>
+<h2>Discord und Speicher</h2>
+<p>Eigenen Webhook hinterlegen und Kamera-Schalter für Klingeln, Clip und Personen-/Zusammenfassungsbild aktivieren. Ein Personenbild braucht erfolgreiche Personenerkennung, ein Zusammenfassungsbild eine erfolgreiche Beschreibung. Dateigrößenlimits und Webhook-Fehler können Anhänge verhindern. Alte Ereignisse werden nicht automatisch erneut gesendet. Manuelle Analysen lösen keine automatischen Meldungen aus.</p>
+<p>Clips bleiben lokal oder in einem anderen beschreibbaren Ordner; optional private R2-/S3-Kopie aktivieren. Cloudvideos ersetzen kein vollständiges App-Backup. Zugangsschlüssel nur auf dem eigenen Server eingeben.</p>
+<h2>Standorte und Benutzer</h2>
+<p>Unter <strong>Ring-Konten</strong> kannst du weitere Konten mit eigener Anmeldung und eigener 2FA verbinden. Geteilte Ring-Kameras erscheinen einmal in Türwache. Unter <strong>Standorte</strong> kannst du die übernommenen Ring-Standorte umbenennen, eigene Standorte anlegen und Kameras zuordnen. Hier stehen Kamerastatus und letztes Klingel- oder Bewegungsereignis. Alte Aufnahmen bleiben beim Trennen eines Kontos verfügbar.</p>
+<p>Unter <strong>Benutzer</strong> öffnest du <strong>Rechte bearbeiten</strong> bei einer Rolle oder <strong>Konto &amp; Rechte</strong> bei einem Benutzer. Wähle unter <strong>Kamerazugriff</strong> die Standorte und Kameras aus und öffne <strong>Rechte</strong> neben dem jeweiligen Namen. Clips ansehen, exportieren, schützen und löschen lassen sich einzeln einstellen. Aktionen an einem Clip setzen das Recht <strong>Clips ansehen</strong> voraus. Benutzerspezifische Regeln haben Vorrang vor der Rolle. Bei mehreren passenden Regeln derselben Ebene gilt die Sperre. Die Administratorrolle hat Vollzugriff.</p>
+<p>Unter <strong>Handy-App → Push-Ruhezeiten</strong> oder <strong>Mein Handy</strong> in der App stellst du ein Zeitfenster und die Zeitzone ein. Die Einstellung gilt pro Benutzer für dessen Geräte. Klingeln kann als Ausnahme zugelassen werden.</p>
+<h2>Privatzonen und Gesichts-Engine</h2>
+<p>Im Standort bei der Kamera <strong>Privatzonen &amp; KI</strong> öffnen und Rechtecke zeichnen oder ihre Position in Prozent eingeben. Der explizite Clip-Download und Discord-Anhänge decken die Bereiche schwarz ab. Einzelbilder für Szenenbeschreibungen erhalten dieselben Masken. Das Original mit Ton steht weiterhin den Benutzern offen, die Clip-Wiedergabe für diese Kamera dürfen. Geschützte Backups und private R2-/S3-Speicherkopien archivieren das Original. Bereits versandte Anhänge behalten ihren damaligen Stand.</p>
+<p>Die Gesichtsprüfung liest am Clipanfang und in der Nähe von Personensichtungen zusätzliche Bilder. Ein Name braucht weiterhin drei verschiedene, übereinstimmende Bilder. Bei Bedarf kann ein <a href="#raspberry-pi" data-topic="raspberry-pi">Gesichts-Worker im Heimnetz</a> die Bildmerkmale berechnen. Kameras mit Privatzonen verwenden für Gesichter die lokale Engine.</p></article>
+<article data-language="de" data-document="network-cameras" hidden><h1>Ring und Netzwerkkameras verbinden</h1>
+<p>Ring, ONVIF und RTSP können in derselben Installation laufen. Öffne als Administrator <strong>Kameraverbindungen → Kamera hinzufügen</strong> und wähle im Dialog den Verbindungstyp. Mit <strong>Ring</strong> legst du einen Kontonamen fest und meldest dich anschließend bei Ring an. Türwache übernimmt die Kameras dieses Kontos.</p>
+<figure><img src="/docs-media/camera-types.webp" alt="Kameratyp im Dialog auswählen" loading="lazy"><figcaption>Kameratyp im Dialog auswählen</figcaption></figure>
+<h2>ONVIF im Netzwerk suchen</h2>
+<ul>
+<li>Aktiviere ONVIF im Kameramenü. Manche Kameras verlangen ein eigenes ONVIF-Konto. Prüfe, dass Kamera und Türwache im erreichbaren Heimnetz liegen.</li>
+<li>Wähle im Dialog <strong>ONVIF</strong>.</li>
+<li>Klicke auf <strong>Im Netzwerk suchen</strong>, wähle die Kamera und gib ihre Zugangsdaten ein. Falls die Suche kein Ergebnis zeigt, trage die ONVIF-Dienstadresse direkt ein. Ein Beispiel ist <code>http://192.168.1.20/onvif/device_service</code>.</li>
+<li>Lade die Videoprofile und wähle möglichst H.264. Bei mehreren Kanälen eines Rekorders kannst du das gewünschte Profil wählen und weitere Kanäle separat hinzufügen.</li>
+<li>Stelle die Voraufnahme ein und klicke auf <strong>Kamera verbinden</strong>. Sobald fertig geschriebene Segmente vorliegen, zeigt Türwache die Kamera als online an.</li>
+</ul>
+<figure><img src="/docs-media/onvif-search.webp" alt="ONVIF-Suche und gefundene Kameras im Beispielnetz" loading="lazy"><figcaption>ONVIF-Suche und gefundene Kameras im Beispielnetz</figcaption></figure>
+<p>Die Suche verwendet IPv4-Multicast im lokalen Netz. Getrennte VLANs, Gastnetze, lokal gefilterter Multicast und Docker-Netzwerkbrücken können die Suche verhindern. Mit der manuellen ONVIF- oder RTSP-Adresse funktioniert die Verbindung auch ohne Multicast, sofern die Kamera erreichbar ist. Türwache fragt ONVIF-Medienprofile ab. Bewegungsmeldungen aus dem Kameraprotokoll, Gegensprechen und PTZ-Steuerung sind in dieser Integration nicht eingerichtet. <a href="https://www.onvif.org/profiles/profile-t/" target="_blank" rel="noopener noreferrer">ONVIF Profile T</a></p>
+<h2>RTSP-Adresse manuell eintragen</h2>
+<ul>
+<li>Wähle <strong>RTSP</strong> und trage die Stream-Adresse ein, zum Beispiel <code>rtsp://192.168.1.20:554/stream1</code>. Pfad und Port stehen in der Anleitung der Kamera oder des Rekorders.</li>
+<li>Gib Benutzername und Passwort in den separaten Feldern ein. Die gespeicherte Verbindung ist verschlüsselt, und die Oberfläche liefert das Kennwort später nicht zurück.</li>
+<li>Bei H.264 bleibt das Video beim Schreiben des Puffers unverändert kodiert. Für H.265 kannst du die H.264-Umwandlung unter <strong>Weitere Stream-Einstellungen</strong> einschalten, falls dein Browser den Stream sonst nicht abspielt. Auf dem Raspberry Pi ist ein H.264-Kameraprofil vorzuziehen.</li>
+</ul>
+<figure><img src="/docs-media/rtsp-setup.webp" alt="Manuelle RTSP-Verbindung mit zehn Sekunden Voraufnahme" loading="lazy"><figcaption>Manuelle RTSP-Verbindung mit zehn Sekunden Voraufnahme</figcaption></figure>
+<h2>Voraufnahme, Bewegung und Speicher</h2>
+<p>Bei aktiver Überwachung liest Türwache den Netzwerkstream fortlaufend und hält die jüngsten Videosegmente im lokalen Ordner <code>data/network-buffer</code>. Der Puffer wird laufend überschrieben. Er steht bei manuellen Aufnahmen und bei aktivierter softwarebasierter Bewegungserkennung zur Verfügung. Du kannst 0, 5, 10 oder 15 Sekunden wählen.</p>
+<p>Die tatsächliche Voraufnahme hängt vom bereits gefüllten Puffer und den Schlüsselbildern der Kamera ab. Mit H.264 und einem Schlüsselbildintervall von rund zwei Sekunden sind die Aufnahmegrenzen genauer. Bei einer Unterbrechung speichert Türwache die noch lesbaren Segmente und markiert einen verkürzten Clip. Bei Ring ohne dauerhaften Stream bleibt die Aufnahme nach dem bisherigen Ring-Ablauf.</p>
+<p>Bewegungserkennung vergleicht kleine Graustufenbilder und kann auf Lichtwechsel oder Wetter reagieren. Unter <strong>Weitere Stream-Einstellungen</strong> lässt sich eine zweite RTSP-Adresse für die Bewegungserkennung hinterlegen. Türwache speichert den Hauptstream weiter in voller Auflösung und verbindet den Zweitstream bei Unterbrechungen separat neu.</p>
+<p>Personen- und Gesichtserkennung sind separate Auswertungen am gespeicherten Clip. Auf dem Raspberry Pi helfen ein kleiner Zweitstream und ein niedriger Grenzwert aktiver Streams unter <strong>Betrieb</strong>. Speicher- und SSD-Auslastung vor mehreren Dauerstreams prüfen. <a href="#raspberry-pi" data-topic="raspberry-pi">Raspberry-Pi-Anleitung</a></p></article>
+<article data-language="de" data-document="operations" hidden><h1>Sicherheit, Backup und Updates</h1>
+<h2>Quellcode für GitHub exportieren</h2>
+<p>Quellcode gehört in Git; Ring-Sitzungen, Gesichtsdateien und Schlüssel nicht. Der Export kopiert eine feste Auswahl an Quellordnern in einen neuen leeren Zielordner. Daten, Backups, APKs, Modellgewichte, Buildordner, node_modules und Git-Metadaten fehlen bewusst.</p>
+<pre><code>
+node scripts/prepare-repository.mjs --destination H:\Tuerwache-GitHub
+</code></pre>
+<p>Vor dem Push manuell eingebettete Zugangsdaten und mobile Projekt-IDs prüfen. Nach dem Klonen Abhängigkeiten und Modelle installieren. Der Export enthält den <a href="/license.txt">Lizenztext</a> für den eigenen Code.</p>
+<p>Für einen privaten Testexport ein leeres privates Repository wählen. Im geprüften Exportordner die folgenden Befehle verwenden und Kontoname sowie Repository ersetzen. Für die öffentliche Fassung gelten die Schritte unter <a href="#github" data-topic="github">GitHub, Lizenz und Geschäftsmodell</a>.</p>
+<pre><code>
+git add .
+git diff --cached --stat
+git commit -m &quot;Initial private version&quot;
+git remote add origin https://github.com/DEIN-KONTO/DEIN-PRIVATES-REPO.git
+git push -u origin main
+</code></pre>
+<p>Die SaaS-Codebasis separat verwalten.</p>
+<h2>Externer Zugriff</h2>
+<p>Standard: Loopback und Freigabe aus. Für Heimserver oder Cloud eigene HTTPS-Adresse, erlaubte Hosts, exakt vertraute Proxy-IP und MFA für alle Benutzer einrichten. Cloud benötigt einen AUTH_ENCRYPTION_KEY außerhalb des Datenvolumens. Erst danach unter Server &amp; Zugriff Betriebsort wählen und freigeben. Die vollständige Proxy-Anleitung steht in deploy/README.md.</p>
+<p>Keine öffentliche Weiterleitung direkt auf den Node-Port und keine beliebigen Forwarded-Header vertrauen. VPN ist eine weitere Option, benötigt ebenfalls richtige Konfiguration. Vor Kundenbetrieb die öffentliche Anmeldung unabhängig prüfen lassen. Es gibt keine 100-%-Sicherheitszusage.</p>
+<h2>Aufbewahrung und Schutz</h2>
+<p>Unter Betrieb → Aufbewahrung gibt es getrennte, standardmäßig ausgeschaltete Regeln für lokale Clips (Alter und GiB-Limit) und R2/S3-Kopien (Alter und optionales GiB-Limit; 0 = unbegrenzt). Vorher gespeicherte Regeln als Vorschau prüfen. Bei Aktivierung läuft die Prüfung alle fünf Minuten. Ein unter Clips geschütztes Video wird von beiden Regeln ausgenommen; laufende Verarbeitung wird übersprungen. Eine volle Platte lässt sich bei vielen geschützten Clips dadurch nicht automatisch bereinigen.</p>
+<p>Bleibt nur die Cloud-Kopie, erfolgt die Wiedergabe nach Anmeldung über den Server; der Bucket bleibt privat. Zum Lesen/Löschen müssen ursprünglicher Endpunkt, Region, Bucket und passende Zugangsdaten verfügbar sein. Eine abgelaufene Aufnahme bleibt als Ereignis erhalten. Die Cloud-Quote zählt bekannte Clipgrößen dieser Installation; fremde Bucket-Dateien werden nicht verwaltet. Aufbewahrung ersetzt keine Datensicherung.</p>
+<h2>Verschlüsselte Sicherungen</h2>
+<p>Betrieb → Sicherungen erstellt ein passphrasengeschütztes <code>.twbackup</code> mit scrypt und AES-256-GCM. Mindestens 16 Zeichen verwenden und die Passphrase getrennt aufbewahren. Gesichert werden Benutzer/MFA, effektiver Verschlüsselungsschlüssel, Ring-Sitzung, Einstellungen, Ereignisse, Gesichter, Bewertungen und optional Videos. Browser-/Handy-Sitzungen werden nicht übernommen. Modellgewichte, Python, Software und <code>.env</code> gehören nicht ins Archiv. <code>.env</code>, insbesondere externe Zugangskonfiguration und EXPO_ACCESS_TOKEN, zusätzlich getrennt schützen.</p>
+<p>Manuelle Sicherungen bleiben erhalten. Ein optionaler Zeitplan speichert seine Passphrase verschlüsselt auf dem Server und begrenzt nur seine eigenen geplanten Sicherungen. Sicherungen vom selben Laufwerk auf ein zweites Gerät herunterladen. Das Archiv enthält sensible Daten und ist nicht zur Veröffentlichung bestimmt.</p>
+<h2>Geprüfte Wiederherstellung / Windows → Linux oder Pi</h2>
+<p>1. Auf dem Zielsystem dieselbe oder eine kompatible Türwache-Version und die benötigten Python-/KI-Komponenten installieren. Alten Server stoppen; nie beide mit derselben Ring-Sitzung oder Datenablage betreiben. 2. Archiv nach <code>backups/snapshots/UUID.twbackup</code> kopieren (oder BACKUP_DIRECTORY verwenden), im Web unter Sicherungen prüfen und die erhaltene Prüfungskennung notieren. Eine Prüfung verändert die laufenden Daten nicht. 3. Zielserver sauber stoppen. Im Projektordner erst ohne <code>--apply</code> prüfen; dann bewusst anwenden:</p>
+<pre><code>
+node scripts/restore.mjs --verification PRUEFUNGS-UUID
+node scripts/restore.mjs --verification PRUEFUNGS-UUID --apply
+</code></pre>
+<p>Die Wiederherstellung prüft alle Dateien/Hashes und erstellt eine geprüfte Arbeitskopie neben dem Ziel-Datenordner. Erst dann werden bisherige Daten nach <code>.tuerwache-previous-UUID</code> verschoben und die vorbereiteten Daten aktiviert. Bei Aktivierungsfehler wird zurückgerollt. Vorherige Daten bleiben erhalten; später nur nach erfolgreicher Prüfung manuell entfernen. Genügend Platz für Archiv, entschlüsselte Prüfung und Arbeitskopie einplanen.</p>
+<p>Absolute Clip-Pfade werden für DATA_DIRECTORY neu geschrieben. Ein gesetzter AUTH_ENCRYPTION_KEY muss zum importierten Schlüssel passen. Beim ersten Start müssen Benutzer/Handys neu angemeldet werden. Fernzugriff bleibt aus; Aufbewahrung, Backup-Zeitplan und Discord-Betriebswarnungen werden ausgeschaltet und müssen geprüft neu aktiviert werden.</p>
+<p>Bei Docker liegt DATA_DIRECTORY bei Neuinstallationen auf <code>/app/data/state</code>, Backups auf einem eigenen Volume. Ein Volume-Wurzelordner lässt sich nicht austauschen: bestehende Container mit älterem <code>/app/data</code>-Layout vor einer Umstellung sichern und gezielt in einen Datenunterordner migrieren. Restore-CLI im gestoppten Dienst mit denselben Mounts und Umgebungswerten ausführen. Ein Pi kann die Daten übernehmen; lokale VLM-Leistung hängt stark von Modell/RAM ab. Große Beschreibungsmodelle besser auf einem separaten Rechner betreiben.</p>
+<h2>Betrieb und Wiederholungen</h2>
+<p>Unter Betrieb stehen Ring-/Ereignisverbindung, Offline-Kameras, Plattenplatz, lange Jobs, Zustellfehler und die Wiederholungswarteschlange. Optional sind neutrale Discord-Betriebswarnungen höchstens alle 30 Minuten möglich; standardmäßig aus. Die Ereignis-Stille ist standardmäßig kein Alarm: eine ruhige Szene kann normal sein.</p>
+<p>Neue Fehler bei lokaler KI, Beschreibungen und Uploads können begrenzt und dauerhaft gespeichert erneut versucht werden. Pausierte Kameras und inzwischen entfernte lokale Videos werden übersprungen. Ein unklarer Discord-/Push-Versand wird nicht automatisch erneut gesendet. Expo-Zustellbelege zeigen die Übergabe an Apple/Google, nicht die Anzeige beim Nutzer. Abgelehnte Geräte-Tokens werden entfernt. Ein Push-Test lässt sich nur für die eigene Handy-Sitzung auslösen.</p>
+<h2>KI-Qualität</h2>
+<p>Am Clip Richtig/Falsch/Unsicher und optional eine Korrektur speichern. Die Bewertung gehört zur jeweiligen Beschreibungsversion und verändert sie nicht. Unter KI → KI-Qualität ausgewählte Modelle anhand derselben bis zu sechs Einzelbilder vergleichen. Cloud-Aufrufe benötigen ausdrückliche Bildfreigabe, zählen zum Tageslimit und können Gebühren verursachen. Vergleiche senden keine Discord-/Push-Nachrichten und überschreiben keine ursprüngliche Zusammenfassung. Auch Vergleichsergebnisse sind bewertbar. Es findet kein automatisches Training statt.</p>
+<h2>Update</h2>
+<p>Änderungen prüfen, Backup, stoppen, Quellcode aktualisieren und Installer mit passender AI-Option erneut ausführen. Starten und neues Ereignis mit Bild/Ton prüfen. Bei Fehlschlag alten Code und zugehöriges Datenbackup gemeinsam wiederherstellen. Nie zwei Prozesse gegen dieselbe JSON-Datenablage starten.</p>
+<h2>Nächste Schritte</h2>
+<p>Noch ausstehend: echte Linux-/Pi-Abnahme dieser neuen Funktionen, signierte iOS-App und Push-Abnahme auf echten Geräten. Unabhängiger Sicherheitsreview und regelmäßige Abhängigkeitsupdates vor breiter externer Nutzung. Diese Anleitung ist kein durchgeführter Audit.</p>
+<h2>Abhängigkeitsstand des Handy-Testbuilds</h2>
+<p>Expo Doctor meldet mit Expo 58.0.26 20/20 erfolgreiche Kompatibilitätsprüfungen. Das ist kein Sicherheits-Audit. <code>npm audit</code> meldet im mobilen SDK-/Werkzeugbaum weiterhin 42 betroffene Abhängigkeitseinträge (40 high, 2 moderate), zurückgeführt auf zwei Glob-/Regex-Advisories zu picomatch und minimatch. Die Anzahl entspricht nicht 42 unabhängig bestätigten Angriffspfaden. Es wurde kein erzwungener SDK-Downgrade vorgenommen. Vor einer Store-/Kundenfreigabe die Advisories und kompatible Updates erneut prüfen; das APK bleibt ein Testbuild. Der Server-Abhängigkeitsbaum ist davon getrennt.</p></article>
+<article data-language="de" data-document="architecture" hidden><h1>Architektur und Handy-Apps</h1>
+<h2>Datenfluss</h2>
+<p>Ring-Kamera → Ring-Cloud → Node-Server → Clip → Python-Erkennung → optionales VLM → Website/Handy/Discord. ring-client-api ist keine Zusage eines offiziellen Ring-SaaS-Vertrags. Die Kamera liefert keinen frei zugänglichen lokalen RTSP-Stream.</p>
+<p>src/server.mjs stellt HTTP/API bereit, ring-service.mjs verarbeitet Ereignisse, features.mjs koordiniert Analyse/Speicher/Meldungen. ai-service.mjs kommuniziert über begrenzte JSON-Nachrichten mit ai/analyze.py --worker. public/ enthält die deutsch/englische Website, mobile/ die Expo/React-Native-App.</p>
+<p>data/ ist eine private JSON-/Dateiablage für genau einen Serverprozess. Private APIs/Clips benötigen Anmeldung. Browseraktionen haben CSRF-Schutz; mobile Sitzungen eigene widerrufbare Tokens. Modellschlüssel gehen nicht an Browser oder App zurück.</p>
+<h2>Handy-Status</h2>
+<p>Android: ARM64-Test-APK unter Windows gebaut, Testsignatur, kein Play-Store-Release und noch nicht auf echtem Handy abgenommen. Serveranmeldung, Clips, Zeitstrahl und Livebild-Anbindung vorbereitet. Tatsächlichen Buildstand prüfen: Neue Webfunktionen sind nicht automatisch Teil eines älteren APKs.</p>
+<p>iOS: gemeinsamer Code vorhanden, kein signierter installierbarer Build. Apple-Developer-Zugang, Signierung und Geräte-/TestFlight-Abnahme fehlen. Echte Push-Zustellung benötigt Expo-/Firebase-/APNs-Projekte, Berechtigungen und neue Builds. Eine installierte Web-App richtet native Push nicht automatisch ein.</p>
+<p>Das Handy braucht eine erreichbare HTTPS-Adresse. 127.0.0.1 meint auf dem Handy das Handy selbst. Ring-Zugänge bleiben auf dem Server. Unter Handy-App steht der verfügbare Download-/Verbindungsstatus.</p>
+<h2>Entwicklung</h2>
+<pre><code>
+npm ci
+npm run check
+npm test
+node scripts/build-docs.mjs
+</code></pre>
+<p>Tests nutzen isolierte Ablagen. Echte OpenCV-Tests brauchen Modelle/Python und TEST_AI=1. test/preview.mjs enthält nur synthetische lokale UI-Daten. Vorschau-Zugänge niemals produktiv verwenden.</p></article>
+<article data-language="de" data-document="saas" hidden><h1>Lokaler Betrieb und Hilfe</h1>
+<p>Türwache ist ein kostenloser Kameraserver für den privaten Haushalt. Ring-Kameras stehen im Mittelpunkt. Die App läuft auf deinem Rechner, Mini-PC oder Raspberry Pi. Du verbindest dein Ring-Konto selbst auf diesem Gerät. Ring-Kameras verwenden weiterhin die Verbindung zu Ring. Türwache speichert Aufnahmen standardmäßig auf deinem Gerät. <a href="https://ring.com/de/de/terms" target="_blank" rel="noopener noreferrer">Ring-Nutzungsbedingungen</a></p>
+<h2>Selbst einrichten</h2>
+<p>Die <a href="#windows" data-topic="windows">Anleitung für Windows</a> und die <a href="#raspberry-pi" data-topic="raspberry-pi">Raspberry-Pi-Anleitung</a> erklären Installation, ersten Start und Kameraverbindung. Unter <a href="#operations" data-topic="operations">Betrieb und Sicherheit</a> findest du Updates, Sicherungen und Wiederherstellung.</p>
+<h2>Einrichtungsservice</h2>
+<p>Ein optionaler, einmalig bezahlter Termin kann bei Installation, Speicherort, automatischem Start und lokaler Datensicherung helfen. Für den Abschluss prüfst du am eigenen Gerät eine Aufnahme und den Neustart. Dein Ring-Konto verbindest du selbst. Für diesen Service bleiben Ring-Zugangsdaten, Sitzungen und Clips bei dir.</p>
+<p>Für weitere Hilfe kommen einzelne Wartungs- oder Wiederherstellungstermine infrage. Die App und ihre Anleitungen bleiben für den privaten Gebrauch kostenlos verfügbar. Die Bedingungen für Weitergabe und Änderungen stehen in der <a href="/license.txt">Privatnutzungslizenz</a>.</p>
+<p>Sobald der Betreiber Termine freigibt, sind die verfügbaren Zeiten und der einmalige Preis auf der Türwache-Website unter <strong>Einrichtung</strong> sichtbar.</p></article>
+<article data-language="de" data-document="github" hidden><h1>GitHub, Lizenz und Geschäftsmodell</h1>
+<h2>Was öffentlich ist</h2>
+<p>Türwache lässt sich kostenlos im eigenen Haushalt betreiben. Der Quellcode kann öffentlich gelesen und unter der Privatnutzungslizenz unentgeltlich geteilt werden. Wer eine Fassung ändert, veröffentlicht auch bei rein privatem Einsatz den zugehörigen Quellcode unter derselben Lizenz. Verkauf, entgeltliches Hosting, kommerzielle Nutzung und Weitergabe in bezahlten Paketen sind ausgeschlossen. Die genauen Bedingungen stehen im <a href="/license.txt">Lizenztext</a>.</p>
+<p>Auf GitHub eignet sich die Bezeichnung „öffentlich einsehbarer Quellcode für private Nutzung“. Die <a href="https://opensource.org/definition-annotated" target="_blank" rel="noopener noreferrer">Open Source Initiative</a> verlangt, dass auch kommerzielle Verwendung erlaubt ist. Ein öffentliches GitHub-Repository erlaubt das Anzeigen und Forken über GitHub. <a href="https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository" target="_blank" rel="noopener noreferrer">GitHub-Lizenzdokumentation</a></p>
+<p>Für Privatnutzer gibt es Anleitungen zum <a href="#saas" data-topic="saas">lokalen Betrieb und zum Einrichtungsservice</a>.</p>
+<h2>Veröffentlichung vorbereiten</h2>
+<ul>
+<li>Rechteinhaber und Lizenzkontakt eindeutig angeben. Vor der Veröffentlichung die eigene Lizenz juristisch prüfen lassen, insbesondere die Veröffentlichungspflicht bei ausschließlich privaten Änderungen und die Einbeziehung der Lizenzbedingungen. <a href="https://www.gesetze-im-internet.de/urhg/__31.html" target="_blank" rel="noopener noreferrer">§ 31 UrhG</a> · <a href="https://www.gesetze-im-internet.de/bgb/__305.html" target="_blank" rel="noopener noreferrer">§§ 305</a>, <a href="https://www.gesetze-im-internet.de/bgb/__307.html" target="_blank" rel="noopener noreferrer">307 BGB</a></li>
+<li>Bei Fremdbeiträgen festhalten, unter welchen Bedingungen sie übernommen werden dürfen. Bestehende Rechte aus früheren Veröffentlichungen gelten nach ihren ursprünglichen Bedingungen fort.</li>
+<li>Drittanbieterhinweise erhalten. Expo-Vorlagen, FFmpeg, KI-Modelle und andere Abhängigkeiten haben eigene Bedingungen. Vor dem Verteilen vorkompilierter Pakete die Distributionsbedingungen prüfen.</li>
+<li>Einen bereinigten GitHub-Export in einen neuen, leeren Ordner erstellen. Das Skript filtert Laufzeitdaten, private Konfiguration und Schlüssel. Den Export zusätzlich auf Zugangsdaten und private Dateien prüfen.</li>
+</ul>
+<pre><code>
+node scripts/prepare-repository.mjs --public --destination /pfad/zum/neuen/github-export
+</code></pre>
+<p>Der öffentliche Export enthält die beispielhaften Doku-Screenshots. Die Fotos der optionalen KI-Tests bleiben außerhalb des Exports. Die Anleitungen sind in der App unter <strong>System → Dokumentation</strong> erreichbar. Die Türwache-Website bindet dieselben Inhalte unter <code>/dokumentation/</code> ein.</p></article>
+<article data-language="en" data-document="index" hidden><h1>Türwache documentation</h1>
+<p>Türwache is a private server for Ring and network cameras. Its web interface brings together clips, a timeline, local AI and notifications. Choose German or English in the header.</p>
+<h2>Start here</h2>
+<ul>
+<li><a href="#windows" data-topic="windows">Install on Windows</a></li>
+<li><a href="#linux" data-topic="linux">Install on Linux and servers</a></li>
+<li><a href="#raspberry-pi" data-topic="raspberry-pi">Raspberry Pi suitability</a></li>
+<li><a href="#usage" data-topic="usage">Using cameras, AI and troubleshooting</a></li>
+<li><a href="#network-cameras" data-topic="network-cameras">Connect network cameras using ONVIF and RTSP</a></li>
+<li><a href="#operations" data-topic="operations">Security, backups and upgrades</a></li>
+<li><a href="#architecture" data-topic="architecture">Mobile apps and architecture</a></li>
+<li><a href="#saas" data-topic="saas">Local operation and help</a></li>
+<li><a href="#github" data-topic="github">GitHub, licensing and business model</a></li>
+</ul>
+<h2>Development status</h2>
+<p>Windows and the owner&#39;s Ring Battery Doorbell Pro have been tested with real camera data. Live view and new recordings include audio when supplied by the camera. This private test worked without a Ring subscription or, according to the owner, a trial. This does not guarantee support for every Ring device or continued API availability.</p>
+<p>A Ring account, internet connection and Ring cloud remain necessary. This project does not replace camera firmware or cloud connection setup. Battery cameras need to wake up, so the beginning of an event can be missed. Multiple cameras can record concurrently; live view and recording share one connection per camera.</p>
+<p>The Linux x86_64 container was tested, including HTTP service, model downloads and the persistent Python worker. Physical Raspberry Pi hardware, systemd service operation and iOS installation have not been tested. AI can misdescribe events and miss people. Neither perfect security nor perfect recognition is promised.</p></article>
+<article data-language="en" data-document="windows" hidden><h1>Install on Windows</h1>
+<h2>Requirements</h2>
+<p>Windows 10/11, Node.js 24 LTS and Python 3.12 (64 bit) for local image analysis. Node 22 is also supported; Node 26 has not been approved for this release. Installers do not install arbitrary system software or open firewall ports.</p>
+<ul>
+<li><a href="https://nodejs.org/en/download" target="_blank" rel="noopener noreferrer">Official Node.js downloads</a></li>
+<li><a href="https://www.python.org/downloads/windows/" target="_blank" rel="noopener noreferrer">Official Python downloads</a></li>
+</ul>
+<h2>Install and start</h2>
+<p>Clone the private repository or use the cleaned source export. Open PowerShell in a directory owned by your normal user. Do not run the server as Administrator.</p>
+<pre><code>
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Install-Windows.ps1 -WithAI -CheckOnly
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Install-Windows.ps1 -WithAI
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Start-Tuerwache.ps1
+</code></pre>
+<p>Omit <code>-WithAI</code> if local person/face recognition is not needed. Installation uses the npm lockfile, installs FFmpeg and optional Python packages, and verifies three OpenCV model files with SHA256. It does not start the server. CheckOnly checks prerequisites without downloads or changes.</p>
+<p>Open <a href="http://127.0.0.1:3210" target="_blank" rel="noopener noreferrer">Türwache</a>, create the first Türwache administrator, then connect Ring and enter its verification code. Enter passwords only in your own local app.</p>
+<h2>Configuration and startup</h2>
+<p>Optionally copy <code>.env.example</code> to <code>.env</code>. The new launch scripts read this file; plain <code>npm start</code> does not. The local <code>.venv/Scripts/python.exe</code> is selected automatically unless <code>AI_PYTHON</code> is configured. Stop with Ctrl+C and let ongoing work drain. Back up and stop before upgrading. Never run two instances against one data directory.</p>
+<p><code>Start-Tuerwache.cmd</code> uses the same launcher. Optional local VLM installation is separate: <code>scripts/Start-Ollama.ps1 -Install</code>. Configure a vision-capable model and select it per camera. Large models can be slow without a GPU.</p>
+<h2>Automatic startup</h2>
+<p>For private testing, Windows Task Scheduler can run <code>powershell.exe -NoProfile -File C:\Path\Tuerwache\scripts\Start-Tuerwache.ps1</code> at user logon. Set the project working directory, disallow parallel instances and use a normal user. This task is not installed automatically. The documented Linux systemd service is preferable for an unattended server.</p></article>
+<article data-language="en" data-document="linux" hidden><h1>Linux and servers</h1>
+<h2>Native installation</h2>
+<p>Target: Debian/Ubuntu or 64-bit Raspberry Pi OS. Requirements: Bash, Node.js 24 LTS with npm; for local AI, Python 3.10–3.13, python3-venv, libglib2.0-0 and libgl1. Install Node from its official distribution. Python packages go into a virtual environment, never the system Python.</p>
+<pre><code>
+sudo apt-get update
+sudo apt-get install -y git ca-certificates python3 python3-venv libglib2.0-0 libgl1
+# Clone the repository and enter its directory.
+bash scripts/install-linux.sh --with-ai --check-only
+bash scripts/install-linux.sh --with-ai
+bash scripts/start-linux.sh
+</code></pre>
+<p>Omit <code>--with-ai</code> without local image analysis. Installation requires internet, uses npm ci and Python binary wheels, and verifies model SHA256 hashes. If no wheel is available, review the CPU/Python combination instead of starting uncontrolled source builds.</p>
+<h2>systemd service</h2>
+<p>The simple service helper requires <code>/opt/tuerwache</code>. Create a dedicated user and copy clean source under that user&#39;s ownership:</p>
+<pre><code>
+sudo useradd --system --create-home --home-dir /var/lib/tuerwache --shell /usr/sbin/nologin tuerwache
+sudo install -d -o tuerwache -g tuerwache /opt/tuerwache
+# Transfer clean source into /opt/tuerwache as user tuerwache.
+cd /opt/tuerwache
+sudo -u tuerwache bash scripts/install-linux.sh --with-ai
+sudo -u tuerwache mkdir -p data
+# Test a manual start and stop cleanly before installing the service.
+sudo -u tuerwache bash scripts/start-linux.sh
+sudo bash scripts/install-service.sh --user tuerwache
+sudo systemctl status tuerwache
+sudo journalctl -u tuerwache -f
+</code></pre>
+<p>Never overwrite an existing installation&#39;s accounts/data. Existing service units are preserved. Stop using <code>sudo systemctl stop tuerwache</code>; shutdown allows up to 260 seconds for work to drain. Hardening permits writes only to data and temporary storage. Custom clip directories require an explicit ReadWritePaths entry and file permissions. Run Ollama as its own service.</p>
+<h2>Remote first setup</h2>
+<p>The app listens on loopback. Open an SSH tunnel, then browse localhost:3210:</p>
+<pre><code>
+ssh -L 3210:127.0.0.1:3210 user@server
+</code></pre>
+<p>Configure HTTPS, allowed hosts and MFA before enabling Server &amp; access. See <a href="#operations" data-topic="operations">operations</a>.</p>
+<h2>Docker</h2>
+<p><code>deploy/compose.yaml</code> is a Linux host-network template with an optional Caddy profile. Copy deploy/.env.example to deploy/.env, set a domain and a private random 64-character hex encryption key. Back up the key separately. Start the app first using <code>docker compose -f deploy/compose.yaml up -d --build app</code>. Public HTTPS requires explicitly starting the external profile after setup. See deploy/README.md. This template is not directly suitable for Docker Desktop or multiple tenants.</p></article>
+<article data-language="en" data-document="raspberry-pi" hidden><h1>Raspberry Pi</h1>
+<p>Server and FFmpeg startup, face enrollment, and recognition with a test face were verified under Linux/ARM64 emulation. Testing with Ring cameras and measuring camera capacity, AI latency, and temperature still require physical Pi hardware.</p>
+<p>A possible starting point is Pi 5 with 8 GB RAM, 64-bit OS, active cooling and SSD. This is an estimate, not a measured minimum. <a href="https://www.raspberrypi.com/products/raspberry-pi-5/" target="_blank" rel="noopener noreferrer">Official Pi 5 specifications</a> confirm the 64-bit platform.</p>
+<h2>Suggested split</h2>
+<ul>
+<li>Pi: events, short clips, website and notifications.</li>
+<li>OpenCV person/face recognition: test one camera first; monitor latency, temperature and queue growth.</li>
+<li>VLM descriptions: preferably another private-network computer with Ollama/LM Studio/llama.cpp, or an explicitly selected cloud provider.</li>
+</ul>
+<p>A large VLM on the Pi is optional. Continuous battery-camera recording is not supported. In <strong>Operations</strong>, the limit for simultaneous camera streams is configurable from 1 to 8, with a default of 4. Start with one stream on the Pi and measure performance before raising the limit.</p>
+<h2>Installation and acceptance</h2>
+<p>Follow <a href="#linux" data-topic="linux">Linux setup</a>. For this target, <code>uname -m</code> should report aarch64. A 32-bit OS is unsupported. FFmpeg and pinned Python binary wheels must be available; stop and investigate otherwise.</p>
+<p>Test one camera, separate motion and doorbell events, audio playback, and restart recovery before enabling local AI. Use an encrypted backup to migrate from Windows. The <a href="#operations" data-topic="operations">restore process</a> rewrites absolute clip paths for the new data directory.</p>
+<h2>Private face worker</h2>
+<p>Install Türwache and its OpenCV models on the second computer. Configure a shared random <code>FACE_WORKER_TOKEN</code> and set <code>FACE_WORKER_HOST</code>, <code>FACE_WORKER_PORT</code>, <code>FACE_WORKER_CERT</code> and <code>FACE_WORKER_KEY</code> on that computer. Run <code>node --env-file=.env scripts/start-face-worker.mjs</code>. On the Pi, set <code>FACE_WORKER_URL</code> to the worker&#39;s HTTPS origin and restart the app. The Pi must trust the worker&#39;s certificate. Choose the network engine for each camera under <strong>Sites → Privacy zones &amp; AI</strong>.</p>
+<p>Only aligned face crops go to the worker. The gallery, names and matching stay on Türwache. A worker failure or configured privacy zones trigger local processing. Loopback HTTP is available for local testing.</p>
+<h2>ONVIF and RTSP</h2>
+<ul>
+<li>Use 64-bit Raspberry Pi OS and Node.js 24. On Linux, the Docker deployment uses host networking for ONVIF discovery. A manually entered RTSP address works without multicast.</li>
+<li>Choose H.264 in your camera settings with a keyframe interval around two seconds. Türwache then copies the video without another encode. Enable H.265 conversion and software motion detection per camera when needed and check CPU usage.</li>
+<li>Store the rolling buffer and clips on an SSD. Under <strong>Operations</strong>, set the network stream limit. <a href="#network-cameras" data-topic="network-cameras">Network camera setup</a></li>
+</ul></article>
+<article data-language="en" data-document="usage" hidden><h1>Cameras, AI and troubleshooting</h1>
+<h2>Recordings</h2>
+<p>Türwache and Ring accounts are separate. Configure monitoring, motion/doorbell recording, duration, cooldown, detection, description model and Discord per camera. Saving a model does not enable camera analysis by itself.</p>
+<p>Test a manual recording on Overview. Clips contains saved video; Timeline combines events, recording state and descriptions. A motion alert does not necessarily mean video was saved.</p>
+<h2>Missing clips or missing parts of a visit</h2>
+<p>New clips receive a full-video check for decoder errors and larger timestamp gaps before publication. Impaired recordings show a warning in the archive. Larger receive buffers, longer packet retransmission windows and conventional fast-start MP4 improve delivery/playback; they cannot recreate missing camera images or increase the camera&#39;s actual frame rate.</p>
+<p>Recordings and web live view now copy the received H.264 video without local resizing or FPS filters. Live view shows measured dimensions and approximate frame rate. Ring may deliver different quality between sessions. Audio is still converted to AAC for compatibility. The former fixed 720-pixel/15-FPS live limit is removed. HLS buffering still adds latency compared with a direct WebRTC connection.</p>
+<p>Displayed FPS is calculated from decoded frames in the first live segment. Nominal transport-header rates may differ and do not prove that the corresponding number of images arrived.</p>
+<ul>
+<li>Recording disabled or server offline at event time.</li>
+<li>Cooldown since the previous recording start not reached.</li>
+<li>Another recording running: only one is supported at a time.</li>
+<li>Late battery-camera wake-up, live setup failure or unavailable storage.</li>
+<li>The later part happened after clip end without another usable event.</li>
+</ul>
+<p>Read event and analysis status. Adjust duration/cooldown per camera, considering battery use. Unrecorded past images cannot be recovered. Old silent clips cannot gain audio. New clips and live view use camera audio when Ring supplies it; check volume controls.</p>
+<h2>Faces and VLM</h2>
+<p>OpenCV detects people/faces locally. Enrol up to twelve photos per person with different angles/lighting, exactly one clear face each, and consent. Add/remove templates or assign unknown suggestions under Faces.</p>
+<p>If Türwache finds a face but rarely confirms the name, add a sharp reference from the same camera angle. Under <strong>Assign unknown faces</strong>, choose a clear crop and use the existing name. Then run AI analysis again for that clip. Türwache crops from the original resolution and adjusts brightness locally for dark crops. Better lighting and a brief front-facing view help with small or blurred faces.</p>
+<p>Automatic names need consistent support across at least three distinct frames with a time span. Uncertain/conflicting matches remain unconfirmed. Similarity is not probability. A persistent Python worker caches models and processes jobs serially.</p>
+<p>The VLM receives neither the local name list nor face vectors. Verified names are appended separately from local recognition; they do not prove a generated action. Descriptions can be wrong. Reference changes invalidate older automatic identity evidence, but cannot recall existing Discord messages.</p>
+<h2>Model selection</h2>
+<p>Add/edit/check/remove models under AI providers. Local options include Ollama, LM Studio, llama.cpp, LocalAI and vLLM; cloud presets and OpenAI-compatible APIs are available. Models must support images.</p>
+<p>Several models can be saved; each camera uses its selected description model without automatic cloud fallback. Local face recognition can run alongside it: one establishes identities, the other describes frames.</p>
+<p>Cloud calls send sampled frames and location context. All cloud providers share a configurable UTC daily request limit, including failures. This is not a spending cap. Review provider pricing/data terms.</p>
+<h2>Discord and storage</h2>
+<p>Configure your webhook and per-camera doorbell/clip/person/summary switches. Images require successful corresponding analysis. Attachment limits/webhook errors can prevent delivery. Old events are not resent automatically. Manual analysis does not trigger automatic notifications.</p>
+<p>Store clips locally or in another writable directory, optionally with private R2/S3 copies. Cloud videos are not complete app backups. Enter keys only on your own server.</p>
+<h2>Sites, users and push</h2>
+<p>Connect additional Ring accounts under <strong>Ring accounts</strong>. Each has its own credentials and MFA. Shared Ring devices appear once in Türwache. <strong>Sites</strong> lists camera status and the latest doorbell or motion event. Administrators can rename sites, create new ones and move cameras between them.</p>
+<p>Under <strong>Users</strong>, open <strong>Edit permissions</strong> for a role or <strong>Account &amp; permissions</strong> for a user. Choose which sites and cameras are in scope, then open <strong>Permissions</strong> next to a camera to set its individual actions. Clip actions require permission to view clips. User rules take precedence over role rules. Within the same level, a matching deny wins. Administrators have full access.</p>
+<p>Push quiet hours can be set on the mobile page or in the native app. They apply to all devices for the user, with an optional doorbell exception.</p>
+<p>Open <strong>Privacy zones &amp; AI</strong> for a camera to draw masks. The masks apply to explicit clip exports, Discord media and frames for scene descriptions. Playback, encrypted backups and private R2/S3 copies retain the original. A private <a href="#raspberry-pi" data-topic="raspberry-pi">face worker</a> can calculate face embeddings when the camera has no privacy zones.</p></article>
+<article data-language="en" data-document="network-cameras" hidden><h1>Connect Ring and network cameras</h1>
+<p>Run Ring, ONVIF and RTSP cameras in the same installation. As an administrator, open <strong>Camera connections → Add camera</strong> and select the connection type in the dialog. Choose <strong>Ring</strong>, give the connection a name and sign in to Ring. Türwache imports the cameras on that account.</p>
+<figure><img src="/docs-media/camera-types-en.webp" alt="Choose a camera type in the dialog" loading="lazy"><figcaption>Choose a camera type in the dialog</figcaption></figure>
+<h2>Discover a camera over ONVIF</h2>
+<ul>
+<li>Enable ONVIF in the camera settings. Some cameras need a dedicated ONVIF account. Make sure the server can reach the camera on the local network.</li>
+<li>Choose <strong>ONVIF</strong> in the dialog.</li>
+<li>Select <strong>Search the network</strong>, choose the camera and enter its credentials. If discovery shows nothing, type the service address manually. An example is <code>http://192.168.1.20/onvif/device_service</code>.</li>
+<li>Load the video profiles and choose H.264 when available. When adding a recorder with multiple channels, select the desired profile and add other channels separately.</li>
+<li>Choose the pre-recording time and select <strong>Connect camera</strong>. The status turns online after the first complete video segments arrive.</li>
+</ul>
+<figure><img src="/docs-media/onvif-search-en.webp" alt="ONVIF discovery and returned cameras in a sample network" loading="lazy"><figcaption>ONVIF discovery and returned cameras in a sample network</figcaption></figure>
+<p>Discovery uses local IPv4 multicast. VLANs, guest networks, multicast filtering and Docker bridge networking can prevent discovery. Entering a reachable ONVIF or RTSP address bypasses the need for discovery. Türwache reads ONVIF media profiles. Camera-event subscriptions, talkback and PTZ controls are outside this integration. <a href="https://www.onvif.org/profiles/profile-t/" target="_blank" rel="noopener noreferrer">ONVIF Profile T</a></p>
+<h2>Enter an RTSP address</h2>
+<ul>
+<li>Choose <strong>RTSP</strong> and enter the stream address, such as <code>rtsp://192.168.1.20:554/stream1</code>. Check the camera or recorder manual for its path and port.</li>
+<li>Enter the camera username and password in the dedicated fields. The saved connection is encrypted and the password is never returned to the browser.</li>
+<li>H.264 video is copied into the buffer without another encode. Enable H.264 conversion under <strong>More stream settings</strong> for an H.265 stream if your browser needs it. On a Raspberry Pi, choose H.264 directly on the camera whenever possible.</li>
+</ul>
+<figure><img src="/docs-media/rtsp-setup-en.webp" alt="Manual RTSP setup with ten seconds of pre-recording" loading="lazy"><figcaption>Manual RTSP setup with ten seconds of pre-recording</figcaption></figure>
+<h2>Pre-recording, motion and storage</h2>
+<p>While monitoring is enabled, Türwache reads the network stream continuously and keeps recent video segments under <code>data/network-buffer</code>. The rolling buffer is replaced as new footage arrives. It is available for manual recordings and software motion triggers. Set the target to 0, 5, 10 or 15 seconds.</p>
+<p>The actual pre-recorded time depends on the available footage and the camera&#39;s keyframes. H.264 with a keyframe interval around two seconds makes recording boundaries more predictable. If the stream is interrupted, Türwache retains readable segments and marks the shorter clip. Ring cameras without a continuous stream continue to record through the existing Ring connection.</p>
+<p>Motion detection compares small grayscale frames and can react to lighting changes or weather. Under <strong>More stream settings</strong>, you can supply a separate RTSP address for motion detection. The primary stream keeps its full recording resolution, and the substream reconnects independently after interruptions.</p>
+<p>Person and face detection run separately on saved clips. On a Raspberry Pi, use a small substream and a low limit for active streams under <strong>Operations</strong>. Check the storage load before adding multiple continuous streams. <a href="#raspberry-pi" data-topic="raspberry-pi">Raspberry Pi guide</a></p></article>
+<article data-language="en" data-document="operations" hidden><h1>Security, backups and upgrades</h1>
+<h2>Export source code for GitHub</h2>
+<p>Source belongs in Git; Ring sessions, faces and keys do not. The exporter copies allowlisted source into a new empty destination. It omits data, backups, APKs, weights, native builds, node_modules and Git metadata.</p>
+<pre><code>
+node scripts/prepare-repository.mjs --destination H:\Tuerwache-GitHub
+</code></pre>
+<p>Review embedded credentials and mobile project IDs before pushing. Install dependencies and models after cloning. The export includes the <a href="/license.txt">license text</a> for original code.</p>
+<p>For a private rehearsal, use an empty private repository and replace the account and repository below. For a public release, follow <a href="#github" data-topic="github">GitHub, licensing and business model</a>.</p>
+<pre><code>
+git add .
+git diff --cached --stat
+git commit -m &quot;Initial private version&quot;
+git remote add origin https://github.com/YOUR-ACCOUNT/YOUR-PRIVATE-REPO.git
+git push -u origin main
+</code></pre>
+<p>These are instructions only; nothing was uploaded. Keep SaaS and self-hosting in separate private repositories.</p>
+<h2>External access</h2>
+<p>Default: loopback, external access disabled. For home/cloud, configure HTTPS origin, allowed hosts, exact proxy IP and MFA for every user. Cloud needs a separate AUTH_ENCRYPTION_KEY outside the data volume. Then select deployment mode and enable access. Full proxy setup is in deploy/README.md.</p>
+<p>Do not forward public traffic directly to Node or trust arbitrary forwarding headers. VPN access also requires correct configuration. Independently review public authentication before serving customers. Perfect security is not promised.</p>
+<h2>Retention and protection</h2>
+<p>Operations → Retention has independent local age/GiB and cloud age/GiB rules (cloud quota 0 = unlimited), disabled by default. Preview saved rules before enabling automatic checks every five minutes. Protected clips are excluded from both rules; active processing is skipped. Protected footage can prevent the configured quota from being met.</p>
+<p>Cloud-only playback is authenticated and proxied through the server; buckets stay private. Reading/deleting requires the original endpoint, region, bucket and credentials. Expired recordings remain as events. Cloud quota uses tracked clip sizes; unrelated bucket objects are not managed. Retention is not a backup.</p>
+<h2>Encrypted backups</h2>
+<p>Operations → Backups creates a <code>.twbackup</code> protected with scrypt and AES-256-GCM. Use at least 16 characters and keep the passphrase separately. Archives include users/MFA, the effective encryption key, Ring session, settings, events, face templates, reviews and optional videos. Browser/phone sessions are excluded. Software, Python, model weights and <code>.env</code> are excluded; protect environment configuration and EXPO_ACCESS_TOKEN separately.</p>
+<p>Optional scheduled backups store a sealed passphrase locally. Their retention count applies only to scheduled archives; manual backups are kept. Download a copy to a separate device. Archives contain sensitive data and must not be published.</p>
+<h2>Verified restore / migration to Linux or Pi</h2>
+<p>1. Install a compatible Türwache version and Python/AI dependencies on the destination. Stop the old server; never share one Ring session/data directory between active instances. 2. Copy the archive to <code>backups/snapshots/UUID.twbackup</code> (or BACKUP_DIRECTORY), verify it through the web backup page and note the verification ID. Verification does not change live data. 3. Stop the destination server. From its project directory, dry-run first, then explicitly apply:</p>
+<pre><code>
+node scripts/restore.mjs --verification VERIFICATION-UUID
+node scripts/restore.mjs --verification VERIFICATION-UUID --apply
+</code></pre>
+<p>Restore checks all files/hashes, creates and checks a working copy beside the destination directory, moves previous data to <code>.tuerwache-previous-UUID</code>, then activates the prepared directory. Activation failure rolls back the previous directory. Previous data is retained; remove it manually only after acceptance. Allow enough space for the archive, verification and working copies.</p>
+<p>Clip paths are rewritten for DATA_DIRECTORY. AUTH_ENCRYPTION_KEY, if configured, must match the imported key. Browser/phone sessions must sign in again. Remote access stays off; retention, scheduled backups and Discord operations alerts are disabled for review before re-enabling.</p>
+<p>Fresh Docker deployments use <code>/app/data/state</code> plus a separate backup volume. A volume root cannot be replaced: back up older <code>/app/data</code> installations before explicitly migrating to a data subdirectory. Run restore offline with the same mounts/environment. Pi migration transfers data, not platform-specific binaries. Large VLMs are best hosted on a separate machine.</p>
+<h2>Health and durable retries</h2>
+<p>Operations shows Ring/event connectivity, offline cameras, free space, slow jobs, delivery failures and the retry queue. Optional neutral Discord health alerts are throttled to every 30 minutes and disabled by default. Event silence is not an alarm by default; a quiet scene can be normal.</p>
+<p>New failures in local AI, descriptions and uploads can be retried with durable bounded attempts. Paused cameras and removed local footage are skipped. Ambiguous Discord/push delivery is not automatically resent. Expo receipts confirm handoff to Apple/Google, not display to a person. Invalid device tokens are removed. A phone can trigger a test only for its own session.</p>
+<h2>AI quality</h2>
+<p>Review a clip description as correct/incorrect/uncertain, with an optional correction. Reviews belong to that description version and do not replace it. Under AI → AI quality, compare configured models using the same up to six frames. Cloud comparisons require explicit consent to transmit images, consume the daily limit and may incur fees. Comparisons send no notifications and preserve the original description. Comparison results can also be rated. No automatic training occurs.</p>
+<h2>Upgrade</h2>
+<p>Review changes, back up, stop, update source, rerun installer with appropriate AI option, start and verify a new audio/video event. Roll back old source and its matching data backup together. Never use one JSON store from multiple server processes.</p>
+<p>Still pending: physical Linux/Pi acceptance of these new features, signed iOS installation and physical-device push acceptance. Independent security review/dependency maintenance before wider public use. This guide is not a completed audit.</p>
+<h2>Mobile test build dependencies</h2>
+<p>Expo Doctor with Expo 58.0.26 passes 20/20 compatibility checks; this is not a security audit. <code>npm audit</code> still reports 42 affected mobile SDK/tooling dependency entries (40 high, 2 moderate), traced to two glob/regex advisories concerning picomatch and minimatch. This is not 42 independently validated attack paths. No forced SDK downgrade was applied. Review advisories and compatible updates before store/customer release; the APK remains a test build. Server dependencies are a separate tree.</p></article>
+<article data-language="en" data-document="architecture" hidden><h1>Architecture and mobile apps</h1>
+<p>Ring camera → Ring cloud → Node server → clip → Python recognition → optional VLM → web/mobile/Discord. ring-client-api does not establish an official Ring SaaS contract. The camera does not expose a freely accessible local RTSP stream.</p>
+<p>src/server.mjs provides HTTP/API, ring-service.mjs events, features.mjs analysis/storage/notifications, ai-service.mjs bounded JSON IPC with ai/analyze.py --worker. public/ contains the bilingual web UI; mobile/ contains Expo/React Native.</p>
+<p>data/ is private JSON/file storage for one server process. Accounts protect private APIs/clips. Browser writes use CSRF; mobile sessions have separate revocable tokens. Model keys are not returned to apps/browsers.</p>
+<h2>Mobile status</h2>
+<p>Android: ARM64 test APK built on Windows, test-signed, not a Play Store release, not yet accepted on a physical phone. Server sign-in, clips, timeline and live integration are prepared. Verify actual build version: new web features are not automatically included in older APKs.</p>
+<p>iOS: shared code exists, no signed installable build. Apple Developer access, signing and device/TestFlight tests remain. Real push needs Expo/Firebase/APNs projects, permissions and new builds. Installing the web app does not configure native push.</p>
+<p>Phones need a reachable HTTPS address. On a phone, 127.0.0.1 refers to the phone itself. Ring credentials remain on the server. The Mobile app page shows available download/connection status.</p>
+<h2>Development</h2>
+<pre><code>
+npm ci
+npm run check
+npm test
+node scripts/build-docs.mjs
+</code></pre>
+<p>Tests use isolated storage. Real OpenCV tests require models/Python and TEST_AI=1. test/preview.mjs is synthetic UI data only; never use its credentials in production.</p></article>
+<article data-language="en" data-document="saas" hidden><h1>Local operation and help</h1>
+<p>Türwache is a free camera server for private households, focused on Ring cameras. The app runs on your computer, mini PC or Raspberry Pi. You connect your Ring account yourself on that device. Ring cameras still use their connection to Ring. By default, Türwache stores recordings on your device. <a href="https://ring.com/de/de/terms" target="_blank" rel="noopener noreferrer">Ring Terms of Service for Germany</a></p>
+<h2>Set up the app yourself</h2>
+<p>The <a href="#windows" data-topic="windows">Windows guide</a> and <a href="#raspberry-pi" data-topic="raspberry-pi">Raspberry Pi guide</a> cover installation, first startup and camera connection. See <a href="#operations" data-topic="operations">operations and security</a> for updates, backups and recovery.</p>
+<h2>Setup assistance</h2>
+<p>An optional, one-time paid appointment can cover installation, storage, automatic startup and local backups. At the end, you can test a recording and a restart on your own device. You connect your Ring account yourself. Your Ring credentials, sessions and clips stay with you during this service.</p>
+<p>Individual maintenance or recovery appointments are possible follow-up services. The app and its guides remain free for private use. The <a href="/license.txt">Private Use License</a> sets the terms for sharing and modifications.</p>
+<p>Once the operator publishes appointments, you can see the available times and one-time price under <strong>Einrichtung</strong> on the Türwache website.</p></article>
+<article data-language="en" data-document="github" hidden><h1>GitHub, licensing and business model</h1>
+<h2>What you can publish</h2>
+<p>Türwache can run free of charge in a private household. The source can be read publicly and shared free of charge under the private-use license. If you modify a version, publish the corresponding source under the same license, even for purely private use. Sale, paid hosting, business use and distribution as part of a paid bundle are prohibited. See the <a href="/license.txt">license text</a> for the full terms.</p>
+<p>Describe the GitHub repository as source available for private use. The <a href="https://opensource.org/definition-annotated" target="_blank" rel="noopener noreferrer">Open Source Initiative</a> requires commercial use to be permitted. A public GitHub repository can be viewed and forked through GitHub. <a href="https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository" target="_blank" rel="noopener noreferrer">GitHub licensing documentation</a></p>
+<p>For home users, see <a href="#saas" data-topic="saas">local operation and setup assistance</a>.</p>
+<h2>Release preparation</h2>
+<ul>
+<li>Clearly identify the rightsholder and a licensing contact. Before publication, have the custom license reviewed, especially the duty to publish purely private changes and how the terms are incorporated. <a href="https://www.gesetze-im-internet.de/urhg/__31.html" target="_blank" rel="noopener noreferrer">German Copyright Act, section 31</a> · <a href="https://www.gesetze-im-internet.de/bgb/__305.html" target="_blank" rel="noopener noreferrer">German Civil Code, sections 305</a> and <a href="https://www.gesetze-im-internet.de/bgb/__307.html" target="_blank" rel="noopener noreferrer">307</a></li>
+<li>Record the terms under which outside contributions can be accepted. Previously granted rights remain subject to their original terms.</li>
+<li>Keep third-party notices. Expo templates, FFmpeg, AI models and other dependencies have their own terms. Review redistribution rights before distributing compiled packages.</li>
+<li>Export the repository to a new empty folder. The source allowlist excludes runtime data, private settings and keys. Review the result for credentials and private files before publication.</li>
+</ul>
+<pre><code>
+node scripts/prepare-repository.mjs --public --destination /path/to/new-github-export
+</code></pre>
+<p>The public export includes example documentation screenshots. Photos used by optional AI tests are kept outside the export. The guides are available in the app under <strong>System → Documentation</strong>. The Türwache website serves the same material at <code>/dokumentation/</code>.</p></article></main><noscript>Diese Doku nutzt JavaScript zum Seitenwechsel. Alle Anleitungen liegen auch unter docs/ im Repository. Documentation is also available as Markdown in docs/.</noscript></div></body></html>

@@ -1,0 +1,52 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {mkdtemp,readFile} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {Accounts} from '../src/accounts.mjs';
+import {base32,totp} from '../src/totp.mjs';
+import {AccessPolicy} from '../src/access-policy.mjs';
+import {MobileSessions} from '../src/mobile-sessions.mjs';
+import {cleanTestDirectory} from './helpers.mjs';
+test('TOTP entspricht den RFC-6238-Testvektoren',()=>{
+  const secret=base32(Buffer.from('12345678901234567890'));
+  for(const [seconds,expected]of[[59,'94287082'],[1111111109,'07081804'],[1111111111,'14050471'],[1234567890,'89005924'],[2000000000,'69279037'],[20000000000,'65353130']])assert.equal(totp(secret,Math.floor(seconds/30),8),expected);
+});
+test('2FA verschlüsselt Geheimnisse, sperrt Wiederholung und alte Sitzungen, Wiederherstellungscodes funktionieren einmal',async t=>{
+  const root=await mkdtemp(join(tmpdir(),'tuerwache-2fa-'));t.after(()=>cleanTestDirectory(root));
+  const accounts=new Accounts(root),user=await accounts.add({name:'Admin',password:'test-password-mfa',role:'admin'},true);
+  const cookie='tw_session='+accounts.session(user),mobile=new MobileSessions(root,accounts),native=mobile.issue(user,'Testgerät');
+  assert.ok(new Accounts(root).current(cookie));
+  const setup=await accounts.startMfa(user,'test-password-mfa','local');
+  assert.equal((await readFile(accounts.file,'utf8')).includes(setup.secret),false);
+  assert.throws(()=>accounts.confirmMfa(user,'bad'));
+  const result=accounts.confirmMfa(user,totp(setup.secret));assert.equal(result.codes.length,10);
+  assert.equal(accounts.current(cookie),null);assert.equal(mobile.current('Bearer '+native.token),null);
+  await assert.rejects(accounts.login('Admin','test-password-mfa','local',totp(setup.secret)),/2FA-Code/);
+  await accounts.login('Admin','test-password-mfa','local',result.codes[0]);
+  await assert.rejects(accounts.login('Admin','test-password-mfa','local',result.codes[0]),/2FA-Code/);
+  assert.ok(await new Accounts(root).login('Admin','test-password-mfa','local',result.codes[1]));
+  assert.equal((await readFile(accounts.file,'utf8')).includes(result.codes[0]),false);
+});
+test('Fernzugriff startet ausgeschaltet und vertraut HTTPS-Headern ausschließlich vom eingerichteten Proxy',async t=>{
+  const root=await mkdtemp(join(tmpdir(),'tuerwache-access-'));t.after(()=>cleanTestDirectory(root));
+  const accounts=new Accounts(root),user=await accounts.add({name:'Admin',password:'test-password-mfa',role:'admin'},true);
+  const access=new AccessPolicy(root,accounts,{allowedHosts:['camera.example'],publicOrigin:'https://camera.example',trustedProxies:['127.0.0.1']});
+  assert.equal(access.permits({remote:true,secure:true}),false);assert.throws(()=>access.update({enabled:true}),/Zwei-Faktor/);
+  user.totp='test-fixture';access.update({enabled:true});assert.equal(access.permits({remote:true,secure:true}),true);assert.equal(access.permits({remote:true,secure:false}),false);
+  const request={socket:{remoteAddress:'127.0.0.1'},headers:{host:'camera.example','x-forwarded-proto':'https','x-forwarded-for':'198.51.100.5'}};
+  assert.equal(access.context(request).address,'198.51.100.5');assert.equal(access.context(request).origin,'https://camera.example');
+  assert.throws(()=>access.context({...request,socket:{remoteAddress:'198.51.100.6'}}));
+  assert.throws(()=>access.context({...request,headers:{...request.headers,'x-forwarded-for':'fake'}}));
+  access.update({enabled:false});assert.equal(access.permits(access.context(request)),false);
+  assert.equal(access.permits(access.context({socket:{remoteAddress:'127.0.0.1'},headers:{host:'127.0.0.1:3210'}})),true);
+});
+test('Eine Anmeldung an einem anderen Konto hebt die Versuchsgrenze des Zielkontos nicht auf',async t=>{
+  const root=await mkdtemp(join(tmpdir(),'tuerwache-login-limits-'));t.after(()=>cleanTestDirectory(root));const accounts=new Accounts(root);
+  await accounts.add({name:'Owner',password:'owner-test-password',role:'admin'},true);await accounts.add({name:'Viewer',password:'viewer-test-password',role:'viewer'});
+  for(let i=0;i<8;i++)await assert.rejects(accounts.login('Owner','wrong-test-password','fixture-address'));
+  assert.equal((await accounts.login('Viewer','viewer-test-password','fixture-address')).name,'Viewer');
+  await assert.rejects(accounts.login('Owner','owner-test-password','fixture-address'),/Zu viele/);
+  await assert.rejects(new Accounts(root).login('Owner','owner-test-password','fixture-address'),/Zu viele/);
+  assert.equal((await accounts.login('Owner','owner-test-password','different-fixture-address')).name,'Owner');
+});

@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#132d28">
+  <title>Türwache · Dein Kameraserver</title>
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/settings.css">
+  <link rel="stylesheet" href="/pages.css">
+  <link rel="stylesheet" href="/design.css?v=0.13.0">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <script src="/translations.js?v=0.13.0" defer></script>
+  <script src="/i18n.js?v=0.13.0" defer></script>
+  <script src="/app.js?v=0.13.0" defer></script>
+  <script src="/settings.js?v=0.13.0" defer></script>
+  <script src="/network-cameras.js?v=1" defer></script>
+  <script src="/hls.min.js?v=0.13.0" defer></script>
+  <script src="/live.js?v=0.13.0" defer></script>
+  <script src="/router.js?v=0.13.0" defer></script>
+  <script src="/design.js?v=0.13.0" defer></script>
+  <script src="/clips.js?v=0.13.0" defer></script>
+  <script src="/access.js?v=0.13.0" defer></script>
+  <script src="/face-suggestions.js?v=0.13.0" defer></script>
+  <script src="/timeline.js?v=0.13.0" defer></script>
+  <script src="/face-library.js?v=0.13.0" defer></script>
+  <script src="/providers.js?v=0.13.0" defer></script>
+  <script src="/mobile-info.js?v=0.13.0" defer></script>
+  <link rel="stylesheet" href="/operations.css?v=0.13.0">
+  <script src="/operations.js?v=0.13.0" defer></script>
+  <script src="/management.js?v=0.13.0" defer></script>
+</head>
+<body class="signed-out">
+  <section id="auth-screen" class="auth-screen" hidden>
+    <div class="auth-card"><img src="/icon.svg" width="48" height="48" alt=""><p class="eyebrow">DEIN PRIVATER KAMERASERVER</p><h1 id="auth-title">Willkommen bei Türwache.</h1><p id="auth-description"></p>
+      <form id="app-login">
+        <div id="app-credentials">
+          <label for="app-name">Benutzername</label>
+          <input id="app-name" autocomplete="username" required minlength="2" maxlength="60">
+          <label for="app-password">Türwache-Passwort</label>
+          <input id="app-password" type="password" autocomplete="current-password" required minlength="12" maxlength="256">
+        </div>
+        <div id="app-mfa" hidden>
+          <label for="app-otp">2FA- oder Wiederherstellungscode</label>
+          <input id="app-otp" autocomplete="one-time-code" autocapitalize="off" spellcheck="false" maxlength="40" required disabled>
+        </div>
+        <p id="auth-notice" role="status" hidden></p>
+        <button class="button primary-button full" type="submit" id="app-login-button">Anmelden</button>
+        <button class="text-button" type="button" id="app-login-back" hidden>Zur Anmeldung zurück</button>
+      </form>
+      <p class="small-note">Dieses Konto schützt deine Clips und Einstellungen. Die Ring-Verbindung wird danach separat verwaltet.</p>
+      <a href="/docs" class="text-button">Dokumentation</a>
+    </div>
+  </section>
+  <aside class="rail">
+    <a class="brand" href="/" aria-label="Türwache Startseite"><img src="/icon.svg" alt="" width="36" height="36"><span>türwache<span class="brand-dot">.</span></span></a>
+    <nav id="main-navigation" aria-label="Hauptnavigation"></nav>
+    <div class="rail-bottom"><span class="local-dot"></span><span>Auf deinem Server<span class="rail-muted">Türwache · v0.13.0</span></span></div>
+  </aside>
+  <main id="overview">
+    <header class="topbar"><span id="signed-in">DEIN PRIVATER KAMERASERVER</span><div class="account-actions"><span class="badge" id="connection-badge">Verbindung prüfen …</span><button class="text-button" id="app-logout">Abmelden</button></div></header>
+    <section class="heading"><div><p class="eyebrow">HALLO, ZUHAUSE.</p><h1>Ein Blick vor die Tür.</h1><p>Clips speichern. Besucher erkennen. In deiner Hand.</p></div><span class="phase-label">02 <span>/ Dein Kameraserver</span></span></section>
+    <div id="notice" class="notice" role="status" hidden></div>
+    <div class="workspace">
+      <div class="primary">
+        <section class="panel camera-panel" aria-labelledby="camera-title">
+          <div class="panel-top"><div><p class="eyebrow">KAMERA</p><h2 id="camera-title">Deine Haustür</h2></div><span class="badge neutral" id="camera-badge">Noch nicht verbunden</span></div>
+          <div class="viewport" id="viewport">
+            <div id="video-placeholder" class="video-placeholder"><div class="door-graphic" aria-hidden="true"><div class="door-line"></div><div class="bell"><span></span><i></i></div></div><h3>Hier beginnt dein Kameratest.</h3><p>Verbinde dein Ring-Konto und starte eine kurze Aufnahme.</p><span class="viewport-label">AUFNAHMEN BLEIBEN AUF DIESEM PC</span></div>
+            <video id="player" controls playsinline preload="metadata" hidden></video>
+            <div class="recording-overlay" id="recording-indicator" role="status" hidden><span class="pulse"></span><span>Livevideo wird angefordert und aufgenommen …</span></div>
+          </div>
+          <div class="camera-controls"><div><label class="sr-only" for="camera-select">Kamera auswählen</label><select id="camera-select" disabled><option value="">Noch keine Kamera</option></select><span id="camera-detail" class="muted">Ring Battery Video Doorbell Pro</span></div><button id="capture" class="button primary-button" disabled><span aria-hidden="true">●</span> 10 Sekunden aufnehmen</button></div>
+          <p class="camera-note">Kameraton wird gespeichert, wenn die Kamera ihn liefert. Bei Netzwerkkameras kann der Clip bereits vor dem Auslöser beginnen.</p>
+        </section>
+        <section class="panel" id="history" aria-labelledby="history-title"><div class="panel-top"><div><p class="eyebrow">LOKAL GESPEICHERT</p><h2 id="history-title">Letzte Ereignisse</h2></div><span id="event-count" class="counter">0</span></div><div id="events" class="events"><div class="empty"><span aria-hidden="true">◷</span><p>Hier erscheinen Klingeln, Bewegung und deine Testclips.</p></div></div></section>
+      </div>
+      <div class="secondary">
+        <div id="camera-connections" data-admin>
+        <div class="connection-toolbar"><button id="camera-add" class="button primary-button" type="button" aria-haspopup="dialog" aria-controls="camera-add-dialog"><span aria-hidden="true">＋</span> Kamera hinzufügen</button></div>
+        <section class="panel" id="connection" aria-labelledby="connection-title">
+          <div class="panel-top"><h2 id="connection-title">Ring-Konten</h2></div>
+          <div class="ring-account-row">
+            <div class="ring-account-field"><label for="ring-account">Ring-Verbindung</label><select id="ring-account"><option value="primary">Standardkonto</option></select></div>
+            <div class="ring-account-tools"><button id="ring-rename" class="text-button" type="button">Bezeichnung ändern</button><button id="ring-remove" class="text-button danger" type="button" hidden>Verbindung entfernen</button></div>
+          </div>
+          <p id="connection-message" class="description">Deine Zugangsdaten werden ausschließlich lokal eingegeben und zur Anmeldung an Ring übertragen.</p>
+          <form id="login-form"><label for="email">Ring E-Mail-Adresse</label><input id="email" name="email" type="email" autocomplete="username" required placeholder="du@beispiel.de"><label for="password">Passwort</label><input id="password" name="password" type="password" autocomplete="current-password" required maxlength="1024" placeholder="Dein Ring-Passwort"><button class="button primary-button full" id="login-button" type="submit">Konto verbinden <span aria-hidden="true">↗</span></button></form>
+          <form id="code-form" hidden><label for="code">Bestätigungscode</label><input id="code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{4,10}" maxlength="10" required placeholder="Code eingeben"><button class="button primary-button full" type="submit">Anmeldung bestätigen</button></form>
+          <div class="connection-actions"><button id="resume" class="text-button" hidden>Gespeicherte Sitzung erneut verbinden</button><button id="logout" class="text-button" hidden>Abmelden & lokale Sitzung löschen</button></div>
+          <p class="small-note">Dein Passwort wird nicht auf der Festplatte gespeichert. Eine Sitzung für die erneute Anmeldung bleibt lokal erhalten.</p>
+        </section>
+        <section id="network-camera-panel" class="panel network-camera-panel" aria-labelledby="network-camera-title">
+          <div class="panel-top"><h2 id="network-camera-title">Netzwerkkameras</h2></div>
+          <div id="network-list" class="network-camera-list"></div>
+          <p id="network-empty" class="small-note">Noch keine Netzwerkkameras verbunden.</p>
+        </section>
+        <dialog id="camera-add-dialog" class="model-dialog camera-add-dialog" aria-labelledby="camera-add-title">
+          <header class="model-dialog-header"><h2 id="camera-add-title" tabindex="-1">Kamera hinzufügen</h2><button id="camera-add-close" class="model-dialog-close" type="button" aria-label="Schließen">×</button></header>
+          <div id="camera-add-types" class="camera-add-types">
+            <button type="button" data-camera-kind="ring"><strong>Ring</strong><span>Ring-Konto verbinden und Kameras übernehmen</span></button>
+            <button type="button" data-camera-kind="onvif"><strong>ONVIF</strong><span>Kamera im Heimnetz suchen</span></button>
+            <button type="button" data-camera-kind="rtsp"><strong>RTSP</strong><span>Stream-Adresse manuell eingeben</span></button>
+          </div>
+          <form id="camera-add-ring" hidden>
+            <label for="camera-ring-name">Bezeichnung</label>
+            <input id="camera-ring-name" maxlength="80" required placeholder="Zum Beispiel Zuhause">
+            <p class="small-note">Danach meldest du dich bei Ring an. Alle Kameras des Kontos werden übernommen.</p>
+            <output id="camera-ring-notice" role="status"></output>
+            <div class="connection-actions"><button class="button" data-camera-back type="button">Zurück</button><button class="button primary-button" type="submit">Weiter zur Ring-Anmeldung</button></div>
+          </form>
+          <form id="network-form" hidden>
+            <div id="network-discovery">
+              <button class="button" id="network-scan" type="button">Im Netzwerk suchen</button>
+              <label for="network-found" id="network-found-label" hidden>Gefundene Kameras</label>
+              <select id="network-found" hidden><option value="">Kamera auswählen</option></select>
+            </div>
+            <label for="network-name">Kameraname</label><input id="network-name" maxlength="80" required>
+            <label for="network-address" id="network-address-label">ONVIF-Dienstadresse</label>
+            <input id="network-address" type="url" maxlength="2048" required placeholder="http://192.168.1.20/onvif/device_service">
+            <div class="field-pair">
+              <div><label for="network-login">Kamera-Benutzername</label><input id="network-login" maxlength="128" autocomplete="off"></div>
+              <div><label for="network-password">Kamera-Passwort</label><input id="network-password" type="password" maxlength="256" autocomplete="new-password"></div>
+            </div>
+            <div id="network-profile-field">
+              <button class="button" id="network-profiles" type="button">Videoprofile laden</button>
+              <label for="network-profile">Videoprofil</label>
+              <select id="network-profile" required><option value="">Zuerst Videoprofile laden</option></select>
+            </div>
+            <label for="network-preroll">Voraufnahme</label>
+            <select id="network-preroll"><option value="0">Aus</option><option value="5" selected>5 Sekunden</option><option value="10">10 Sekunden</option><option value="15">15 Sekunden</option></select>
+            <details id="network-options"><summary>Weitere Stream-Einstellungen</summary>
+              <label class="toggle-row"><span>Überwachung und Puffer starten</span><input id="network-enable" type="checkbox" checked></label>
+              <label class="toggle-row"><span>Bei Bewegung automatisch aufnehmen<span class="muted">Türwache erkennt Bewegung im Videobild.</span></span><input id="network-motion" type="checkbox"></label>
+              <label for="network-motion-address">RTSP-Adresse für Bewegung (optional)</label>
+              <input id="network-motion-address" type="url" maxlength="2048" placeholder="rtsp://192.168.1.20:554/stream2">
+              <p class="small-note">Ein kleiner Zweitstream spart Rechenleistung. Aufnahmen behalten die Hauptauflösung.</p>
+              <label class="toggle-row"><span>Video für Browser in H.264 umwandeln<span class="muted">Für H.265-Streams. Benötigt mehr Rechenleistung.</span></span><input id="network-convert" type="checkbox"></label>
+            </details>
+            <output id="network-notice" role="status"></output>
+            <div class="connection-actions"><button class="button" type="button" data-camera-back>Zurück</button><button class="button primary-button" type="submit">Kamera verbinden</button></div>
+          </form>
+        </dialog>
+        </div>
+        <section class="panel automation-panel" data-admin><div class="panel-top"><div><p class="eyebrow">AUFNAHMEN</p><h2>Auf Ereignisse reagieren</h2></div></div><p class="description">Bei Klingeln oder Bewegung aufnehmen. Clipdauer und Mindestabstand stellst du pro Kamera unter Kameras → Aufnahme ein.</p><label class="toggle-row" for="automatic"><span>Automatisch aufnehmen<span class="muted" id="automatic-details">Je Kamera einstellbar</span></span><input id="automatic" type="checkbox" role="switch" disabled></label><p class="small-note">Bleibt nach einem Neustart aktiv, wenn eingeschaltet. Pro Kamera läuft eine Aufnahme. Livebild und Aufnahme können gleichzeitig laufen; das Gesamtlimit stellst du unter Betrieb ein.</p></section>
+        <section class="panel" aria-labelledby="diagnostic-title" data-admin><div class="panel-top"><div><p class="eyebrow">KAMERASTATUS</p><h2 id="diagnostic-title">Verbindung prüfen</h2></div></div><p class="small-note" id="push-status" role="status">Ereignisempfang noch nicht verbunden.</p><div class="connection-actions"><button id="diagnose" class="button" disabled>Kamerastatus prüfen</button></div><p class="small-note" id="diagnostic-result" role="status" hidden></p></section>
+        <section class="roadmap"><span class="roadmap-icon" aria-hidden="true">✳</span><div><h3>Deine Bilder. Deine KI.</h3><p>Personen und bekannte Gesichter werden auf deinem Server ausgewertet. KI-Ergebnisse können falsch sein.</p><span id="ai-health" class="small-note"></span></div></section>
+      </div>
+    </div>
+    <section id="camera-profiles" class="panel settings-panel" data-admin>
+      <div class="panel-top"><div><p class="eyebrow">JEDE KAMERA EINZELN</p><h2>Was soll wo aktiv sein?</h2></div><span class="badge neutral" id="monitoring-count">Kameras werden geladen …</span></div>
+      <p class="profile-intro">Wähle je Kamera, welche Funktionen Türwache nutzen soll. Pausierte Kameras liefern hier keine neuen Ereignisse und können nicht aufgenommen oder neu ausgewertet werden. Vorhandene Clips bleiben erhalten. Deine Ring-App wird dadurch nicht umgestellt.</p>
+      <div id="camera-profile-list" class="camera-profile-list"></div>
+      <p class="profile-intro small-note">Neue, später hinzugefügte Kameras starten pausiert. KI benötigt einen aufgenommenen Clip; eine R2/S3-Kopie benötigt zusätzlich die Cloud-Konfiguration unter Speicher. Laufende Auswertungen oder Uploads zuerst abschließen lassen.</p>
+    </section>
+    <section id="summary-settings" class="panel model-manager" data-admin>
+      <div class="model-manager-heading"><div><h2>Deine KI-Modelle</h2><p>Verwalte lokale und Cloud-Modelle an einem Ort. Die Zuordnung erfolgt pro Kamera.</p></div><div class="model-manager-actions"><a class="button" href="/ai-review">Modelle vergleichen</a><button id="model-add" class="button primary-button" type="button">＋ Modell hinzufügen</button></div></div>
+      <div id="model-list"></div>
+      <div class="model-manager-footer"><form id="model-limit-form"><label for="model-limit">Cloud-Tageslimit</label><input id="model-limit" type="number" min="1" max="1000" required><button class="button" type="submit">Limit speichern</button><span id="model-usage" class="small-note"></span></form><p id="model-manager-status" class="small-note" role="status"></p><details><summary>Wie werden meine Bilder ausgewertet?</summary><p>Für Szenenbeschreibungen ist pro Kamera genau ein Modell ausgewählt. Personen- und Gesichtserkennung laufen zusätzlich lokal. Es gibt keinen automatischen Anbieterwechsel.</p><p>Cloud-Modelle erhalten bis zu sechs Videobilder und die Ortsbeschreibung. Die lokale Namensliste bleibt auf deinem Server. Das gemeinsame Tageslimit zählt auch fehlgeschlagene Cloud-Anfragen und ist kein Euro-Limit. Lokale Auswertungen zählen nicht dazu.</p></details></div>
+    </section>
+    <section id="discord" class="panel settings-panel" data-admin>
+      <div class="panel-top"><div><p class="eyebrow">MELDUNGEN AUFS HANDY</p><h2>Mit Discord verbinden</h2></div><span class="badge neutral" id="discord-badge">Noch nicht eingerichtet</span></div>
+      <form id="discord-form" class="settings-grid discord-form">
+        <div><label class="toggle-row"><span>Discord-Versand freigeben<span class="muted">Kamera-Schalter bestimmen, was gesendet wird</span></span><input type="checkbox" role="switch" id="discord-enabled"></label><label for="discord-webhook">Discord-Webhook-URL</label><input id="discord-webhook" type="password" autocomplete="new-password" placeholder="https://discord.com/api/webhooks/…"><p id="discord-secret-status" class="small-note"></p><label for="discord-cooldown">Pause zwischen Personenmeldungen je Kamera (Sekunden)</label><input id="discord-cooldown" type="number" min="10" max="3600" step="1" value="60" required></div>
+        <div><p class="description">Erstelle in deinem Discord-Textkanal unter <strong>Kanal bearbeiten → Integrationen → Webhooks</strong> einen Webhook und füge seine URL hier ein. Ein eigener Discord-Bot ist nicht nötig.</p><p class="small-note">Klingeln kann sofort als Text gemeldet werden. Klingel- und Bewegungsclips sowie Bilder zu Zusammenfassungen haben unter Kameras → Meldungen eigene Schalter. Für Videos muss die passende automatische Aufnahme aktiv sein. Personenmeldungen benötigen Aufnahme und lokale KI; das Bild stammt aus einem von der KI geprüften Einzelbild.</p><p class="small-note">Mit aktiviertem Versand werden die gewählten Texte, Bilder oder Videos an deinen Discord-Kanal übertragen. Bereits versandte Nachrichten werden beim Löschen lokaler Clips nicht entfernt. Das App-Limit pro Anhang beträgt 8 MiB; größere Clips werden nur als Text gemeldet.</p></div>
+        <div class="form-end"><button type="submit" class="button primary-button">Discord-Einstellungen speichern</button><button type="button" id="discord-test" class="button">Testnachricht senden</button><button type="button" id="discord-clear" class="text-button danger">Webhook entfernen</button><span id="discord-save-status" class="small-note" role="status"></span></div>
+      </form>
+    </section>
+    <section id="settings" class="panel settings-panel" data-admin>
+      <div class="panel-top"><div><p class="eyebrow">DEIN SPEICHER</p><h2>Aufnahmen & Cloud</h2></div><span class="badge neutral">Lokal + optional S3</span></div>
+      <form id="storage-form" class="settings-grid">
+        <div><label for="clips-directory">Clip-Ordner auf dem Server</label><input id="clips-directory" required placeholder="H:\Tuerwache\data\clips"><p class="small-note">Gilt für neue Clips. Bestehende Aufnahmen bleiben an ihrem bisherigen Ort erreichbar. Personen- und Gesichtserkennung schaltest du unter Kameras je Kamera ein.</p><label for="face-threshold">Mindestähnlichkeit für bekannte Gesichter</label><input id="face-threshold" type="number" min="0.363" max="0.9" step="0.001" value="0.5"><p class="small-note">Höher bedeutet strenger. Ähnlichkeit ist keine Wahrscheinlichkeit. Ungefähr ein Einzelbild pro Sekunde, höchstens 60 Bilder je Clip, wird geprüft. Kurze oder verdeckte Besucher können trotzdem fehlen.</p></div>
+        <div><label class="toggle-row"><span>Cloud-Verbindung freigeben<span class="muted">Upload nur für Kameras mit aktivierter R2/S3-Kopie</span></span><input id="cloud-enabled" type="checkbox" role="switch"></label><label for="s3-endpoint">S3-Endpunkt</label><input id="s3-endpoint" type="url" placeholder="https://ACCOUNT.r2.cloudflarestorage.com"><div class="field-pair"><div><label for="s3-bucket">Bucket</label><input id="s3-bucket" placeholder="meine-clips"></div><div><label for="s3-region">Region</label><input id="s3-region" value="auto"></div></div><label for="s3-prefix">Ordner-Präfix im Bucket</label><input id="s3-prefix" value="tuerwache/"><label for="s3-access">Access Key ID</label><input id="s3-access" type="password" autocomplete="new-password" placeholder="Leer lassen = gespeicherten Schlüssel behalten"><label for="s3-secret">Secret Access Key</label><input id="s3-secret" type="password" autocomplete="new-password" placeholder="Wird nie zurück an den Browser übertragen"><p id="cloud-credentials" class="small-note"></p><p class="small-note">Der Bucket bleibt privat. Nur Videos werden hochgeladen; Gesichtsvorlagen bleiben lokal. R2/S3 kann Kosten verursachen.</p><button id="clear-cloud" class="text-button danger" type="button">Gespeicherte Cloud-Schlüssel entfernen</button></div>
+        <div class="form-end"><button type="submit" class="button primary-button">Einstellungen speichern</button><span id="settings-status" class="small-note" role="status"></span></div>
+      </form>
+    </section>
+    <div class="management-grid" data-admin>
+      <section id="people" class="face-library-panel" aria-labelledby="face-library-heading">
+        <header class="face-section-heading">
+          <h2 id="face-library-heading">Gesichtsvorlagen</h2>
+          <p>Nutze mit Einverständnis der Person mehrere scharfe Fotos. Frontal, leicht seitlich und bei ähnlichem Licht wie an der Kamera. Pro Person bleiben bis zu 12 Vorlagen lokal gespeichert.</p>
+        </header>
+        <form id="face-form"><label for="face-name">Name</label><input id="face-name" list="known-face-names" required maxlength="60" placeholder="Zum Beispiel Alex"><label for="face-image">Fotos mit jeweils genau einem Gesicht</label><input id="face-image" type="file" multiple accept="image/jpeg,image/png,image/webp" required><button type="submit" class="button primary-button full">Fotos einlernen</button><button type="button" id="face-target-reset" class="text-button">Neue Person / Auswahl zurücksetzen</button><p id="face-upload-status" class="small-note" role="status"></p></form>
+        <div id="people-list" class="management-list"></div>
+      </section>
+      <section id="users" class="panel"><div class="panel-top"><div><p class="eyebrow">ZUGRIFF VERWALTEN</p><h2>Benutzer</h2></div></div><p class="description">Admin: alles verwalten. Bediener: Clips ansehen, aufnehmen und KI starten. Betrachter: Clips ansehen und herunterladen.</p><form id="user-form"><label for="user-name">Benutzername</label><input id="user-name" required minlength="2" maxlength="60" autocomplete="off"><label for="user-password">Startpasswort (mindestens 12 Zeichen)</label><input id="user-password" type="password" required minlength="12" maxlength="256" autocomplete="new-password"><label for="user-role">Rolle</label><select id="user-role"><option value="viewer">Betrachter</option><option value="operator">Bediener</option><option value="admin">Administrator</option></select><button type="submit" class="button primary-button full">Benutzer anlegen</button></form><div id="user-list" class="management-list"></div></section>
+    </div>
+    <section class="mobile-info mobile-hub">
+      <div class="panel mobile-intro"><p class="eyebrow">TÜRWACHE FÜR UNTERWEGS</p><h2>Deine Kameras auf dem Handy.</h2><p>Eine Android-Test-App ist bereits gebaut. Die iOS-App ist vorbereitet, aber noch nicht installierbar. Hier findest du den Download, den aktuellen Stand und die nächsten Schritte.</p></div>
+      <div class="mobile-platform-grid">
+        <article class="panel mobile-platform"><span class="badge neutral" id="android-app-status">Paket wird geprüft …</span><h2>Android</h2><p>Eigenständige Test-App für ARM64-Handys. Livebild, Clips, Zeitstrahl und KI-Ergebnisse sind vorbereitet.</p><a class="button primary-button" id="android-app-download" href="/api/mobile/download/android" download hidden>Android-Test-App herunterladen</a><p class="small-note" id="android-app-file"></p><p class="small-note">Das Paket ist ein Testbuild mit Entwicklersignatur. Es wurde noch nicht auf einem echten Handy geprüft und ist nicht im Play Store veröffentlicht.</p></article>
+        <article class="panel mobile-platform"><span class="badge neutral">Noch kein iOS-Testpaket</span><h2>iPhone / iPad</h2><p>Der gemeinsame App-Code und das iOS-JavaScript-Bundle sind vorhanden. Eine installierbare, signierte iOS-App fehlt noch.</p><p class="small-note">Als Nächstes werden Apple-Developer-Zugang, Signierung und ein TestFlight- oder Geräte-Build benötigt. Es gibt noch keinen App-Store-Download.</p></article>
+        <article class="panel mobile-platform"><span class="badge neutral">Im Browser nutzbar</span><h2>Web-App</h2><p>Die Website funktioniert auch auf Android und iPhone. Du kannst sie über das Browsermenü zum Startbildschirm hinzufügen.</p><p class="small-note">Dafür muss dein Handy den Server erreichen können. Native Push-Meldungen sind dadurch noch nicht eingerichtet.</p></article>
+      </div>
+      <section class="panel mobile-connection"><h2>So verbindest du dein Handy</h2><div class="mobile-connection-state" id="mobile-connection-state" role="status"></div><ol><li>Eine vom Handy erreichbare HTTPS-Adresse für deinen Server einrichten.</li><li>Die Android-Test-App installieren oder die Website auf dem Handy öffnen.</li><li>In der App die Serveradresse und dein Türwache-Konto eingeben. Die Ring-Anmeldung bleibt auf deinem Server.</li><li>Nach der Push-Einrichtung in der App unter „Mein Handy“ die Meldungen pro Kamera auswählen.</li></ol><p class="small-note">127.0.0.1 und localhost zeigen auf dem Handy auf das Handy selbst. Die lokale PC-Adresse funktioniert dort nicht als Serveradresse.</p><a class="button" href="/access">Server & Zugriff öffnen</a></section>
+      <section class="panel mobile-push-info"><h2>Was fehlt für echte Push-Nachrichten?</h2><p>Die Auswahl pro Kamera und die Server-Anbindung sind programmiert. Für die Zustellung fehlen noch das Expo-/Firebase-Projekt für Android und die Apple-/APNs-Einrichtung für iOS sowie passende neue App-Builds.</p><p class="small-note">Eine Installation allein aktiviert noch keine Push-Nachrichten. Die Zustellung muss anschließend auf einem echten Handy geprüft werden.</p><a class="text-button" href="https://docs.expo.dev/push-notifications/push-notifications-setup/" target="_blank" rel="noopener noreferrer">Offizielle Anleitung zur Push-Einrichtung</a></section>
+      <section class="panel mobile-device-panel" id="quiet-hours-panel"><h2>Push-Ruhezeiten</h2><div id="quiet-hours"></div></section>
+      <section class="panel mobile-device-panel"><h2>Deine verbundenen Handys</h2><p>Hier erscheinen Handys, die sich mit deinem Türwache-Konto in der nativen App angemeldet haben. Eine Handy-Anmeldung lässt sich hier widerrufen.</p><div id="mobile-devices" class="management-list"></div></section>
+    </section>
+    <footer><span>TÜRWACHE · DEIN LOKALES KAMERAPROJEKT</span><span id="server-status">Server wird geprüft …</span></footer>
+  </main>
+</body>
+</html>

@@ -1,0 +1,103 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { mkdtemp, readFile } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
+import { join, resolve } from 'node:path';
+import { tmpdir } from 'node:os';
+import { spawnSync } from 'node:child_process';
+import { once } from 'node:events';
+import { randomBytes } from 'node:crypto';
+import { AIService } from '../src/ai-service.mjs';
+import { cleanTestDirectory } from './helpers.mjs';
+import { createFaceWorker } from '../scripts/start-face-worker.mjs';
+
+test('Lokale KI: Gesicht einlernen, Person erkennen, Namen wiederfinden, leeres Bild ablehnen', { skip: !process.env.TEST_AI }, async t => {
+  const directory = await mkdtemp(join(tmpdir(), 'tuerwache-ai-'));
+  t.after(() => cleanTestDirectory(directory));
+  const ai = new AIService(directory, resolve('.')); t.after(() => ai.close());
+  assert.equal(ai.state().modelsReady, true);
+  const image = await readFile('test/fixtures/face.jpg');
+  const person = await ai.enroll({ name: 'Testgesicht', image: 'data:image/jpeg;base64,' + image.toString('base64') });
+  assert.equal(ai.state().people[0].name, 'Testgesicht');
+  const workerPid = ai.worker.child.pid;
+  assert.equal(ai.worker.diagnostics.modelLoads.detector, 1);
+  assert.equal(JSON.stringify(ai.state()).includes('embedding'), false);
+  const python = process.env.AI_PYTHON || (process.platform === 'win32' ? 'py' : 'python3');
+  const prefix = process.platform === 'win32' && !process.env.AI_PYTHON ? ['-3.12'] : [];
+  const video = join(directory, 'face.avi');
+  const script = "import cv2,sys; a=cv2.imread('test/fixtures/face.jpg'); v=cv2.VideoWriter(sys.argv[1],cv2.VideoWriter_fourcc(*'MJPG'),5,(512,512)); [v.write(a) for _ in range(15)]; v.release(); cv2.imwrite(sys.argv[2],a*0)";
+  assert.equal(spawnSync(python, [...prefix, '-c', script, video, join(directory, 'blank.jpg')]).status, 0);
+  const rotated = join(directory, 'rotated.png');
+  assert.equal(spawnSync(python, [...prefix, '-c', "import cv2,sys; a=cv2.imread('test/fixtures/face.jpg'); r=cv2.warpAffine(a,cv2.getRotationMatrix2D((256,256),8,1),(512,512),borderMode=cv2.BORDER_REFLECT_101); cv2.imwrite(sys.argv[1],r)", rotated]).status, 0);
+  const originalTemplate = structuredClone(ai.people[0].templates[0].embedding);
+  const second = await ai.enroll({ personId: person.id, image: 'data:image/png;base64,' + (await readFile(rotated)).toString('base64') });
+  assert.equal(second.templateCount, 2); assert.equal(second.id, person.id); assert.deepEqual(ai.people[0].templates[0].embedding, originalTemplate);
+  assert.equal(ai.worker.child.pid, workerPid); assert.equal(ai.worker.diagnostics.modelLoads.detector, 1); assert.equal(ai.worker.diagnostics.modelLoads.recognizer, 1);
+
+  const result = await ai.analyze(video, 0.5, { personDetection: false, faceRecognition: true });
+  assert.equal(result.identityVersion, 2); assert.ok(result.confirmedIdentities[0].frames >= 3);
+  assert.equal(result.status, 'ready'); assert.equal(result.faceVisible, true); assert.deepEqual(result.names, ['Testgesicht']); assert.equal(result.unknownFace, false);
+  assert.equal(result.personDetectionEnabled, false); assert.ok(result.samples.every(sample => sample.people.length === 0));
+  const cameraDistance = join(directory, 'small-dark-face.avi');
+  const cameraScript = "import cv2,numpy as np,sys; a=cv2.imread('test/fixtures/face.jpg'); tile=cv2.resize(a,(160,160),interpolation=cv2.INTER_AREA); frame=np.full((1440,1440,3),28,np.uint8); frame[320:480,640:800]=(tile*.52).astype(np.uint8); v=cv2.VideoWriter(sys.argv[1],cv2.VideoWriter_fourcc(*'MJPG'),5,(1440,1440)); [v.write(frame) for _ in range(8)]; v.release()";
+  assert.equal(spawnSync(python, [...prefix, '-c', cameraScript, cameraDistance]).status, 0);
+  const distant = await ai.analyze(cameraDistance, 0.5, { personDetection: false, faceRecognition: true });
+  assert.deepEqual(distant.names, ['Testgesicht']);
+  assert.ok(distant.samples.some(sample => sample.faces.some(face => face.box[2] < 54 && face.identityConfirmed)));
+  ai.remove(person.id);
+  const unknown = await ai.analyze(video, 0.5); assert.equal(unknown.unknownFace, true); assert.deepEqual(unknown.names, []);
+  const blank = await readFile(join(directory, 'blank.jpg'));
+  await assert.rejects(ai.enroll({ name: 'Empty', image: 'data:image/jpeg;base64,' + blank.toString('base64') }), /genau einem/);
+  // Independent full-body fixture verifies YOLOX instead of relying on the face detector.
+  const personVideo = join(directory, 'people.avi');
+  assert.equal(spawnSync(python, [...prefix, '-c', "import cv2,sys; a=cv2.imread('test/fixtures/people.jpg'); h,w=a.shape[:2]; v=cv2.VideoWriter(sys.argv[1],cv2.VideoWriter_fourcc(*'MJPG'),5,(w,h)); [v.write(a) for _ in range(15)]; v.release()", personVideo]).status, 0);
+  const people = await ai.analyze(personVideo, 0.5, { personDetection: true, faceRecognition: false });
+  assert.equal(people.personDetected, true); assert.ok(people.samples.some(s => s.people.length > 0));
+  assert.equal(people.faceRecognitionEnabled, false); assert.deepEqual(people.names, []); assert.ok(people.samples.every(sample => sample.faces.length === 0));
+  // A person appears only in the last 200 ms: the former 15/50/85% samples missed it.
+  const briefVideo=join(directory,'brief-person.avi');
+  const briefScript="import cv2,sys; a=cv2.imread('test/fixtures/people.jpg'); h,w=a.shape[:2]; v=cv2.VideoWriter(sys.argv[1],cv2.VideoWriter_fourcc(*'MJPG'),5,(w,h)); [v.write(a*0) for _ in range(39)]; v.write(a); v.release()";
+  assert.equal(spawnSync(python,[...prefix,'-c',briefScript,briefVideo]).status,0);
+  const brief=await ai.analyze(briefVideo,.5,{personDetection:true,faceRecognition:false});
+  assert.equal(brief.personDetected,true,'Kurzer Besucher am Clipende wird geprüft');assert.ok(brief.samples.some(sample=>sample.frameIndex===39&&sample.people.length));assert.ok(brief.sampleCount>3&&brief.sampleCount<=60);
+});
+
+test('Kurzes Gesicht zwischen groben Stichproben und SFace-Auslagerung im Heimnetz', { skip: !process.env.TEST_AI }, async t => {
+  const directory = await mkdtemp(join(tmpdir(), 'tuerwache-face-api-'));
+  const previous = { url: process.env.FACE_WORKER_URL, token: process.env.FACE_WORKER_TOKEN };
+  const ai = new AIService(directory, resolve('.'));
+  const remote = new AIService(directory, resolve('.'));
+  const token = randomBytes(32).toString('hex');
+  let cropCount = 0;
+  const worker = createFaceWorker({ run: data => { cropCount += data.images.length; return remote.run(data); } }, token);
+  worker.listen(0, '127.0.0.1'); await once(worker, 'listening');
+  t.after(async () => {
+    for (const [name, value] of [['FACE_WORKER_URL', previous.url], ['FACE_WORKER_TOKEN', previous.token]]) {
+      if (value === undefined) delete process.env[name]; else process.env[name] = value;
+    }
+    await Promise.all([ai.close(), remote.close()]);
+    if (worker.listening) await new Promise(done => worker.close(done));
+    await cleanTestDirectory(directory);
+  });
+  process.env.FACE_WORKER_URL = `http://127.0.0.1:${worker.address().port}`;
+  process.env.FACE_WORKER_TOKEN = token;
+  assert.equal((await fetch(process.env.FACE_WORKER_URL + '/embed', { method: 'POST' })).status, 401);
+  const source = await readFile('test/fixtures/face.jpg');
+  await ai.enroll({ name: 'Lokale Testvorlage', image: 'data:image/jpeg;base64,' + source.toString('base64') });
+  const python = process.env.AI_PYTHON || (process.platform === 'win32' ? 'py' : 'python3');
+  const prefix = process.platform === 'win32' && !process.env.AI_PYTHON ? ['-3.12'] : [];
+  const video = join(directory, 'brief-face.avi');
+  const script = "import cv2,sys; a=cv2.imread('test/fixtures/face.jpg'); h,w=a.shape[:2]; v=cv2.VideoWriter(sys.argv[1],cv2.VideoWriter_fourcc(*'MJPG'),10,(w,h)); [v.write(a if 12 <= i < 18 else a*0) for i in range(50)]; v.release()";
+  assert.equal(spawnSync(python, [...prefix, '-c', script, video]).status, 0);
+  const profile = { personDetection: false, faceRecognition: true, faceEngine: 'network' };
+  const result = await ai.analyze(video, 0.5, profile);
+  assert.equal(result.faceEngine, 'network');
+  assert.deepEqual(result.names, ['Lokale Testvorlage']);
+  assert.equal(cropCount, 3);
+  const privateResult = await ai.analyze(video, 0.5, { ...profile, privacyZones: [{ x: 0, y: 0, width: 100, height: 100 }] });
+  assert.equal(privateResult.faceEngine, 'local'); assert.equal(cropCount, 3);
+  await new Promise(done => worker.close(done));
+  const fallback = await ai.analyze(video, 0.5, profile);
+  assert.equal(fallback.faceEngine, 'local-fallback');
+  assert.deepEqual(fallback.names, ['Lokale Testvorlage']);
+});

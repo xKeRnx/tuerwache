@@ -1,0 +1,33 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {mkdtemp} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {join,resolve} from 'node:path';
+import {Readable} from 'node:stream';
+import {Accounts} from '../src/accounts.mjs';
+import {RingService} from '../src/ring-service.mjs';
+import {Features} from '../src/features.mjs';
+import {prepareStorage} from '../src/storage.mjs';
+import {createLocalServer} from '../src/server.mjs';
+import {cleanTestDirectory} from './helpers.mjs';
+test('Operations API enforces role/CSRF; cloud video remains authenticated with range support',async t=>{
+  const root=await mkdtemp(join(tmpdir(),'tuerwache-ops-http-')),storage=prepareStorage(join(root,'data')),service=new RingService(storage),features=new Features(service,root),accounts=new Accounts(storage.root);
+  const admin=await accounts.add({name:'Admin',password:'synthetic-admin-password',role:'admin'},true),viewer=await accounts.add({name:'Viewer',password:'synthetic-viewer-password',role:'viewer'}),operator=await accounts.add({name:'Operator',password:'synthetic-operator-password',role:'operator'});
+  const tokens=new Map([admin,viewer,operator].map(user=>[user.role,accounts.session(user)]));
+  const server=createLocalServer(service,{accounts});await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));const base=`http://127.0.0.1:${server.address().port}`;
+  t.after(async()=>{service.close();await features.drain();server.closeAllConnections();await new Promise(resolve=>server.close(resolve));await cleanTestDirectory(root);});
+  const headers=role=>({cookie:`tw_session=${tokens.get(role)}`});
+  async function post(path,body,role,csrf=true){const state=await(await fetch(base+'/api/state',{headers:headers(role)})).json();return fetch(base+path,{method:'POST',headers:{...headers(role),'content-type':'application/json',...(csrf?{'x-local-token':state.csrf}:{})},body:JSON.stringify(body)});}
+  assert.equal((await fetch(base+'/api/backups')).status,401);assert.equal((await fetch(base+'/api/backups',{headers:headers('viewer')})).status,403);
+  assert.equal((await post('/api/operations/settings',{recording:{maxCameras:3}},'admin',false)).status,403);
+  assert.equal((await post('/api/operations/settings',{recording:{maxCameras:3}},'operator')).status,403);assert.equal((await post('/api/operations/settings',{recording:{maxCameras:3}},'admin')).status,200);assert.equal(service.mediaHub.limit,3);
+  const id='11111111-1111-4111-8111-111111111111',entry={id,type:'clip',cameraId:'door',at:new Date().toISOString(),clip:id+'.mp4',status:'ready',local:{status:'deleted'},cloud:{status:'uploaded'},summary:{status:'ready',text:'Synthetic'}};service.events=[entry];let opened=0,closed=0;
+  features.cloud.open=async(_config,_cloud,range)=>{opened++;assert.equal(range,'bytes=2-5');return {range:'bytes 2-5/10',length:4,body:Readable.from(['2345']),close:()=>closed++};};
+  assert.equal((await fetch(base+'/api/events/'+id)).status,401);const detail=await(await fetch(base+'/api/events/'+id,{headers:headers('viewer')})).json();assert.equal(detail.event.id,id);assert.equal(detail.event.directory,undefined);
+  assert.equal((await fetch(base+'/clips/'+entry.clip,{headers:{range:'bytes=2-5'}})).status,401);assert.equal(opened,0);
+  const response=await fetch(base+'/clips/'+entry.clip,{headers:{...headers('viewer'),range:'bytes=2-5'}});assert.equal(response.status,206);assert.equal(await response.text(),'2345');assert.equal(opened,1);assert.equal(closed,1);
+  assert.equal((await post('/api/clips/protect',{id,protected:true},'viewer')).status,403);assert.equal((await post('/api/clips/protect',{id,protected:true},'operator')).status,200);assert.equal(entry.protected,true);
+  assert.equal((await post('/api/quality/review',{id,rating:'incorrect',correction:'Correct reference'},'operator')).status,200);assert.equal(features.quality.value.reviews.length,1);
+  const viewerState=await(await fetch(base+'/api/state',{headers:headers('viewer')})).json();assert.equal(viewerState.operations,undefined);assert.equal(viewerState.aiQuality,undefined);
+  assert.equal((await fetch(base+'/api/backups/download/../../users.json',{headers:headers('admin')})).status,404);assert.equal((await fetch(base+'/backups/snapshots/file.twbackup',{headers:headers('admin')})).status,404);
+});

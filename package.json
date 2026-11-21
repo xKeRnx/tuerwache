@@ -1,0 +1,28 @@
+{
+  "name": "door-local",
+  "version": "0.13.0",
+  "private": true,
+  "type": "module",
+  "description": "Privater Kameraserver für Ring, ONVIF und RTSP",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "engines": {
+    "node": "^22 || ^24"
+  },
+  "scripts": {
+    "start": "node src/server.mjs",
+    "check": "node test/check.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "3.1170.0",
+    "ffmpeg-for-homebridge": "^2.2.0",
+    "hls.js": "1.7.4",
+    "ring-client-api": "14.3.0",
+    "saxes": "6.0.0"
+  },
+  "overrides": {
+    "ring-client-api": {
+      "@eneris/push-receiver": "4.4.0"
+    }
+  }
+}

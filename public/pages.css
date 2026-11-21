@@ -1,0 +1,27 @@
+#page-outlet{padding-bottom:12px}.app-page>.settings-panel,.app-page>.panel{margin-top:0}.app-page .workspace{margin-top:0}.app-page>.mobile-info{margin-top:0}.app-page #history{max-width:1150px}.app-page #connection{max-width:650px}.app-page #people,.app-page #users{max-width:1050px}.app-page #people>form,.app-page #users>form,.app-page .management-list{padding:0 24px 24px}.app-page #people>.description,.app-page #users>.description{margin:0 24px 22px}.app-page .management-list{margin:0}.app-page #user-form{max-width:560px}.app-page #face-form{max-width:560px}.app-page .management-row select{width:auto}.app-page .mobile-info{padding:28px}.rail{overflow-y:auto}.rail nav{gap:3px}.rail nav a{padding-top:10px;padding-bottom:10px}.rail-caption{margin-bottom:26px}.rail-bottom{padding-top:24px}.nav-toggle{display:none}.app-page #history .events{max-height:none}.app-page #connection input{max-width:100%}
+@media(max-width:760px){.rail{flex-direction:row;align-items:center;flex-wrap:wrap;gap:0;height:auto;min-height:70px}.nav-toggle{display:block;margin-left:auto;border:1px solid #476457;background:#29463c;color:#eaf3e7;border-radius:8px;padding:9px 14px}.rail nav{display:none;width:100%;grid-template-columns:1fr 1fr;gap:4px;padding-top:14px}.rail.menu-open nav{display:grid}.rail nav a,.rail nav a:not(.nav-active){padding:11px;font-size:12px;gap:10px}.rail nav a span{display:inline;font-size:17px}.app-page #people>form,.app-page #users>form,.app-page .management-list{padding:0 18px 20px}.app-page #people>.description,.app-page #users>.description{margin:0 18px 20px}.app-page .mobile-info{padding:20px}.heading{padding-top:24px}.app-page>.settings-panel .panel-top{gap:12px}.app-page .workspace{display:flex;flex-direction:column}}
+@media(min-width:761px) and (max-width:960px){.rail{width:195px;padding:28px 18px;align-items:stretch}.brand>span{display:block;font-size:23px}.rail nav{margin-top:28px}.rail nav a,.rail nav a:not(.nav-active){display:flex;font-size:13px;gap:10px;padding:10px}.rail nav a span{font-size:18px}main{margin-left:195px}.app-page .workspace{grid-template-columns:1fr}}
+#camera-connections { max-width: 1100px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 18px; }
+#camera-connections[hidden], .camera-add-dialog [hidden] { display: none; }
+.connection-toolbar { grid-column: 1 / -1; }
+#camera-connections > .panel { max-width: none; min-width: 0; }
+#network-empty { margin: 0 24px 24px; }
+.network-camera-list:not(:empty) { padding: 0 24px 16px; }
+.network-camera-row { border-top: 1px solid var(--border); padding: 13px 0; }
+.network-camera-summary { cursor: pointer; }
+.network-camera-summary .badge { display: inline-block; margin: 0 0 0 8px; }
+.camera-add-dialog form, .camera-add-types { padding: 18px 26px 24px; }
+.camera-add-types { display: grid; gap: 10px; }
+.camera-add-types button { text-align: left; color: inherit; background: #f7faf7; border: 1px solid var(--border); border-radius: 12px; padding: 13px 16px; cursor: pointer; }
+.camera-add-types button:hover, .camera-add-types button:focus-visible { background: #e9f1e9; }
+.camera-add-types strong, .camera-add-types span { display: block; }
+.camera-add-types span { margin-top: 4px; font-size: 13px; }
+.camera-add-dialog .field-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 15px; }
+.camera-add-dialog .connection-actions, .network-camera-panel .connection-actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 14px 0 0; }
+.camera-add-dialog .connection-actions { justify-content: end; }
+.camera-add-dialog output:not(:empty) { display: block; margin-top: 10px; }
+.camera-add-dialog #network-discovery, .camera-add-dialog #network-profile-field { margin: 8px 0; }
+.camera-add-dialog #network-options { padding: 12px 0; }
+.camera-add-dialog #network-options summary { cursor: pointer; }
+@media(max-width:1000px){#camera-connections{grid-template-columns:1fr}}
+@media(max-width:600px){.camera-add-dialog .field-pair{grid-template-columns:1fr;gap:0}.camera-add-types,.camera-add-dialog form{padding-inline:18px}}

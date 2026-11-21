@@ -1,0 +1,31 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {mkdtemp} from 'node:fs/promises';
+import {join,resolve} from 'node:path';
+import {tmpdir} from 'node:os';
+import {execFile} from 'node:child_process';
+import {promisify} from 'node:util';
+import ffmpegPath from 'ffmpeg-for-homebridge';
+import {Features} from '../src/features.mjs';
+import {prepareStorage} from '../src/storage.mjs';
+import {cleanTestDirectory} from './helpers.mjs';
+test('Unbekannte Gesichter fragen nur bei aktiver Gesichtserkennung und bleiben nach Überspringen erledigt',async t=>{
+  const root=await mkdtemp(join(tmpdir(),'tuerwache-face-queue-'));t.after(()=>cleanTestDirectory(root));
+  const entry={id:'fixture',cameraId:'door',status:'ready',clip:'fixture.mp4',video:{width:512,height:512},ai:{status:'ready',samples:[{frameIndex:1,faces:[{box:[100,100,100,100],score:.99,name:null}]}]}};
+  const service={storage:prepareStorage(root),events:[entry],cameras:[{id:'door'}],persistEvents(){}};
+  const features=new Features(service,resolve('.'));features.settings.updateProfile('door',{monitoring:true,faceRecognition:true});
+  assert.equal(features.faceSuggestions.list().total,1);const candidate=features.faceSuggestions.list().items[0];assert.equal(JSON.stringify(candidate).includes('box'),false);
+  features.settings.updateProfile('door',{faceRecognition:false});assert.equal(features.faceSuggestions.list().total,0);features.settings.updateProfile('door',{faceRecognition:true});
+  features.faceSuggestions.dismiss(candidate.id);assert.equal(features.faceSuggestions.list().total,0);
+  assert.equal(new Features(service,resolve('.')).faceSuggestions.list().total,0);
+});
+test('Ein echtes Kamerabild als Gesichtsausschnitt einlernen und im Originalclip wiedererkennen',{skip:!process.env.TEST_AI},async t=>{
+  const root=await mkdtemp(join(tmpdir(),'tuerwache-face-camera-'));t.after(()=>cleanTestDirectory(root));const storage=prepareStorage(root),path=join(storage.clips,'fixture.mp4');
+  await promisify(execFile)(ffmpegPath,['-v','error','-loop','1','-i','test/fixtures/face.jpg','-t','1','-r','5','-c:v','libx264','-pix_fmt','yuv420p',path],{windowsHide:true});
+  const entry={id:'fixture',cameraId:'door',camera:'Synthetische Testkamera',status:'ready',clip:'fixture.mp4',video:{width:512,height:512,durationSeconds:1}};
+  const service={storage,events:[entry],cameras:[{id:'door'}],persistEvents(){}};const features=new Features(service,resolve('.'));features.settings.updateProfile('door',{monitoring:true,faceRecognition:true});
+  entry.ai=await features.ai.analyze(path,.5,{personDetection:false,faceRecognition:true});const candidate=features.faceSuggestions.list().items[0];assert.ok(candidate);
+  const person=await features.faceSuggestions.enroll(candidate.id,'Kameratest');assert.equal(person.name,'Kameratest');assert.equal(features.faceSuggestions.list().total,0);assert.equal(entry.peopleAssignments[0].name,'Kameratest');
+  const recognized=await features.ai.analyze(path,.5,{personDetection:false,faceRecognition:true});assert.deepEqual(recognized.names,['Kameratest']);
+  await features.drain();
+});

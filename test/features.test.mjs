@@ -1,0 +1,106 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { mkdtemp, writeFile, mkdir } from 'node:fs/promises';
+import { join, resolve } from 'node:path';
+import { tmpdir } from 'node:os';
+import { createServer } from 'node:http';
+import { Accounts } from '../src/accounts.mjs';
+import { Settings } from '../src/settings.mjs';
+import { Features } from '../src/features.mjs';
+import { CloudStorage } from '../src/cloud-storage.mjs';
+import { S3Client } from '@aws-sdk/client-s3';
+import { createLocalServer } from '../src/server.mjs';
+import { prepareStorage } from '../src/storage.mjs';
+import { cleanTestDirectory } from './helpers.mjs';
+
+test('App-Konten schützen Zustand, Clips und Rollen; letzte Administration bleibt bestehen', async t => {
+  const directory = await mkdtemp(join(tmpdir(), 'tuerwache-accounts-'));
+  const accounts = new Accounts(directory);
+  const filename = '11111111-1111-4111-8111-111111111111.mp4';
+  await writeFile(join(directory, filename), 'private-video');
+  let captures = 0;
+  const service = { storage: { clips: directory }, phase: 'connected', cameras: [{ id: '1' }],
+    events: [{ clip: filename, status: 'ready' }], state: () => ({ phase: 'connected', cameras: [], events: [{ message: 'PRIVATE' }] }),
+    capture: async () => { captures++; }, setAutomatic() {} };
+  const server = createLocalServer(service, { accounts });
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  const url = `http://127.0.0.1:${server.address().port}`;
+  t.after(async () => { server.closeAllConnections(); await new Promise(r => server.close(r)); await cleanTestDirectory(directory); });
+  const initial = await (await fetch(url + '/api/state')).json();
+  assert.equal(initial.setupRequired, true); assert.equal(initial.events, undefined);
+  assert.equal((await fetch(url + '/clips/' + filename)).status, 401);
+  const post = (path, body, token = initial.csrf, cookie = '') => fetch(url + path, { method: 'POST', headers: { 'content-type': 'application/json', 'x-local-token': token, cookie }, body: JSON.stringify(body) });
+  const setup = await post('/api/auth/setup', { name: 'Admin', password: 'test-password-admin' });
+  assert.equal(setup.status, 200);
+  const adminCookie = setup.headers.get('set-cookie').split(';')[0];
+  assert.match(setup.headers.get('set-cookie'), /HttpOnly; SameSite=Strict/);
+  const adminState = await (await fetch(url + '/api/state', { headers: { cookie: adminCookie } })).json();
+  assert.equal(adminState.user.role, 'admin'); assert.notEqual(adminState.csrf, initial.csrf);
+  assert.equal((await post('/api/auth/setup', { name: 'Second', password: 'test-password-admin' })).status, 400);
+  assert.equal((await post('/api/users/update', { id: adminState.user.id, remove: true }, adminState.csrf, adminCookie)).status, 400);
+  assert.equal((await post('/api/users/add', { name: 'Viewer', password: 'test-password-viewer', role: 'viewer' }, adminState.csrf, adminCookie)).status, 200);
+  const viewerLogin = await post('/api/auth/login', { name: 'Viewer', password: 'test-password-viewer' });
+  const viewerCookie = viewerLogin.headers.get('set-cookie').split(';')[0];
+  const viewerState = await (await fetch(url + '/api/state', { headers: { cookie: viewerCookie } })).json();
+  assert.equal(viewerState.users, undefined);
+  assert.equal((await post('/api/capture', { cameraId: '1' }, viewerState.csrf, viewerCookie)).status, 403);
+  assert.equal((await post('/api/settings', {}, viewerState.csrf, viewerCookie)).status, 403);
+  assert.equal(captures, 0);
+  assert.equal((await post('/api/camera-settings', { cameraId: '1', profile: { monitoring: false } }, viewerState.csrf, viewerCookie)).status, 403);
+  assert.equal((await post('/api/discord/test', {}, viewerState.csrf, viewerCookie)).status, 403);
+  assert.equal((await post('/api/discord/retry', { id: 'test', kind: 'person' }, viewerState.csrf, viewerCookie)).status, 403);
+  assert.equal((await post('/api/summarize', { id: 'test' }, viewerState.csrf, viewerCookie)).status, 403);
+  assert.equal((await post('/api/ollama/check', {}, viewerState.csrf, viewerCookie)).status, 403);
+  assert.equal((await fetch(url + '/clips/' + filename, { headers: { cookie: viewerCookie, range: 'bytes=0-6' } })).status, 206);
+  const viewer = accounts.users.find(u => u.name === 'Viewer');
+  await accounts.update({ id: viewer.id, password: 'changed-test-password' });
+  assert.equal((await (await fetch(url + '/api/state', { headers: { cookie: viewerCookie } })).json()).user, null);
+  assert.equal(accounts.users[0].password, undefined);
+  assert.equal(new Accounts(directory).list().length, 2);
+});
+
+test('Speicherpfad bleibt je Clip erhalten; Automatik persistent; S3-Schlüssel bleiben geheim', async t => {
+  const directory = await mkdtemp(join(tmpdir(), 'tuerwache-settings-'));
+  t.after(() => cleanTestDirectory(directory));
+  const storage = prepareStorage(directory);
+  const settings = new Settings(storage);
+  settings.automatic('door', true);
+  assert.deepEqual(new Settings(storage).value.automaticCameras, ['door']);
+  const newPath = join(directory, 'other-clips');
+  await settings.update({ clipsDirectory: newPath, aiEnabled: true, cloud: { enabled: true, endpoint: 'https://account.r2.cloudflarestorage.com', bucket: 'test-bucket', accessKeyId: 'test-access', secretAccessKey: 'test-secret' } });
+  assert.equal(settings.public().cloud.credentialsSet, true);
+  assert.equal(JSON.stringify(settings.public()).includes('test-secret'), false);
+  await settings.update({ cloud: { accessKeyId: '', secretAccessKey: '' } });
+  assert.equal(settings.value.cloud.secretAccessKey, 'test-secret');
+  await assert.rejects(settings.update({ cloud: { endpoint: 'http://example.com' } }));
+  assert.equal(settings.value.cloud.endpoint, 'https://account.r2.cloudflarestorage.com');
+  const service = { storage, events: [], persistEvents() {} };
+  const features = new Features(service, resolve('.'));
+  const old = { clip: 'old.mp4' }, recorded = { directory: newPath, clip: 'new.mp4' };
+  assert.equal(features.path(old), join(storage.clips, 'old.mp4'));
+  await features.settings.update({ clipsDirectory: storage.clips });
+  assert.equal(features.path(recorded), join(newPath, 'new.mp4'));
+  await settings.update({ cloud: { clearCredentials: true } });
+  assert.equal(settings.value.cloud.enabled, false); assert.equal(settings.value.cloud.secretAccessKey, '');
+});
+
+test('S3-Treiber signiert echte SDK-Uploads, überträgt exakte Videobytes und löscht passend', async t => {
+  const directory = await mkdtemp(join(tmpdir(), 'tuerwache-s3-'));
+  const bytes = Buffer.from('test-video-content-0123456789');
+  const path = join(directory, 'test.mp4'); await writeFile(path, bytes);
+  const requests = [];
+  const server = createServer(async (req, res) => {
+    const chunks = []; for await (const chunk of req) chunks.push(chunk);
+    requests.push({ method: req.method, url: req.url, auth: req.headers.authorization, bytes: Buffer.concat(chunks) });
+    res.writeHead(200, { etag: '"test-etag"' }); res.end();
+  });
+  await new Promise(r => server.listen(0, '127.0.0.1', r));
+  t.after(async () => { server.closeAllConnections(); await new Promise(r => server.close(r)); await cleanTestDirectory(directory); });
+  const driver = new CloudStorage(config => new S3Client({ ...config, endpoint: `http://127.0.0.1:${server.address().port}` }));
+  const config = { endpoint: 'https://test.r2.cloudflarestorage.com', region: 'auto', bucket: 'test-bucket', prefix: 'door/', accessKeyId: 'test-id', secretAccessKey: 'test-secret' };
+  const cloud = await driver.upload(config, { at: '2026-11-16T22:00:00Z', clip: 'clip.mp4' }, path);
+  assert.equal(cloud.status, 'uploaded'); assert.equal(cloud.key, 'door/2026-11-16/clip.mp4');
+  assert.deepEqual(requests[0].bytes, bytes); assert.match(requests[0].auth, /AWS4-HMAC-SHA256 Credential=test-id/); assert.equal(requests[0].auth.includes('test-secret'), false);
+  await assert.rejects(driver.remove({ ...config, bucket: 'different-bucket' }, cloud));
+  await driver.remove(config, cloud); assert.equal(requests[1].method, 'DELETE');
+});
