@@ -4,7 +4,7 @@ import { resolve, join, relative, sep, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 const defaultSource = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const trees = ['src', 'public', 'ai', 'deploy', 'docs', 'scripts', 'test'];
-const rootFiles = ['package.json', 'package-lock.json', 'README.md', 'README.en.md', 'LICENSE.md', '.gitignore', '.dockerignore', '.env.example', 'Start-Tuerwache.cmd', 'Start-Ollama.cmd'];
+const rootFiles = ['package.json', 'package-lock.json', 'README.md', 'README.de.md', 'README.en.md', 'LICENSE.md', '.gitignore', '.dockerignore', '.env.example', 'Start-Tuerwache.cmd', 'Start-Ollama.cmd'];
 const mobileFiles = ['package.json', 'package-lock.json', 'README.md', 'LICENSE', 'App.tsx', 'index.ts', 'app.config.js', 'app.json', 'eas.json', 'tsconfig.json', 'eslint.config.js', '.env.example', '.gitignore'];
 const blocked = /(^|\/)(?:node_modules|data|backups|artifacts|\.git|\.claude|\.expo|\.runtime|\.venv|__pycache__|android|ios|dist)(\/|$)|\.(?:onnx|download|log|key|pem|p12|keystore|pyc|apk|aab|ipa)$|(^|\/)\.env(?:\..+)?$|(?:google-services\.json|GoogleService-Info\.plist)$/i;
 export async function exportRepository(source, destination, { publicRelease = false } = {}) {
