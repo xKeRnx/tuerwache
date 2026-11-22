@@ -4,6 +4,8 @@
 
 [Download the latest release](https://github.com/xKeRnx/tuerwache/releases/latest) · [Setup guides](https://tuerwache.de/dokumentation/) · [Deutsch](README.de.md) · [Private Use License](LICENSE.md)
 
+> **Support Türwache** · If you enjoy using Türwache and would like to help keep it going, [leave a tip on Ko-fi](https://ko-fi.com/simplytechnic). Thanks for your support!
+
 [![Türwache timeline with camera and date filters, recording thumbnails, doorbell and motion events, and sample AI summaries](docs/screenshots/timeline.webp)](docs/screenshots/timeline.webp)
 
 The screenshots show the local app with sample cameras, users, and recordings.

@@ -2,6 +2,8 @@
 
 [English](README.md) · [Download](https://github.com/xKeRnx/tuerwache/releases/latest) · [Dokumentation](docs/index.md) · [Privatnutzungslizenz](LICENSE.md)
 
+> **Türwache unterstützen** · Wenn dir Türwache gefällt und du die Weiterentwicklung unterstützen möchtest, [lass gerne eine Spende auf Ko-fi da](https://ko-fi.com/simplytechnic). Vielen Dank!
+
 Privater Kameraserver für **Ring, ONVIF und RTSP** mit deutscher und englischer Weboberfläche. Verwalte mehrere Kameras und Standorte, Livebild, Clips mit Ton, Kamera- und Cliprechte, Privatzonen und Benachrichtigungen. Lokale Personen- und Gesichtserkennung sowie KI-Beschreibungen, Discord und R2/S3 sind optional.
 
 Netzwerkkameras lassen sich per ONVIF suchen oder mit einer RTSP-Adresse eintragen. Bei dauerhaft erreichbaren Streams sind bis zu 15 Sekunden Voraufnahme einstellbar. Ring-Kameras verwenden weiterhin ein Ring-Konto und ihre Cloud-Verbindung. Akkugeräte können den Anfang eines Ereignisses verpassen.
