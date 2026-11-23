@@ -27,11 +27,13 @@ function card(entry){
   if(entry.summary?.manual)body.append(clipEl('p','small-note','Manuell neu erstellt; nicht erneut an Discord gesendet.'));
   if(entry.ai?.unconfirmedFace)body.append(clipEl('p','small-note','Name noch nicht über mehrere Bilder bestätigt.'));
   if(entry.ai?.faceEngine==='network')body.append(clipEl('p','small-note','Gesichtsmerkmale im Heimnetz berechnet.'));
-  if(entry.ai?.faceEngine==='local-fallback')body.append(clipEl('p','small-note','Gesichts-Worker nicht erreichbar. Lokal ausgewertet.'));
+  if(entry.ai?.faceEngine==='network-arcface')body.append(clipEl('p','small-note','ArcFace im Heimnetz ausgewertet.'));
+  if(entry.ai?.faceEngine==='local-fallback'&&!entry.ai.arcFaceFallback)body.append(clipEl('p','small-note','Gesichts-Worker nicht erreichbar. Lokal ausgewertet.'));
   if(entry.ai?.identityGalleryStale)body.append(clipEl('p','small-note','Gesichtsvorlagen geändert; Namen erneut lokal prüfen.'));
   if(entry.ai?.status==='ready'&&!entry.ai.personDetected)body.append(clipEl('p','small-note',`Keine Person / kein Gesicht in ${entry.ai.sampleCount} geprüften Bildern erkannt.`));
   if(entry.ai&&['queued','working'].includes(entry.ai.status))body.append(clipEl('p','small-note','Lokale Personen-/Gesichtsprüfung läuft …'));
   if(entry.ai?.status==='error')body.append(clipEl('p','small-note',entry.ai.message));
+  window.tw.appendFaceDiagnostics?.(body,entry);
   if(entry.summary&&['queued','working'].includes(entry.summary.status))body.append(clipEl('p','small-note','KI-Kurzbeschreibung wird erstellt …'));
   if(entry.summary&&['error','skipped'].includes(entry.summary.status))body.append(clipEl('p','small-note',entry.summary.message));
   window.tw.appendDiscordStatus(body,entry);

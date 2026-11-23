@@ -9,28 +9,28 @@
   <link rel="stylesheet" href="/style.css">
   <link rel="stylesheet" href="/settings.css">
   <link rel="stylesheet" href="/pages.css">
-  <link rel="stylesheet" href="/design.css?v=0.13.0">
+  <link rel="stylesheet" href="/design.css?v=0.13.1">
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="apple-touch-icon" href="/icon-192.png">
-  <script src="/translations.js?v=0.13.0" defer></script>
-  <script src="/i18n.js?v=0.13.0" defer></script>
-  <script src="/app.js?v=0.13.0" defer></script>
-  <script src="/settings.js?v=0.13.0" defer></script>
+  <script src="/translations.js?v=0.13.1" defer></script>
+  <script src="/i18n.js?v=0.13.1" defer></script>
+  <script src="/app.js?v=0.13.1" defer></script>
+  <script src="/settings.js?v=0.13.1" defer></script>
   <script src="/network-cameras.js?v=1" defer></script>
-  <script src="/hls.min.js?v=0.13.0" defer></script>
-  <script src="/live.js?v=0.13.0" defer></script>
-  <script src="/router.js?v=0.13.0" defer></script>
-  <script src="/design.js?v=0.13.0" defer></script>
-  <script src="/clips.js?v=0.13.0" defer></script>
-  <script src="/access.js?v=0.13.0" defer></script>
-  <script src="/face-suggestions.js?v=0.13.0" defer></script>
-  <script src="/timeline.js?v=0.13.0" defer></script>
-  <script src="/face-library.js?v=0.13.0" defer></script>
-  <script src="/providers.js?v=0.13.0" defer></script>
-  <script src="/mobile-info.js?v=0.13.0" defer></script>
-  <link rel="stylesheet" href="/operations.css?v=0.13.0">
-  <script src="/operations.js?v=0.13.0" defer></script>
-  <script src="/management.js?v=0.13.0" defer></script>
+  <script src="/hls.min.js?v=0.13.1" defer></script>
+  <script src="/live.js?v=0.13.1" defer></script>
+  <script src="/router.js?v=0.13.1" defer></script>
+  <script src="/design.js?v=0.13.1" defer></script>
+  <script src="/clips.js?v=0.13.1" defer></script>
+  <script src="/access.js?v=0.13.1" defer></script>
+  <script src="/face-suggestions.js?v=0.13.1" defer></script>
+  <script src="/timeline.js?v=0.13.1" defer></script>
+  <script src="/face-library.js?v=0.13.1" defer></script>
+  <script src="/providers.js?v=0.13.1" defer></script>
+  <script src="/mobile-info.js?v=0.13.1" defer></script>
+  <link rel="stylesheet" href="/operations.css?v=0.13.1">
+  <script src="/operations.js?v=0.13.1" defer></script>
+  <script src="/management.js?v=0.13.1" defer></script>
 </head>
 <body class="signed-out">
   <section id="auth-screen" class="auth-screen" hidden>
@@ -57,7 +57,7 @@
   <aside class="rail">
     <a class="brand" href="/" aria-label="Türwache Startseite"><img src="/icon.svg" alt="" width="36" height="36"><span>türwache<span class="brand-dot">.</span></span></a>
     <nav id="main-navigation" aria-label="Hauptnavigation"></nav>
-    <div class="rail-bottom"><span class="local-dot"></span><span>Auf deinem Server<span class="rail-muted">Türwache · v0.13.0</span></span></div>
+    <div class="rail-bottom"><span class="local-dot"></span><span>Auf deinem Server<span class="rail-muted">Türwache · v0.13.1</span></span></div>
   </aside>
   <main id="overview">
     <header class="topbar"><span id="signed-in">DEIN PRIVATER KAMERASERVER</span><div class="account-actions"><span class="badge" id="connection-badge">Verbindung prüfen …</span><button class="text-button" id="app-logout">Abmelden</button></div></header>
@@ -159,6 +159,40 @@
       <div class="model-manager-heading"><div><h2>Deine KI-Modelle</h2><p>Verwalte lokale und Cloud-Modelle an einem Ort. Die Zuordnung erfolgt pro Kamera.</p></div><div class="model-manager-actions"><a class="button" href="/ai-review">Modelle vergleichen</a><button id="model-add" class="button primary-button" type="button">＋ Modell hinzufügen</button></div></div>
       <div id="model-list"></div>
       <div class="model-manager-footer"><form id="model-limit-form"><label for="model-limit">Cloud-Tageslimit</label><input id="model-limit" type="number" min="1" max="1000" required><button class="button" type="submit">Limit speichern</button><span id="model-usage" class="small-note"></span></form><p id="model-manager-status" class="small-note" role="status"></p><details><summary>Wie werden meine Bilder ausgewertet?</summary><p>Für Szenenbeschreibungen ist pro Kamera genau ein Modell ausgewählt. Personen- und Gesichtserkennung laufen zusätzlich lokal. Es gibt keinen automatischen Anbieterwechsel.</p><p>Cloud-Modelle erhalten bis zu sechs Videobilder und die Ortsbeschreibung. Die lokale Namensliste bleibt auf deinem Server. Das gemeinsame Tageslimit zählt auch fehlgeschlagene Cloud-Anfragen und ist kein Euro-Limit. Lokale Auswertungen zählen nicht dazu.</p></details></div>
+      <section id="face-worker-settings" aria-labelledby="face-worker-title" hidden>
+        <header><h2 id="face-worker-title" tabindex="-1">Gesichts-Worker</h2><span class="badge neutral" id="face-worker-badge"></span></header>
+        <p class="small-note">Türwache kann den Worker beim Start mitladen oder einen zweiten Rechner im Heimnetz verwenden.</p>
+        <form id="face-worker-form" class="settings-grid" autocomplete="off">
+          <div>
+            <label for="face-worker-mode">Worker betreiben</label>
+            <select id="face-worker-mode"><option value="local">Automatisch auf diesem Gerät</option><option value="external">Separat im Heimnetz</option></select>
+            <p id="face-worker-local-note" class="small-note">Der integrierte Worker startet zusammen mit Türwache. Für ihn brauchst du keine Adresse und keinen Token.</p>
+            <div id="face-worker-external" hidden>
+            <label for="face-worker-url">Worker-Adresse</label>
+            <input type="url" id="face-worker-url" maxlength="512" placeholder="http://127.0.0.1:3211">
+            <p class="small-note">Auf demselben Gerät kannst du localhost per HTTP verwenden. Für andere Geräte ist HTTPS mit einem vertrauenswürdigen Zertifikat erforderlich.</p>
+            <label for="face-worker-token">Worker-Token</label>
+            <input type="password" id="face-worker-token" minlength="32" maxlength="256" autocomplete="new-password" spellcheck="false">
+            <p class="small-note" id="face-worker-token-note"></p>
+            </div>
+          </div>
+          <div>
+            <label class="toggle-row"><span>Gesichts-Worker freigeben</span><input id="face-worker-enabled" type="checkbox" role="switch"></label>
+            <label class="toggle-row"><span>ArcFace verfügbar machen<span class="muted">Das ArcFace-Modell muss auf dem Worker eingerichtet sein.</span></span><input id="face-worker-arcface" type="checkbox" role="switch"></label>
+            <p class="small-note" id="face-worker-source" hidden>Die aktuelle Verbindung stammt aus der Serverkonfiguration. Speichern übernimmt die Verwaltung in dieses Panel.</p>
+            <div class="form-end">
+              <a class="text-button" href="/docs#windows">Worker unter Windows einrichten</a>
+              <a class="text-button" href="/docs#raspberry-pi">Worker im Heimnetz einrichten</a>
+            </div>
+          </div>
+          <div class="form-end">
+            <button id="face-worker-save" class="button primary-button" type="submit">Worker-Einstellungen speichern</button>
+            <button id="face-worker-check" class="button" type="button">Worker-Verbindung prüfen</button>
+            <button id="face-worker-clear" class="text-button danger" type="button" hidden>Worker-Token entfernen</button>
+            <p id="face-worker-status" class="small-note" role="status"></p>
+          </div>
+        </form>
+      </section>
     </section>
     <section id="discord" class="panel settings-panel" data-admin>
       <div class="panel-top"><div><p class="eyebrow">MELDUNGEN AUFS HANDY</p><h2>Mit Discord verbinden</h2></div><span class="badge neutral" id="discord-badge">Noch nicht eingerichtet</span></div>
@@ -171,7 +205,7 @@
     <section id="settings" class="panel settings-panel" data-admin>
       <div class="panel-top"><div><p class="eyebrow">DEIN SPEICHER</p><h2>Aufnahmen & Cloud</h2></div><span class="badge neutral">Lokal + optional S3</span></div>
       <form id="storage-form" class="settings-grid">
-        <div><label for="clips-directory">Clip-Ordner auf dem Server</label><input id="clips-directory" required placeholder="H:\Tuerwache\data\clips"><p class="small-note">Gilt für neue Clips. Bestehende Aufnahmen bleiben an ihrem bisherigen Ort erreichbar. Personen- und Gesichtserkennung schaltest du unter Kameras je Kamera ein.</p><label for="face-threshold">Mindestähnlichkeit für bekannte Gesichter</label><input id="face-threshold" type="number" min="0.363" max="0.9" step="0.001" value="0.5"><p class="small-note">Höher bedeutet strenger. Ähnlichkeit ist keine Wahrscheinlichkeit. Ungefähr ein Einzelbild pro Sekunde, höchstens 60 Bilder je Clip, wird geprüft. Kurze oder verdeckte Besucher können trotzdem fehlen.</p></div>
+                <div><label for="clips-directory">Clip-Ordner auf dem Server</label><input id="clips-directory" required placeholder="H:\Tuerwache\data\clips"><p class="small-note">Gilt für neue Clips. Bestehende Aufnahmen bleiben an ihrem bisherigen Ort erreichbar. Personen- und Gesichtserkennung schaltest du unter Kameras je Kamera ein.</p><label for="face-threshold">Mindestähnlichkeit für bekannte Gesichter</label><input id="face-threshold" type="number" min="0.363" max="0.9" step="0.001" value="0.5"><p class="small-note">Höher bedeutet strenger. Ähnlichkeit ist keine Wahrscheinlichkeit. Türwache prüft zusätzliche Bilder rund um sichtbare Personen und Gesichter.</p></div>
         <div><label class="toggle-row"><span>Cloud-Verbindung freigeben<span class="muted">Upload nur für Kameras mit aktivierter R2/S3-Kopie</span></span><input id="cloud-enabled" type="checkbox" role="switch"></label><label for="s3-endpoint">S3-Endpunkt</label><input id="s3-endpoint" type="url" placeholder="https://ACCOUNT.r2.cloudflarestorage.com"><div class="field-pair"><div><label for="s3-bucket">Bucket</label><input id="s3-bucket" placeholder="meine-clips"></div><div><label for="s3-region">Region</label><input id="s3-region" value="auto"></div></div><label for="s3-prefix">Ordner-Präfix im Bucket</label><input id="s3-prefix" value="tuerwache/"><label for="s3-access">Access Key ID</label><input id="s3-access" type="password" autocomplete="new-password" placeholder="Leer lassen = gespeicherten Schlüssel behalten"><label for="s3-secret">Secret Access Key</label><input id="s3-secret" type="password" autocomplete="new-password" placeholder="Wird nie zurück an den Browser übertragen"><p id="cloud-credentials" class="small-note"></p><p class="small-note">Der Bucket bleibt privat. Nur Videos werden hochgeladen; Gesichtsvorlagen bleiben lokal. R2/S3 kann Kosten verursachen.</p><button id="clear-cloud" class="text-button danger" type="button">Gespeicherte Cloud-Schlüssel entfernen</button></div>
         <div class="form-end"><button type="submit" class="button primary-button">Einstellungen speichern</button><span id="settings-status" class="small-note" role="status"></span></div>
       </form>

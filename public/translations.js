@@ -441,7 +441,57 @@ Noch keine bekannten Gesichter angelegt.|No known faces added yet.
 Erkennung abstimmen|Adjust recognition
 Mindestähnlichkeit für bekannte Gesichter|Minimum similarity for known faces
 Ähnlichkeit speichern|Save similarity
-Höher bedeutet strenger. Ähnlichkeit ist keine Wahrscheinlichkeit. Ungefähr ein Einzelbild pro Sekunde, höchstens 60 Bilder je Clip, wird geprüft. Kurze oder verdeckte Besucher können trotzdem fehlen.|Higher is stricter. Similarity is not a probability. Roughly one frame per second is checked, up to 60 per clip. Brief or obscured visitors may still be missed.
+Höher bedeutet strenger. Ähnlichkeit ist keine Wahrscheinlichkeit. Türwache prüft zusätzliche Bilder rund um sichtbare Personen und Gesichter.|Higher is stricter. Similarity is not a probability. Türwache samples additional frames around visible people and faces.
+Gesichtserkennung im Clip|Face recognition in this clip
+Gesichts-Worker|Face worker
+Gesichts-Worker einstellen|Configure face worker
+Die Verbindung für die Heimnetz-Auswertung richtest du unter KI-Anbieter ein.|Set up the connection under AI providers.
+Türwache kann den Worker beim Start mitladen oder einen zweiten Rechner im Heimnetz verwenden.|Türwache can start its own worker or use a second computer on the local network.
+Worker betreiben|Worker location
+Automatisch auf diesem Gerät|Automatically on this device
+Separat im Heimnetz|Separate worker on the local network
+Der integrierte Worker startet zusammen mit Türwache. Für ihn brauchst du keine Adresse und keinen Token.|The built-in worker starts alongside Türwache without an address or token to enter.
+Worker-Adresse|Worker address
+Auf demselben Gerät kannst du localhost per HTTP verwenden. Für andere Geräte ist HTTPS mit einem vertrauenswürdigen Zertifikat erforderlich.|Use localhost over HTTP on the same device. Other devices require HTTPS with a trusted certificate.
+Worker-Token|Worker token
+Gesichts-Worker freigeben|Enable face worker
+ArcFace verfügbar machen|Make ArcFace available
+Das ArcFace-Modell muss auf dem Worker eingerichtet sein.|The ArcFace model must be set up on the worker.
+Die aktuelle Verbindung stammt aus der Serverkonfiguration. Speichern übernimmt die Verwaltung in dieses Panel.|The current connection comes from the server configuration. Save here to manage the connection from this panel.
+Worker unter Windows einrichten|Set up a worker on Windows
+Worker im Heimnetz einrichten|Set up a worker on the local network
+Worker-Einstellungen speichern|Save worker settings
+Worker-Einstellungen gespeichert.|Worker settings saved.
+Worker-Verbindung prüfen|Check worker connection
+Worker-Token entfernen|Remove worker token
+Worker-Token entfernt. Die Verbindung ist deaktiviert.|Worker token removed. The connection is disabled.
+Leer lassen, um den gespeicherten Token zu behalten.|Leave blank to keep the saved token.
+Verwende denselben Token wie auf dem Worker.|Use the same token as on the worker.
+Worker erreichbar. SFace und ArcFace geprüft.|Worker reachable. SFace and ArcFace checked.
+Worker erreichbar. SFace geprüft.|Worker reachable. SFace checked.
+Aktion fehlgeschlagen. Details stehen in der Meldung.|Action failed. See the notification for details.
+Worker-Adresse als HTTPS-Adresse ohne Pfad angeben. HTTP ist nur auf localhost erlaubt.|Enter an HTTPS worker address without a path. HTTP is allowed only on localhost.
+Worker-Einstellungen ungültig.|Invalid worker settings.
+Der Worker-Token braucht 32 bis 256 druckbare ASCII-Zeichen ohne Leerzeichen.|The worker token needs 32 to 256 printable ASCII characters without spaces.
+Bei einer neuen Worker-Adresse bitte den zugehörigen Token eingeben.|Enter the token for the new worker address.
+Worker-Adresse und Token eintragen, bevor die Verbindung freigegeben wird.|Enter the worker address and token before enabling the connection.
+Worker-Adresse und Token zuerst eintragen.|Enter the worker address and token first.
+Zu viele Worker-Prüfungen.|Too many worker checks.
+Worker-Prüfung fehlgeschlagen. Prüfe Adresse, Token und die gewählten Modelle.|Worker check failed. Verify the address, token and selected models.
+ArcFace im Heimnetz|ArcFace on the local network
+ArcFace auf diesem Gerät|ArcFace on this device
+Integrierter Gesichts-Worker|Built-in face worker
+Mit ArcFace ausgewertet.|Analysed with ArcFace.
+Lerne für jede bekannte Person mindestens eine ArcFace-Vorlage unter Gesichter ein.|Enrol at least one ArcFace template for every known person under Faces.
+ArcFace ist nicht eingerichtet. SFace hat den Clip lokal ausgewertet.|ArcFace is not configured. SFace analysed the clip locally.
+ArcFace-Vorlagen fehlen. SFace hat den Clip lokal ausgewertet.|ArcFace templates are missing. SFace analysed the clip locally.
+Der ArcFace-Worker war nicht verfügbar. SFace hat den Clip lokal ausgewertet.|The ArcFace worker was unavailable. SFace analysed the clip locally.
+Die Vorlagen wurden seit dieser Auswertung geändert. Werte den Clip erneut aus.|Templates changed after this analysis. Analyse the clip again.
+In den geprüften Bildern wurde kein verwertbares Gesicht gefunden.|No usable face was found in the sampled frames.
+Beim Auswerten waren keine Gesichtsvorlagen vorhanden.|No face templates were available when the clip was analysed.
+Der Name wurde über mehrere Bilder bestätigt.|The name was confirmed across multiple frames.
+Es gab Treffer in Einzelbildern. Für eine sichere Namensbestätigung reichten sie nicht aus.|Individual frames matched. There was too little evidence to confirm a name.
+Die sichtbaren Gesichter lieferten keinen eindeutigen Treffer zu einer Vorlage.|The visible faces did not produce a clear match to a template.
 Lege Personen mit einem klaren Foto an. Nutze Bilder von Personen, die damit einverstanden sind. Das Foto wird nach dem Einlernen gelöscht; der Merkmalsvektor bleibt auf diesem Server.|Add people using a clear photo. Use photos of people who have agreed to this. The photo is deleted after enrolment; the feature vector stays on this server.
 Unbekannte Gesichter zuordnen|Assign unknown faces
 Unbekanntes Gesicht aus dem Kameraclip|Unknown face from the camera clip

@@ -12,7 +12,7 @@ Türwache is a private server for Ring and network cameras. Its web interface br
 - [Security, backups and upgrades](operations.en.md)
 - [Mobile apps and architecture](architecture.en.md)
 - [Local operation and help](saas.en.md)
-- [GitHub, licensing and business model](github.en.md)
+- [Download and license](github.en.md)
 
 ## Development status
 

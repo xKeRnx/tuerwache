@@ -26,6 +26,7 @@ function timelineRow(entry){
   else if(entry.ai?.status==='error')details.append(tel('p','small-note',entry.ai.message));
   if(entry.ai?.unconfirmedFace)details.append(tel('p','small-note','Name noch nicht über mehrere Bilder bestätigt.'));
   if(entry.ai?.identityGalleryStale)details.append(tel('p','small-note','Gesichtsvorlagen geändert; Namen erneut lokal prüfen.'));
+  window.tw.appendFaceDiagnostics?.(details,entry);
   if(playable&&entry.requestedSeconds&&entry.video?.durationSeconds<entry.requestedSeconds-1)details.append(tel('p','small-note',entry.message));
   window.tw.appendDiscordStatus(details,entry);
   if(playable){const actions=tel('div','event-actions'),open=tel('button','','Clip ansehen');open.type='button';open.onclick=()=>{window.tw.navigate('/clips');window.tw.playArchiveClip(entry);};actions.append(open);

@@ -45,7 +45,7 @@ export class Backups{
         try{const bytes=await readFile(join(service.storage.root,'archive-thumbnails',entry.id+'.jpg'));records.push({name:'data/archive-thumbnails/'+entry.id+'.jpg',bytes});}catch(error){if(error.code!=='ENOENT')throw error;}
       }
       records.push({name:'data/events.json',bytes:Buffer.from(JSON.stringify(events))});
-      const result=await createBackupArchive(this.path(id),passphrase,records,{appVersion:'0.13.0',at:new Date().toISOString(),includeClips,sessionsInvalidatedOnRestore:true});
+      const result=await createBackupArchive(this.path(id),passphrase,records,{appVersion:'0.13.1',at:new Date().toISOString(),includeClips,sessionsInvalidatedOnRestore:true});
       if(scheduled){this.lastScheduled=new Date().toISOString();const indexPath=join(this.root,'scheduled.json'),index=[id,...readJson(indexPath,[]).filter(old=>old!==id&&idOK(old))];for(const old of index.slice(this.config.value.backups.keepCount))await unlink(this.path(old)).catch(error=>{if(error.code!=='ENOENT')throw error;});writeJson(indexPath,index.slice(0,this.config.value.backups.keepCount));}
       return {id,...result,includeClips};
     }finally{for(const clipId of pinned)this.features.jobs.delete('backup:'+clipId);}

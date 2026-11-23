@@ -1,27 +1,5 @@
 # Security, backups and upgrades
 
-## Export source code for GitHub
-
-Source belongs in Git; Ring sessions, faces and keys do not. The exporter copies allowlisted source into a new empty destination. It omits data, backups, APKs, weights, native builds, node_modules and Git metadata.
-
-```powershell
-node scripts/prepare-repository.mjs --destination H:\Tuerwache-GitHub
-```
-
-Review embedded credentials and mobile project IDs before pushing. Install dependencies and models after cloning. The export includes the [license text](../LICENSE.md) for original code.
-
-For a private rehearsal, use an empty private repository and replace the account and repository below. For a public release, follow [GitHub, licensing and business model](github.en.md).
-
-```bash
-git add .
-git diff --cached --stat
-git commit -m "Initial private version"
-git remote add origin https://github.com/YOUR-ACCOUNT/YOUR-PRIVATE-REPO.git
-git push -u origin main
-```
-
-These are instructions only; nothing was uploaded. Keep SaaS and self-hosting in separate private repositories.
-
 ## External access
 
 Default: loopback, external access disabled. For home/cloud, configure HTTPS origin, allowed hosts, exact proxy IP and MFA for every user. Cloud needs a separate AUTH_ENCRYPTION_KEY outside the data volume. Then select deployment mode and enable access. Full proxy setup is in deploy/README.md.
@@ -70,10 +48,3 @@ Review a clip description as correct/incorrect/uncertain, with an optional corre
 ## Upgrade
 
 Review changes, back up, stop, update source, rerun installer with appropriate AI option, start and verify a new audio/video event. Roll back old source and its matching data backup together. Never use one JSON store from multiple server processes.
-
-Still pending: physical Linux/Pi acceptance of these new features, signed iOS installation and physical-device push acceptance. Independent security review/dependency maintenance before wider public use. This guide is not a completed audit.
-
-
-## Mobile test build dependencies
-
-Expo Doctor with Expo 58.0.26 passes 20/20 compatibility checks; this is not a security audit. `npm audit` still reports 42 affected mobile SDK/tooling dependency entries (40 high, 2 moderate), traced to two glob/regex advisories concerning picomatch and minimatch. This is not 42 independently validated attack paths. No forced SDK downgrade was applied. Review advisories and compatible updates before store/customer release; the APK remains a test build. Server dependencies are a separate tree.

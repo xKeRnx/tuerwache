@@ -12,7 +12,7 @@ Türwache ist ein privater Kameraserver für Ring und Netzwerkkameras. Die Webob
 - [Sicherheit, Backup und Updates](operations.md)
 - [Handy-Apps und Architektur](architecture.md)
 - [Lokaler Betrieb und Hilfe](saas.md)
-- [GitHub, Lizenz und Geschäftsmodell](github.md)
+- [Download und Lizenz](github.md)
 
 ## Ehrlicher Entwicklungsstand
 

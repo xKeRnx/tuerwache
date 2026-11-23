@@ -20,7 +20,9 @@ Eine Kamera verbinden, Bewegung und Klingeln einzeln testen, Clip mit Ton abspie
 
 ## Gesichts-Worker im Heimnetz
 
-Auf dem zweiten Rechner Türwache samt OpenCV-Modellen installieren. Einen zufälligen Schlüssel erzeugen (`node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"`) und auf beiden Rechnern als `FACE_WORKER_TOKEN` setzen. Auf dem Rechner für den Worker in `.env` die folgenden Werte setzen:
+Wenn Türwache und der Worker auf demselben Windows-PC laufen, folge der [Windows-Anleitung](windows.md).
+
+Auf dem zweiten Rechner Türwache samt OpenCV-Modellen installieren. Einen zufälligen Token erzeugen (`node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"`) und auf dem Worker in `.env` als `FACE_WORKER_TOKEN` hinterlegen. Dort auch die folgenden Werte setzen:
 
 ```dotenv
 FACE_WORKER_HOST=192.168.1.10
@@ -30,7 +32,15 @@ FACE_WORKER_KEY=/path/to/key.pem
 # AI_PYTHON=/opt/tuerwache/.venv/bin/python
 ```
 
-Den Worker mit `node --env-file=.env scripts/start-face-worker.mjs` starten. Auf dem Pi in `.env` `FACE_WORKER_URL=https://ki.home.arpa:3211` auf die tatsächliche Worker-Adresse setzen und Türwache neu starten. Das Zertifikat muss zur Adresse passen und in der Python-Umgebung des Pi vertrauenswürdig sein. In **Standorte → Privatzonen & KI** die Engine für die gewünschten Kameras wählen.
+Den Worker mit `node --env-file=.env scripts/start-face-worker.mjs` starten. Auf dem Pi unter **KI-Anbieter → Gesichts-Worker** die Worker-Adresse und denselben Token eintragen. **Worker-Verbindung prüfen** verwendet ein synthetisches Testbild. Die Verbindung freigeben und speichern. Läuft der Worker auf dem Pi selbst, verwende `http://127.0.0.1:3211`. Auf einem anderen Gerät muss die HTTPS-Adresse zum Zertifikat passen und in der Python-Umgebung des Pi vertrauenswürdig sein. In **Standorte → Privatzonen & KI** die Engine für die gewünschten Kameras wählen.
+
+### Optional ArcFace auf dem Worker nutzen
+
+1. Auf dem leistungsstärkeren Worker `FACE_WORKER_ARCFACE_MODEL` auf das geprüfte Modell `w600k_r50.onnx` aus dem [InsightFace-Paket buffalo_l](https://github.com/deepinsight/insightface/releases/tag/model-zoo) setzen und den Worker neu starten. Türwache liefert die Gewichte nicht mit. InsightFace gibt diese öffentlichen Gewichte für nichtkommerzielle Forschung frei. Ihre [Lizenzbedingungen](https://github.com/deepinsight/insightface/blob/master/python-package/docs/model_zoo.md) gelten auch bei separatem Download.
+2. Auf dem Pi unter **KI-Anbieter → Gesichts-Worker** **ArcFace verfügbar machen** aktivieren, die Verbindung prüfen und speichern. Unter **Gesichter** mindestens ein Referenzfoto für jede bekannte Person einlernen. Falls du genau dieselbe Datei erneut auswählst, ergänzt Türwache die bestehende Vorlage um ArcFace.
+3. Pro Kamera unter **Standorte → Privatzonen & KI → Gesichts-Engine** **ArcFace im Heimnetz** auswählen. Aufnahme, Gesichtssuche im Video und Namensabgleich laufen auf dem Pi. Nur ausgerichtete Gesichtsausschnitte gehen an den Worker, der die ArcFace-Merkmale berechnet.
+
+ArcFace nutzt die eigene Mindestähnlichkeit 0,30 und die Mehrbildbestätigung. Bei fehlenden ArcFace-Vorlagen, einem nicht erreichbaren Worker oder aktiven Privatzonen nutzt Türwache lokales SFace. Details stehen unter **Gesichtserkennung im Clip**.
 
 Übertragen werden ausgerichtete Gesichtsausschnitte an den eigenen Worker. Die gespeicherten Vorlagen, Namen und der Abgleich bleiben auf Türwache. Ist der Worker nicht erreichbar oder sind für die Kamera Privatzonen gesetzt, berechnet Türwache die Merkmale lokal. Auf Loopback ist für einen Test auch HTTP möglich.
 

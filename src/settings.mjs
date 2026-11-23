@@ -7,6 +7,7 @@ import { normalizeOllamaUrl, normalizeProviderUrl, validModel, localModel } from
 
 import { PROVIDERS, providerInfo } from './provider-catalog.mjs';
 import { normalizeZones } from './privacy-zones.mjs';
+import { environmentFaceWorker, updateFaceWorker } from './face-worker-config.mjs';
 
 function providerConfig(info, previous, input) {
   const target = { ...previous };
@@ -82,20 +83,29 @@ export class Settings {
     if (typeof cameraId !== 'string' || !/^[a-zA-Z0-9_-]{1,64}$/.test(cameraId) || !input || typeof input !== 'object' || Array.isArray(input)) throw new Error('Kamera-Profil ungültig.');
     const allowed = ['extendRecording', 'monitoring', 'recordMotion', 'recordDing', 'personDetection', 'faceRecognition', 'cloudUpload', 'discordDing', 'discordDingClip', 'discordMotionClip', 'discordPerson', 'discordPersonImage', 'discordSummary', 'discordSummaryImage'];
     const { privacyZones, faceEngine, ...settings } = input;
-    if (faceEngine !== undefined && !['local', 'network'].includes(faceEngine)) throw Error('Gesichts-Engine ungültig.');
+    if (faceEngine !== undefined && !['local', 'network', 'network-arcface'].includes(faceEngine)) throw Error('Gesichts-Engine ungültig.');
     if (Object.entries(settings).some(([key, value]) => key === 'summaryProvider' ? value !== 'off' && !this.resolveSummary(value) : key === 'sceneContext' ? typeof value !== 'string' || value.length > 400 : key === 'recordingSeconds' ? ![10, 20, 30, 45, 60].includes(value) : key === 'recordingCooldownSeconds' ? !Number.isInteger(value) || value < 10 || value > 3600 : !allowed.includes(key) || typeof value !== 'boolean')) throw new Error('Kamera-Funktionen oder Aufnahmezeiten ungültig.');
     const next = { ...this.profile(cameraId), ...settings, ...(faceEngine !== undefined && { faceEngine }), ...(privacyZones !== undefined && { privacyZones: normalizeZones(privacyZones) }) };
     this.value.cameraProfiles[cameraId] = next;
     this.syncAutomatic(); writeJson(this.file, this.value);
     return next;
   }
+  faceWorker() {
+    if (this.value.faceWorker) return { mode: 'external', ...this.value.faceWorker };
+    const environment = environmentFaceWorker();
+    if (environment.url) return { ...environment, mode: 'external' };
+    return { mode: 'local', url: '', token: '', enabled: true, arcface: false, localOnly: true };
+  }
+  previewFaceWorker(input) { return updateFaceWorker(this.faceWorker(), input); }
   public() {
     const { accessKeyId, secretAccessKey, ...cloud } = this.value.cloud;
     const { webhookUrl, ...discord } = this.value.discord;
     const summaries = { openaiDailyLimit: this.value.summaries.openaiDailyLimit };
     for (const info of PROVIDERS) { const { apiKey, ...config } = this.value.summaries[info.id]; summaries[info.id] = { ...config, keySet: Boolean(apiKey) }; }
     summaries.profiles = Object.fromEntries(Object.entries(this.value.summaries.profiles).map(([id, { apiKey, ...config }]) => [id, { ...config, keySet: Boolean(apiKey) }]));
-    return { ...this.value, cloud: { ...cloud, credentialsSet: Boolean(accessKeyId && secretAccessKey) }, discord: { ...discord, webhookSet: Boolean(webhookUrl) }, summaries };
+    const { mode, url, token, enabled, arcface } = this.faceWorker();
+    return { ...this.value, cloud: { ...cloud, credentialsSet: Boolean(accessKeyId && secretAccessKey) }, discord: { ...discord, webhookSet: Boolean(webhookUrl) }, summaries,
+      faceWorker: { mode, url, enabled, arcface, tokenSet: Boolean(token), fromEnvironment: !this.value.faceWorker && mode === 'external' } };
   }
   async update(input) {
     if (this.saving) throw new Error('Einstellungen werden gerade gespeichert. Bitte kurz warten.');
@@ -104,6 +114,7 @@ export class Settings {
   }
   async apply(input) {
     const next = structuredClone(this.value);
+    if (input.faceWorker !== undefined) next.faceWorker = this.previewFaceWorker(input.faceWorker);
     if (input.summaries !== undefined) {
       const config = input.summaries;
       if (!config || typeof config !== 'object' || Array.isArray(config)) throw new Error('KI-Anbieter-Konfiguration ungültig.');

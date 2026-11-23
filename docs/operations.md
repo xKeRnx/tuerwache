@@ -1,27 +1,5 @@
 # Sicherheit, Backup und Updates
 
-## Quellcode für GitHub exportieren
-
-Quellcode gehört in Git; Ring-Sitzungen, Gesichtsdateien und Schlüssel nicht. Der Export kopiert eine feste Auswahl an Quellordnern in einen neuen leeren Zielordner. Daten, Backups, APKs, Modellgewichte, Buildordner, node_modules und Git-Metadaten fehlen bewusst.
-
-```powershell
-node scripts/prepare-repository.mjs --destination H:\Tuerwache-GitHub
-```
-
-Vor dem Push manuell eingebettete Zugangsdaten und mobile Projekt-IDs prüfen. Nach dem Klonen Abhängigkeiten und Modelle installieren. Der Export enthält den [Lizenztext](../LICENSE.md) für den eigenen Code.
-
-Für einen privaten Testexport ein leeres privates Repository wählen. Im geprüften Exportordner die folgenden Befehle verwenden und Kontoname sowie Repository ersetzen. Für die öffentliche Fassung gelten die Schritte unter [GitHub, Lizenz und Geschäftsmodell](github.md).
-
-```bash
-git add .
-git diff --cached --stat
-git commit -m "Initial private version"
-git remote add origin https://github.com/DEIN-KONTO/DEIN-PRIVATES-REPO.git
-git push -u origin main
-```
-
-Die SaaS-Codebasis separat verwalten.
-
 ## Externer Zugriff
 
 Standard: Loopback und Freigabe aus. Für Heimserver oder Cloud eigene HTTPS-Adresse, erlaubte Hosts, exakt vertraute Proxy-IP und MFA für alle Benutzer einrichten. Cloud benötigt einen AUTH_ENCRYPTION_KEY außerhalb des Datenvolumens. Erst danach unter Server & Zugriff Betriebsort wählen und freigeben. Die vollständige Proxy-Anleitung steht in deploy/README.md.
@@ -70,12 +48,3 @@ Am Clip Richtig/Falsch/Unsicher und optional eine Korrektur speichern. Die Bewer
 ## Update
 
 Änderungen prüfen, Backup, stoppen, Quellcode aktualisieren und Installer mit passender AI-Option erneut ausführen. Starten und neues Ereignis mit Bild/Ton prüfen. Bei Fehlschlag alten Code und zugehöriges Datenbackup gemeinsam wiederherstellen. Nie zwei Prozesse gegen dieselbe JSON-Datenablage starten.
-
-## Nächste Schritte
-
-Noch ausstehend: echte Linux-/Pi-Abnahme dieser neuen Funktionen, signierte iOS-App und Push-Abnahme auf echten Geräten. Unabhängiger Sicherheitsreview und regelmäßige Abhängigkeitsupdates vor breiter externer Nutzung. Diese Anleitung ist kein durchgeführter Audit.
-
-
-## Abhängigkeitsstand des Handy-Testbuilds
-
-Expo Doctor meldet mit Expo 58.0.26 20/20 erfolgreiche Kompatibilitätsprüfungen. Das ist kein Sicherheits-Audit. `npm audit` meldet im mobilen SDK-/Werkzeugbaum weiterhin 42 betroffene Abhängigkeitseinträge (40 high, 2 moderate), zurückgeführt auf zwei Glob-/Regex-Advisories zu picomatch und minimatch. Die Anzahl entspricht nicht 42 unabhängig bestätigten Angriffspfaden. Es wurde kein erzwungener SDK-Downgrade vorgenommen. Vor einer Store-/Kundenfreigabe die Advisories und kompatible Updates erneut prüfen; das APK bleibt ein Testbuild. Der Server-Abhängigkeitsbaum ist davon getrennt.

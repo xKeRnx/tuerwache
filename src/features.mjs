@@ -2,6 +2,7 @@ import { join } from 'node:path';
 import { Settings } from './settings.mjs';
 import { CloudStorage } from './cloud-storage.mjs';
 import { AIService } from './ai-service.mjs';
+import { ManagedFaceWorker } from './managed-face-worker.mjs';
 import { DiscordNotifications } from './discord-notifications.mjs';
 import { Summaries } from './summaries.mjs';
 import { FaceSuggestions } from './face-suggestions.mjs';
@@ -13,7 +14,8 @@ import {AIQuality} from './ai-quality.mjs';
 export class Features {
   constructor(service, projectRoot) {
     this.service = service; this.settings = new Settings(service.storage);
-    this.cloud = new CloudStorage(); this.ai = new AIService(service.storage.root, projectRoot);
+    this.managedFaceWorker = new ManagedFaceWorker(projectRoot);
+    this.cloud = new CloudStorage(); this.ai = new AIService(service.storage.root, projectRoot, { faceWorker: () => this.workerConnection() });
     this.jobs = new JobTracker(); this.cloudTail = Promise.resolve(); this.pending = new Set(); this.closed = false;
     this.discord = new DiscordNotifications(this);
     this.summaries = new Summaries(this);
@@ -30,6 +32,17 @@ export class Features {
     }
     if (staleIdentities) this.invalidateIdentityEvidence();
     service.persistEvents();
+  }
+  workerConnection() {
+    const config = this.settings.faceWorker();
+    if (!config.enabled) return config;
+    return this.managedFaceWorker.connection(config).catch(() => ({ ...config, enabled: false }));
+  }
+  startFaceWorker() { void this.workerConnection(); }
+  async checkFaceWorker(input) {
+    const config = this.settings.previewFaceWorker(input);
+    if (config.mode === 'local' && config.arcface) await this.managedFaceWorker.checkArcFace();
+    return this.ai.checkFaceWorker(await this.managedFaceWorker.connection(config));
   }
   state(admin) { return { cameraProfiles: Object.fromEntries(Object.keys(this.settings.value.cameraProfiles).map(id => [id, this.settings.profile(id)])), ...(admin ? { settings: this.settings.public(),faceSuggestions:this.faceSuggestions.list() } : {}), ...(admin?{operations:this.operations.state(),aiQuality:this.quality.state()}:{}), summaryService: this.summaries.state(admin), ai: { ...this.ai.state(), ...(admin ? {} : { people: [] }) } }; }
   path(entry) { return join(entry.directory || this.service.storage.clips, entry.clip); }
@@ -135,5 +148,5 @@ export class Features {
     }
     this.save();
   }
-  async drain() { this.closed = true;await this.operations.stop(); await Promise.allSettled([...(this.service.captureTasks||[]),...this.pending, this.ai.tail, this.service.mobilePush?.drain(), this.service.live?.stop()]); await this.ai.close(); }
+  async drain() { this.closed = true;await this.operations.stop(); await Promise.allSettled([...(this.service.captureTasks||[]),...this.pending, this.ai.tail, this.service.mobilePush?.drain(), this.service.live?.stop()]); await Promise.all([this.ai.close(), this.managedFaceWorker.close()]); }
 }

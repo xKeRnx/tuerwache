@@ -167,7 +167,7 @@ export function createLocalServer(service, { port = 3210, publicRoot = join(root
       });
       if((url.pathname.startsWith('/api/')||url.pathname.startsWith('/clips/')||url.pathname.startsWith('/live/'))&&!limits.allow(`${user?.id||'anonymous'}:${context.address}`,user?900:120)){response.setHeader('Retry-After','60');json(response,429,{error:'Zu viele Anfragen. Bitte eine Minute warten.'});return;}
       if (bearer && !user) { json(response, 401, { error: 'Handy-Anmeldung abgelaufen. Bitte erneut anmelden.' }); return; }
-      const bootstrap = {appVersion:'0.13.0', setupRequired: accounts?.setupRequired ?? false, user: user ? { id: user.id, name: user.name, role: user.role, roleName: cameraAccess.role(user.role)?.name } : null, csrf: user?.csrf || csrf };
+      const bootstrap = {appVersion:'0.13.1', setupRequired: accounts?.setupRequired ?? false, user: user ? { id: user.id, name: user.name, role: user.role, roleName: cameraAccess.role(user.role)?.name } : null, csrf: user?.csrf || csrf };
       if ((request.method === 'GET' || request.method === 'HEAD') && ['/api/mobile/app', '/api/mobile/download/android'].includes(url.pathname)) {
         if (!user) { json(response, 401, { error: 'Bitte in Türwache anmelden.' }); return; }
         const info = await distribution.info();
@@ -264,7 +264,8 @@ export function createLocalServer(service, { port = 3210, publicRoot = join(root
           if ('ringConnections' in state) delete state.ringConnections;
           state.message = state.phase === 'connected' ? 'Kameras verbunden.' : 'Keine aktive Kameraverbindung.';
         }
-        json(response, 200, { ...state, ...bootstrap, access:user?access?.state(user):undefined,quietHours:user?accounts.quietHours(user):undefined,mobile: mobile && user ? { devices: mobile.list(user), currentDeviceId: user.mobileId || null } : null, live: user ? service.live?.state(user) || null : null, ...(admin ? { users: accounts?.list() ?? [], roles: cameraAccess?.roles, cameraActions, networkCameras: service.networkCameras?.state() || [], faceWorkerConfigured: Boolean(process.env.FACE_WORKER_URL && process.env.FACE_WORKER_TOKEN) } : {}) }); return;
+        const faceWorker = admin ? service.features?.settings.faceWorker() : null;
+        json(response, 200, { ...state, ...bootstrap, access:user?access?.state(user):undefined,quietHours:user?accounts.quietHours(user):undefined,mobile: mobile && user ? { devices: mobile.list(user), currentDeviceId: user.mobileId || null } : null, live: user ? service.live?.state(user) || null : null, ...(admin ? { users: accounts?.list() ?? [], roles: cameraAccess?.roles, cameraActions, networkCameras: service.networkCameras?.state() || [], faceWorkerConfigured: Boolean(faceWorker?.enabled), arcFaceConfigured: Boolean(faceWorker?.enabled && faceWorker.arcface) } : {}) }); return;
       }
       if (request.method === 'POST' && url.pathname.startsWith('/api/')) {
         const authentication = ['/api/auth/setup', '/api/auth/login'].includes(url.pathname);
@@ -357,6 +358,12 @@ export function createLocalServer(service, { port = 3210, publicRoot = join(root
             }
             service.features.updateCamera(body.cameraId, body.profile); break;
           case '/api/discord/test': await service.features.discord.test(); break;
+          case '/api/face-worker/save': await service.features.settings.update({ faceWorker: body }); service.features.startFaceWorker(); break;
+          case '/api/face-worker/check': {
+            if (!limits.allow('face-worker-check:' + user?.id, 8)) { json(response, 429, { error: 'Zu viele Worker-Prüfungen.' }); return; }
+            await service.features.checkFaceWorker(body);
+            break;
+          }
           case '/api/discord/retry': service.features.discord.retry(body.id, body.kind)?.catch(() => {}); break;
           case '/api/models/save': { const id = service.features.settings.saveModel(body); if (service.features.summaries.providerStatus) delete service.features.summaries.providerStatus[id]; break; }
           case '/api/models/remove': service.features.settings.removeModel(body.id); break;
@@ -458,6 +465,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     console.log(`Türwache läuft: ${tls ? 'https' : 'http'}://127.0.0.1:${port}`);
     console.log('Ring-Zugangsdaten ausschließlich in der lokalen Oberfläche eingeben.');
     features.operations.start();
+    features.startFaceWorker();
     service.networkCameras.start().catch(() => console.error('Der lokale Kamerapuffer konnte nicht vorbereitet werden.'));
     service.ringAccounts.resumeAll();
   });

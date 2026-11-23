@@ -1,22 +1,15 @@
-# GitHub, licensing and business model
+# Download and license
 
-## What you can publish
+## Download Türwache
 
-Türwache can run free of charge in a private household. The source can be read publicly and shared free of charge under the private-use license. If you modify a version, publish the corresponding source under the same license, even for purely private use. Sale, paid hosting, business use and distribution as part of a paid bundle are prohibited. See the [license text](../LICENSE.md) for the full terms.
+Find the current version in [GitHub Releases](https://github.com/xKeRnx/tuerwache/releases/latest). Download and extract `tuerwache-<version>.zip`. The release also lists what changed and includes the download's SHA-256 checksum.
 
-Describe the GitHub repository as source available for private use. The [Open Source Initiative](https://opensource.org/definition-annotated) requires commercial use to be permitted. A public GitHub repository can be viewed and forked through GitHub. [GitHub licensing documentation](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository)
+Follow the setup guide for [Windows](windows.en.md), [Linux](linux.en.md), or [Raspberry Pi](raspberry-pi.en.md). Back up your installation before upgrading. See [Operations and security](operations.en.md) for the steps.
 
-For home users, see [local operation and setup assistance](saas.en.md).
+## Private use
 
-## Release preparation
+Türwache is free for private use. The [source code is available on GitHub](https://github.com/xKeRnx/tuerwache). The [Türwache Private Use License](../LICENSE.md) covers use, modifications, and redistribution.
 
-- Clearly identify the rightsholder and a licensing contact. Before publication, have the custom license reviewed, especially the duty to publish purely private changes and how the terms are incorporated. [German Copyright Act, section 31](https://www.gesetze-im-internet.de/urhg/__31.html) · [German Civil Code, sections 305](https://www.gesetze-im-internet.de/bgb/__305.html) and [307](https://www.gesetze-im-internet.de/bgb/__307.html)
-- Record the terms under which outside contributions can be accepted. Previously granted rights remain subject to their original terms.
-- Keep third-party notices. Expo templates, FFmpeg, AI models and other dependencies have their own terms. Review redistribution rights before distributing compiled packages.
-- Export the repository to a new empty folder. The source allowlist excludes runtime data, private settings and keys. Review the result for credentials and private files before publication.
+## Help and feedback
 
-```sh
-node scripts/prepare-repository.mjs --public --destination /path/to/new-github-export
-```
-
-The public export includes example documentation screenshots. Photos used by optional AI tests are kept outside the export. The guides are available in the app under **System → Documentation**. The Türwache website serves the same material at `/dokumentation/`.
+Use the [contact page](https://tuerwache.de/en/contact/) for setup questions or [GitHub Issues](https://github.com/xKeRnx/tuerwache/issues) for bug reports and feature requests. Include your Türwache version, operating system, and steps to reproduce the issue. Keep credentials and camera footage private.

@@ -62,7 +62,7 @@ test('Lokale KI: Gesicht einlernen, Person erkennen, Namen wiederfinden, leeres 
   assert.equal(brief.personDetected,true,'Kurzer Besucher am Clipende wird geprüft');assert.ok(brief.samples.some(sample=>sample.frameIndex===39&&sample.people.length));assert.ok(brief.sampleCount>3&&brief.sampleCount<=60);
 });
 
-test('Kurzes Gesicht zwischen groben Stichproben und SFace-Auslagerung im Heimnetz', { skip: !process.env.TEST_AI }, async t => {
+test('Kurzes Gesicht spät im Clip zwischen groben Stichproben und SFace-Auslagerung im Heimnetz', { skip: !process.env.TEST_AI }, async t => {
   const directory = await mkdtemp(join(tmpdir(), 'tuerwache-face-api-'));
   const previous = { url: process.env.FACE_WORKER_URL, token: process.env.FACE_WORKER_TOKEN };
   const ai = new AIService(directory, resolve('.'));
@@ -87,17 +87,88 @@ test('Kurzes Gesicht zwischen groben Stichproben und SFace-Auslagerung im Heimne
   const python = process.env.AI_PYTHON || (process.platform === 'win32' ? 'py' : 'python3');
   const prefix = process.platform === 'win32' && !process.env.AI_PYTHON ? ['-3.12'] : [];
   const video = join(directory, 'brief-face.avi');
-  const script = "import cv2,sys; a=cv2.imread('test/fixtures/face.jpg'); h,w=a.shape[:2]; v=cv2.VideoWriter(sys.argv[1],cv2.VideoWriter_fourcc(*'MJPG'),10,(w,h)); [v.write(a if 12 <= i < 18 else a*0) for i in range(50)]; v.release()";
+  const script = "import cv2,sys; a=cv2.imread('test/fixtures/face.jpg'); h,w=a.shape[:2]; v=cv2.VideoWriter(sys.argv[1],cv2.VideoWriter_fourcc(*'MJPG'),10,(w,h)); [v.write(a if 112 <= i < 119 else a*0) for i in range(220)]; v.release()";
   assert.equal(spawnSync(python, [...prefix, '-c', script, video]).status, 0);
   const profile = { personDetection: false, faceRecognition: true, faceEngine: 'network' };
   const result = await ai.analyze(video, 0.5, profile);
   assert.equal(result.faceEngine, 'network');
   assert.deepEqual(result.names, ['Lokale Testvorlage']);
-  assert.equal(cropCount, 3);
+  const sent = result.samples.reduce((sum, sample) => sum + sample.faces.length, 0);
+  assert.ok(sent >= 3);
+  assert.equal(cropCount, sent);
+  assert.ok(result.sampleCount <= 23 + 24);
+  assert.ok(result.confirmedIdentities[0].firstSeconds >= 11.2);
+  assert.ok(result.faceDiagnostics.matchFrames >= 3);
+  assert.ok(result.faceDiagnostics.largestFacePixels >= 40);
   const privateResult = await ai.analyze(video, 0.5, { ...profile, privacyZones: [{ x: 0, y: 0, width: 100, height: 100 }] });
-  assert.equal(privateResult.faceEngine, 'local'); assert.equal(cropCount, 3);
+  assert.equal(privateResult.faceEngine, 'local'); assert.equal(cropCount, sent);
   await new Promise(done => worker.close(done));
   const fallback = await ai.analyze(video, 0.5, profile);
   assert.equal(fallback.faceEngine, 'local-fallback');
   assert.deepEqual(fallback.names, ['Lokale Testvorlage']);
+});
+
+test('ArcFace-Heimnetz-Worker ergänzt bestehende Vorlagen und bestätigt Namen ohne Galerie-Übertragung', { skip: !process.env.TEST_ARCFACE_MODEL }, async t => {
+  const directory = await mkdtemp(join(tmpdir(), 'tuerwache-arcface-test-'));
+  const keys = ['FACE_WORKER_URL', 'FACE_WORKER_TOKEN', 'FACE_WORKER_ARCFACE', 'FACE_WORKER_ARCFACE_MODEL'];
+  const previous = Object.fromEntries(keys.map(key => [key, process.env[key]]));
+  const local = new AIService(directory, resolve('.'));
+  const remote = new AIService(directory, resolve('.'));
+  const token = randomBytes(32).toString('hex');
+  const batches = [];
+  const checkedModels = new Set();
+  const worker = createFaceWorker({ run: data => {
+    assert.deepEqual(Object.keys(data).sort(), ['images', 'mode', 'model']);
+    checkedModels.add(data.model);
+    if (data.model === 'arcface-w600k-r50-v1') batches.push(data.images.length);
+    return remote.run(data);
+  } }, token, undefined, { enableArcFace: true });
+  t.after(async () => {
+    await Promise.all([local.close(), remote.close()]);
+    if (worker.listening) await new Promise(done => worker.close(done));
+    for (const key of keys) {
+      if (previous[key] === undefined) delete process.env[key];
+      else process.env[key] = previous[key];
+    }
+    await cleanTestDirectory(directory);
+  });
+  worker.listen(0, '127.0.0.1');
+  await once(worker, 'listening');
+  process.env.FACE_WORKER_ARCFACE_MODEL = process.env.TEST_ARCFACE_MODEL;
+  process.env.FACE_WORKER_URL = `http://127.0.0.1:${worker.address().port}`;
+  process.env.FACE_WORKER_TOKEN = token;
+  delete process.env.FACE_WORKER_ARCFACE;
+  assert.deepEqual(await local.checkFaceWorker({ url: process.env.FACE_WORKER_URL, token, localOnly: true, arcface: true }), { ok: true });
+  assert.equal(checkedModels.size, 2);
+  assert.ok(checkedModels.has('arcface-w600k-r50-v1'));
+  batches.length = 0;
+  const source = await readFile('test/fixtures/face.jpg');
+  const image = 'data:image/jpeg;base64,' + source.toString('base64');
+  const { id } = await local.enroll({ name: 'Arbeitsprobe', image });
+  assert.equal(local.state().people[0].arcFaceTemplateCount, 0);
+  process.env.FACE_WORKER_ARCFACE = '1';
+  await local.enroll({ personId: id, image });
+  assert.equal(local.state().people[0].templateCount, 1);
+  assert.equal(local.state().people[0].arcFaceTemplateCount, 1);
+  assert.equal(JSON.stringify(local.state()).includes('arcEmbedding'), false);
+  const python = process.env.AI_PYTHON || (process.platform === 'win32' ? 'py' : 'python3');
+  const prefix = process.platform === 'win32' && !process.env.AI_PYTHON ? ['-3.12'] : [];
+  const video = join(directory, 'arcface.avi');
+  const script = "import cv2,sys; a=cv2.imread('test/fixtures/face.jpg'); h,w=a.shape[:2]; v=cv2.VideoWriter(sys.argv[1],cv2.VideoWriter_fourcc(*'MJPG'),10,(w,h)); [v.write(a) for _ in range(30)]; v.release()";
+  assert.equal(spawnSync(python, [...prefix, '-c', script, video]).status, 0);
+  const profile = { personDetection: false, faceRecognition: true, faceEngine: 'network-arcface' };
+  const result = await local.analyze(video, .50, profile);
+  assert.equal(result.faceEngine, 'network-arcface');
+  assert.equal(result.faceDiagnostics.threshold, .30);
+  assert.deepEqual(result.names, ['Arbeitsprobe']);
+  assert.ok(batches.length > 2 && batches.every(size => size <= 8));
+  const seen = batches.length;
+  const privateResult = await local.analyze(video, .50, { ...profile, privacyZones: [{ x: 0, y: 0, width: 100, height: 100 }] });
+  assert.equal(privateResult.faceEngine, 'local');
+  assert.equal(batches.length, seen);
+  await new Promise(done => worker.close(done));
+  const fallback = await local.analyze(video, .50, profile);
+  assert.equal(fallback.faceEngine, 'local-fallback');
+  assert.equal(fallback.arcFaceFallback, 'worker-error');
+  assert.deepEqual(fallback.names, ['Arbeitsprobe']);
 });

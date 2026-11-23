@@ -41,6 +41,7 @@
     for (const person of state.ai.people) {
       const row = el('div', 'management-row face-person-row'), info = el('div', 'face-person-info'), heading = el('strong', '', person.name); heading.dataset.i18nSkip = '';
       info.append(heading, el('span', 'badge neutral', `${person.templateCount} / 12 Vorlagen`));
+      if (state.arcFaceConfigured) info.append(el('span', 'badge neutral', `ArcFace · ${person.arcFaceTemplateCount || 0} / ${person.templateCount}`));
       const controls = el('div', 'face-library-actions'), add = el('button', 'button', 'Fotos hinzufügen'), templates = el('button', 'text-button', 'Vorlagen verwalten'), forget = el('button', 'text-button danger', 'Person vergessen');
       for (const button of [add, templates, forget]) button.type = 'button';
       add.disabled = person.templateCount >= 12; add.onclick = () => addPhotos(person); templates.onclick = () => showTemplates(person.id); forget.onclick = () => confirmRemoval(person); controls.append(add, templates, forget); row.append(info, controls); list.append(row);
@@ -60,9 +61,10 @@
         feedback.textContent = `Foto ${index + 1} von ${files.length} wird eingelernt …`;
         try {
           const image = await new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = reject; reader.readAsDataURL(file); });
-          const before = people().reduce((sum, person) => sum + person.templateCount, 0);
+          const before = people().map(person => [person.templateCount, person.arcFaceTemplateCount || 0]);
           const ok = await window.tw.action('/api/faces/add', { ...(targetId ? { personId: targetId } : { name: targetName }), image });
-          if (!ok) failed++; else learned += Math.max(0, people().reduce((sum, person) => sum + person.templateCount, 0) - before);
+          if (!ok) failed++;
+          else if (JSON.stringify(before) !== JSON.stringify(people().map(person => [person.templateCount, person.arcFaceTemplateCount || 0]))) learned++;
         } catch { failed++; }
       }
       input.value = ''; feedback.textContent = `${learned} neue Vorlagen gespeichert. ${failed} Fotos fehlgeschlagen. Identische Fotos werden nicht doppelt gespeichert.`;

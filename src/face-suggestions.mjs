@@ -19,7 +19,7 @@ export class FaceSuggestions{
       const best=samples.toSorted((a,b)=>quality(b)-quality(a))[0];
       if(!best)continue;
       for(const [index,face]of best.faces.entries()){
-        if(['unconfirmed','needs-reanalysis'].includes(face.identityStatus)||face.name||face.box?.length!==4||face.box.some(value=>!Number.isFinite(value))||face.box[2]<48||face.box[3]<48||face.score<.85)continue;
+        if(['unconfirmed','needs-reanalysis','unchecked'].includes(face.identityStatus)||face.name||face.box?.length!==4||face.box.some(value=>!Number.isFinite(value))||face.box[2]<48||face.box[3]<48||face.score<.85)continue;
         const id=createHash('sha256').update(`${entry.id}:${best.frameIndex}:${index}`).digest('hex');
         if(this.decisions[id])continue;
         output.push({id,entry,frameIndex:best.frameIndex,face,index});
@@ -43,7 +43,8 @@ export class FaceSuggestions{
     if(typeof name!=='string'||!name.trim()||name.length>60)throw new Error('Einen Namen mit höchstens 60 Zeichen angeben.');
     const candidate=this.candidate(id),entry=candidate.entry,key=`ai:${entry.id}`;this.features.assertIdle(entry.id);this.features.jobs.add(key);
     const task=(async()=>{try{
-      const bytes=await this.image(candidate),person=await this.features.ai.enroll({name,image:'data:image/jpeg;base64,'+bytes.toString('base64')});
+      const bytes=await this.image(candidate),person=await this.features.ai.enroll({name,image:'data:image/jpeg;base64,'+bytes.toString('base64'),
+        allowArcFace: !this.features.settings.profile(entry.cameraId).privacyZones?.length});
       this.decisions[id]={status:'named',personId:person.id,at:new Date().toISOString()};writeJson(this.file,this.decisions);
       entry.peopleAssignments=[...(entry.peopleAssignments||[]),{personId:person.id,name:person.name,at:new Date().toISOString()}];this.features.save();return person;
     }finally{this.features.jobs.delete(key);}})();return this.features.track(task);

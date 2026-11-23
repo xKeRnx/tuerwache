@@ -200,8 +200,19 @@
   function editPrivacy(camera) {
     const state = getState(), previous = state.cameraProfiles?.[camera.id] || camera.features || {};
     editor(`Privatzonen und Gesichtserkennung · ${camera.name}`, form => {
-      const faceEngine = select([['local', 'Lokal auf Türwache'], ['network', 'Gesichts-Worker im Heimnetz']], previous.faceEngine || 'local');
-      form.append(field('Gesichts-Engine', faceEngine), el('p', 'small-note', state.faceWorkerConfigured ? 'Mit Privatzonen verarbeitet Türwache Gesichter lokal.' : 'Für die Heimnetz-Auswertung zuerst FACE_WORKER_URL und FACE_WORKER_TOKEN auf dem Server setzen.'));
+      const builtIn = state.settings?.faceWorker?.mode === 'local';
+      const engines = [['local', 'Lokal auf Türwache'], ['network', builtIn ? 'Integrierter Gesichts-Worker' : 'Gesichts-Worker im Heimnetz']];
+      if (state.arcFaceConfigured || previous.faceEngine === 'network-arcface') engines.push(['network-arcface', builtIn ? 'ArcFace auf diesem Gerät' : 'ArcFace im Heimnetz']);
+      const faceEngine = select(engines, previous.faceEngine || 'local');
+      const workerNote = state.faceWorkerConfigured ? 'Mit Privatzonen verarbeitet Türwache Gesichter lokal.'
+        : 'Die Verbindung für die Heimnetz-Auswertung richtest du unter KI-Anbieter ein.';
+      form.append(field('Gesichts-Engine', faceEngine), el('p', 'small-note', workerNote));
+      if (state.settings?.faceWorker) form.append(button('Gesichts-Worker einstellen', () => {
+        form.closest('dialog')?.close();
+        window.tw.navigate('/ai');
+        byId('face-worker-title').focus();
+      }, 'text-button'));
+      if (state.arcFaceConfigured) form.append(el('p', 'small-note', 'Lerne für jede bekannte Person mindestens eine ArcFace-Vorlage unter Gesichter ein.'));
       const canvas = el('canvas', 'privacy-preview'); canvas.width = 640; canvas.height = 360; canvas.setAttribute('aria-label', 'Vorschau der Privatzonen. Zonen lassen sich auch mit den Positionsfeldern einstellen.');
       const ctx = canvas.getContext('2d'), picture = new Image();
       const example = state.events.find(entry => entry.cameraId === camera.id && entry.clip && entry.status === 'ready');

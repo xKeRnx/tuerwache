@@ -28,6 +28,37 @@ function element(tag, className, content) {
   return node;
 }
 
+function appendFaceDiagnostics(target, entry) {
+  const ai = entry.ai;
+  const stats = ai?.faceDiagnostics;
+  if (ai?.status !== 'ready' || !stats || !can(entry.cameraId, 'analyze')) return;
+  const detail = element('details', 'small-note');
+  detail.append(element('summary', '', 'Gesichtserkennung im Clip'));
+  if (ai.faceEngine === 'network-arcface') detail.append(element('p', '', 'Mit ArcFace ausgewertet.'));
+  const fallback = {
+    'not-configured': 'ArcFace ist nicht eingerichtet. SFace hat den Clip lokal ausgewertet.',
+    'missing-templates': 'ArcFace-Vorlagen fehlen. SFace hat den Clip lokal ausgewertet.',
+    'worker-error': 'Der ArcFace-Worker war nicht verfügbar. SFace hat den Clip lokal ausgewertet.',
+  }[ai.arcFaceFallback];
+  if (fallback) detail.append(element('p', '', fallback));
+  let explanation = 'Die sichtbaren Gesichter lieferten keinen eindeutigen Treffer zu einer Vorlage.';
+  if (ai.identityGalleryStale) explanation = 'Die Vorlagen wurden seit dieser Auswertung geändert. Werte den Clip erneut aus.';
+  else if (!stats.faceFrames) explanation = 'In den geprüften Bildern wurde kein verwertbares Gesicht gefunden.';
+  else if (!stats.knownPeople) explanation = 'Beim Auswerten waren keine Gesichtsvorlagen vorhanden.';
+  else if (ai.confirmedIdentities?.length) explanation = 'Der Name wurde über mehrere Bilder bestätigt.';
+  else if (stats.matchFrames) explanation = 'Es gab Treffer in Einzelbildern. Für eine sichere Namensbestätigung reichten sie nicht aus.';
+  detail.append(element('p', '', explanation));
+  const format = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 3 });
+  const count = `${stats.faceFrames} von ${ai.sampleCount} Bildern mit Gesicht`;
+  const size = `Größtes Gesicht ${stats.largestFacePixels} px`;
+  detail.append(element('p', '', stats.faceFrames ? `${count} · ${size}` : count));
+  if (Number.isFinite(stats.bestSimilarity)) {
+    const score = format.format(stats.bestSimilarity), threshold = format.format(stats.threshold);
+    detail.append(element('p', '', `Beste Ähnlichkeit ${score} · Mindestwert ${threshold} · ${stats.matchFrames} Bilder mit eindeutiger Übereinstimmung`));
+  }
+  target.append(detail);
+}
+
 function appendDiscordStatus(target, event) {
   for (const [kind, delivery] of Object.entries(event.discord || {})) {
     const label = { ding:'Klingelmeldung',clip:'Klingel-Clip',motionClip:'Bewegungsclip',person:'Personenmeldung',summary:'KI-Zusammenfassung' }[kind] || 'Nachricht';
@@ -127,6 +158,7 @@ function renderEvents() {
         label += ` · ${event.ai.sampleCount} Bilder`;
       }
       body.append(element('p', 'ai-result', label));
+      appendFaceDiagnostics(body, event);
     }
     if (event.summary) {
       const summary = element('div', 'summary-result');
@@ -164,7 +196,7 @@ function renderEvents() {
 
 function render() {
   if (!state) return;
-  if(state.appVersion&&state.appVersion!=='0.13.0'&&!document.getElementById('version-update')){const banner=element('aside','face-prompt');banner.id='version-update';banner.append(element('span','','Eine neue Türwache-Version ist verfügbar.'));const update=element('button','button','Neue Version laden');update.type='button';update.onclick=()=>location.reload();banner.append(update);document.querySelector('.heading').after(banner);}
+  if(state.appVersion&&state.appVersion!=='0.13.1'&&!document.getElementById('version-update')){const banner=element('aside','face-prompt');banner.id='version-update';banner.append(element('span','','Eine neue Türwache-Version ist verfügbar.'));const update=element('button','button','Neue Version laden');update.type='button';update.onclick=()=>location.reload();banner.append(update);document.querySelector('.heading').after(banner);}
   const signedIn = Boolean(state.user);
   document.body.classList.toggle('signed-out', !signedIn);
   $('auth-screen').hidden = signedIn;
@@ -282,5 +314,5 @@ $('ring-account').addEventListener('change', () => { $('email').value = $('passw
 $('diagnose').addEventListener('click', () => action('/api/diagnose', { cameraId: $('camera-select').value }));
 $('player').addEventListener('error', () => notice('Der Clip konnte im Browser nicht abgespielt werden. Du kannst ihn herunterladen und mit VLC öffnen.'));
 async function poll() { await refresh(); setTimeout(poll, 2000); }
-window.tw = { action, refresh, can, element,feedback,actionMessage,appendDiscordStatus, getState: () => state };
+window.tw = { action, refresh, can, element,feedback,actionMessage,appendDiscordStatus,appendFaceDiagnostics, getState: () => state };
 poll();

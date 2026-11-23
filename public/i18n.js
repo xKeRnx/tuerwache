@@ -3,6 +3,9 @@
   try { const saved = localStorage.getItem('tuerwache.language'); if (saved === 'en') language = saved; } catch {}
   const dictionary = window.TUERWACHE_TRANSLATIONS || {};
   const patterns = [
+    [/^(\d+) von (\d+) Bildern mit Gesicht$/, (_, count, total) => `${count} of ${total} frames with a face`],
+    [/^Größtes Gesicht (\d+) px$/, (_, pixels) => `Largest face ${pixels} px`],
+    [/^Beste Ähnlichkeit (-?[\d,]+) · Mindestwert ([\d,]+) · (\d+) Bilder mit eindeutiger Übereinstimmung$/, (_, score, minimum, count) => `Best similarity ${score.replace(',', '.')} · minimum ${minimum.replace(',', '.')} · ${count} frames with a clear match`],
     [/^(\d+) \/ 12 Vorlagen$/, (_, n) => `${n} / 12 templates`],
     [/^Vorlage (\d+)$/, (_, n) => `Template ${n}`],
     [/^Weitere Fotos für (.+) auswählen\.$/, (_, name) => `Select more photos for ${name}.`],

@@ -47,7 +47,8 @@ def confirm_faces(samples, known, threshold=0.5):
         faces = sample["faces"]
         active = [track for track in tracks if 0 < seconds - track["lastSeconds"] <= MAX_GAP]
         pairs = []
-        for index, face in enumerate(faces):
+        candidates = [(index, face) for index, face in enumerate(faces) if face.get("embedding")]
+        for index, face in candidates:
             face["_candidate"], face["similarity"] = match_identity(face["embedding"], known, threshold)
             for track in active:
                 score = association(track["lastFace"], face)
@@ -60,7 +61,7 @@ def confirm_faces(samples, known, threshold=0.5):
                 matches[index] = track
                 assigned_faces.add(index)
                 assigned_tracks.add(track["id"])
-        for index, face in enumerate(faces):
+        for index, face in candidates:
             track = matches.get(index)
             if track is None:
                 track = {"id": f"face-{len(tracks) + 1}", "observations": []}
@@ -92,6 +93,10 @@ def confirm_faces(samples, known, threshold=0.5):
     confirmed_tracks = {item["trackId"]: item for item in confirmed}
     for sample in samples:
         for face in sample["faces"]:
+            if not face.get("embedding"):
+                face.pop("embedding", None)
+                face.update({"personId": None, "name": None, "identityConfirmed": False, "identityStatus": "unchecked", "similarity": None})
+                continue
             candidate = face.pop("_candidate")
             face.pop("embedding", None)
             identity = confirmed_tracks.get(face["trackId"])

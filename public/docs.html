@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#19362f"><title>Türwache · Dokumentation</title><link rel="icon" href="/icon.svg"><link rel="stylesheet" href="/docs.css"><script src="/docs.js" defer></script></head><body><header><a class="brand" href="/docs"><img src="/icon.svg" width="32" height="32" alt="">türwache<span>.</span></a><span class="header-label" data-de="Dokumentation" data-en="Documentation">Dokumentation</span><div class="header-actions"><button type="button" data-language-button="de" aria-pressed="true">DE</button><button type="button" data-language-button="en" aria-pressed="false">EN</button><a class="back" href="/" data-de="Zur App ↗" data-en="Open app ↗">Zur App ↗</a></div></header><div class="layout"><aside><p class="eyebrow" data-de="DEIN KAMERASERVER" data-en="YOUR CAMERA SERVER">DEIN KAMERASERVER</p><nav aria-label="Documentation"><a href="#index" data-topic="index" data-de="Willkommen" data-en="Welcome">Willkommen</a><a href="#windows" data-topic="windows" data-de="Windows" data-en="Windows">Windows</a><a href="#linux" data-topic="linux" data-de="Linux & Server" data-en="Linux & servers">Linux & Server</a><a href="#raspberry-pi" data-topic="raspberry-pi" data-de="Raspberry Pi" data-en="Raspberry Pi">Raspberry Pi</a><a href="#usage" data-topic="usage" data-de="Kameras & KI" data-en="Cameras & AI">Kameras & KI</a><a href="#network-cameras" data-topic="network-cameras" data-de="Netzwerkkameras" data-en="Network cameras">Netzwerkkameras</a><a href="#operations" data-topic="operations" data-de="Betrieb & Sicherheit" data-en="Operations & security">Betrieb & Sicherheit</a><a href="#architecture" data-topic="architecture" data-de="Handy & Architektur" data-en="Mobile & architecture">Handy & Architektur</a><a href="#saas" data-topic="saas" data-de="Lokaler Betrieb & Hilfe" data-en="Local operation & help">Lokaler Betrieb & Hilfe</a><a href="#github" data-topic="github" data-de="GitHub & Lizenz" data-en="GitHub & licensing">GitHub & Lizenz</a></nav><p class="version">Version 0.13.0<br><span data-de="Anleitungen · privat betreiben" data-en="Source documentation · private hosting">Anleitungen · privat betreiben</span></p></aside><main id="content"><article data-language="de" data-document="index"><h1>Türwache Dokumentation</h1>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#19362f"><title>Türwache · Dokumentation</title><link rel="icon" href="/icon.svg"><link rel="stylesheet" href="/docs.css"><script src="/docs.js" defer></script></head><body><header><a class="brand" href="/docs"><img src="/icon.svg" width="32" height="32" alt="">türwache<span>.</span></a><span class="header-label" data-de="Dokumentation" data-en="Documentation">Dokumentation</span><div class="header-actions"><button type="button" data-language-button="de" aria-pressed="true">DE</button><button type="button" data-language-button="en" aria-pressed="false">EN</button><a class="back" href="/" data-de="Zur App ↗" data-en="Open app ↗">Zur App ↗</a></div></header><div class="layout"><aside><p class="eyebrow" data-de="DEIN KAMERASERVER" data-en="YOUR CAMERA SERVER">DEIN KAMERASERVER</p><nav aria-label="Documentation"><a href="#index" data-topic="index" data-de="Willkommen" data-en="Welcome">Willkommen</a><a href="#windows" data-topic="windows" data-de="Windows" data-en="Windows">Windows</a><a href="#linux" data-topic="linux" data-de="Linux & Server" data-en="Linux & servers">Linux & Server</a><a href="#raspberry-pi" data-topic="raspberry-pi" data-de="Raspberry Pi" data-en="Raspberry Pi">Raspberry Pi</a><a href="#usage" data-topic="usage" data-de="Kameras & KI" data-en="Cameras & AI">Kameras & KI</a><a href="#network-cameras" data-topic="network-cameras" data-de="Netzwerkkameras" data-en="Network cameras">Netzwerkkameras</a><a href="#operations" data-topic="operations" data-de="Betrieb & Sicherheit" data-en="Operations & security">Betrieb & Sicherheit</a><a href="#architecture" data-topic="architecture" data-de="Handy & Architektur" data-en="Mobile & architecture">Handy & Architektur</a><a href="#saas" data-topic="saas" data-de="Lokaler Betrieb & Hilfe" data-en="Local operation & help">Lokaler Betrieb & Hilfe</a><a href="#github" data-topic="github" data-de="Download & Lizenz" data-en="Download & license">Download & Lizenz</a></nav><p class="version">Version 0.13.1<br><span data-de="Anleitungen · privat betreiben" data-en="Source documentation · private hosting">Anleitungen · privat betreiben</span></p></aside><main id="content"><article data-language="de" data-document="index"><h1>Türwache Dokumentation</h1>
 <p>Türwache ist ein privater Kameraserver für Ring und Netzwerkkameras. Die Weboberfläche bündelt Clips, Zeitstrahl, lokale KI und Benachrichtigungen. Wähle Deutsch oder Englisch in der Kopfzeile.</p>
 <h2>Beginnen</h2>
 <ul>
@@ -10,7 +10,7 @@
 <li><a href="#operations" data-topic="operations">Sicherheit, Backup und Updates</a></li>
 <li><a href="#architecture" data-topic="architecture">Handy-Apps und Architektur</a></li>
 <li><a href="#saas" data-topic="saas">Lokaler Betrieb und Hilfe</a></li>
-<li><a href="#github" data-topic="github">GitHub, Lizenz und Geschäftsmodell</a></li>
+<li><a href="#github" data-topic="github">Download und Lizenz</a></li>
 </ul>
 <h2>Ehrlicher Entwicklungsstand</h2>
 <p>Windows und die eigene Ring Battery Doorbell Pro wurden praktisch getestet. Livebild und neue Aufnahmen enthalten Ton, sofern die Kamera ihn liefert. Der private Kameratest funktionierte ohne Ring-Abo und laut Nutzer ohne Probeabo. Das ist keine Garantie für jedes Ring-Gerät oder eine dauerhafte, offiziell zugesicherte API-Funktion.</p>
@@ -35,6 +35,34 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Start-Tuerwache.ps
 <h2>Konfiguration und Start</h2>
 <p>Optional <code>.env.example</code> nach <code>.env</code> kopieren. Die neuen Startskripte laden diese Datei. <code>npm start</code> allein lädt sie nicht. <code>.venv/Scripts/python.exe</code> wird automatisch ausgewählt, sofern <code>AI_PYTHON</code> nicht gesetzt ist. Eine vorhandene <code>.env</code>-Einstellung hat Vorrang vor dieser Vorauswahl, soweit keine Prozessvariable gesetzt ist.</p>
 <p>Der Doppelklick auf <code>Start-Tuerwache.cmd</code> nutzt denselben Starter. Das Fenster offen lassen; mit Strg+C sauber stoppen. Bei einem Update zuerst stoppen und ein Backup anlegen. Kein zweites Exemplar gegen dieselbe Datenablage starten.</p>
+<h2>Gesichts-Worker auf demselben Windows-PC</h2>
+<p>Die Gesichts-Engine <strong>Lokal auf Türwache</strong> verwendet SFace direkt. Über den Worker kannst du auch <strong>ArcFace</strong> nutzen. Dafür müssen Python und die OpenCV-Modelle eingerichtet sein, wie unter <strong>Installieren und starten</strong> beschrieben.</p>
+<h3>Automatisch mit Türwache starten</h3>
+<p>Wähle unter <strong>KI-Anbieter → Gesichts-Worker</strong> die Option <strong>Automatisch auf diesem Gerät</strong>. Lass <strong>ArcFace verfügbar machen</strong> für den ersten SFace-Test aus. Prüfe die Verbindung, schalte <strong>Gesichts-Worker freigeben</strong> ein und speichere. Bei jedem Türwache-Start läuft der integrierte Worker mit. Er braucht weder eine Adresse im Panel noch einen selbst erzeugten Token. Unter <strong>Standorte → Privatzonen &amp; KI</strong> kannst du <strong>Integrierter Gesichts-Worker</strong> pro Kamera als Gesichts-Engine wählen.</p>
+<p>Für ArcFace lege die geprüfte Datei <code>w600k_r50.onnx</code> unter <code>ai/models</code> ab. Aktiviere dann <strong>ArcFace verfügbar machen</strong> im Panel, prüfe die Verbindung und speichere. Modellquelle, Lizenz und das Einlernen der Vorlagen stehen in der <a href="#raspberry-pi" data-topic="raspberry-pi">Heimnetz-Anleitung</a>.</p>
+<h3>Worker separat betreiben</h3>
+<p>Für einen manuell gestarteten Worker wähle im Panel <strong>Separat im Heimnetz</strong>. Auch eine externe Worker-Instanz auf demselben PC ist möglich.</p>
+<h3>1. Token hinterlegen und Worker starten</h3>
+<p>Öffne ein zweites PowerShell-Fenster und wechsle in den Türwache-Projektordner. Die Datei <code>.env</code> gehört direkt in diesen Ordner neben <code>package.json</code>. Der Starter <code>scripts/start-face-worker.mjs</code> ist bereits vorhanden.</p>
+<pre><code>
+Set-Location &#39;C:\Pfad\zu\Tuerwache&#39;
+node -e &quot;console.log(require(&#39;node:crypto&#39;).randomBytes(32).toString(&#39;hex&#39;))&quot;
+if (-not (Test-Path -LiteralPath &#39;.env&#39;)) { New-Item -ItemType File -Path &#39;.env&#39; | Out-Null }
+notepad .env
+</code></pre>
+<p>Füge in <code>.env</code> die Zeile <code>FACE_WORKER_TOKEN=DEIN_ERZEUGTER_TOKEN</code> hinzu und ersetze den Platzhalter durch den ausgegebenen Wert. Gibt es den Eintrag schon, verwende den vorhandenen Wert. Wenn du den Windows-Installer mit <code>-WithAI</code> verwendet hast, ergänze bei Bedarf <code>AI_PYTHON=.venv/Scripts/python.exe</code>, damit auch der Worker die virtuelle Umgebung nutzt.</p>
+<pre><code>
+node --env-file=.env scripts/start-face-worker.mjs
+</code></pre>
+<p>Sobald <strong>Gesichts-Worker läuft auf HTTP an Port 3211.</strong> erscheint, lass das Fenster offen. Türwache läuft parallel auf Port 3210.</p>
+<h3>2. Worker in Türwache verbinden</h3>
+<ul>
+<li>Öffne als Administrator <strong>KI-Anbieter → Gesichts-Worker</strong>. Gib bei <strong>Worker-Adresse</strong> <code>http://127.0.0.1:3211</code> ein.</li>
+<li>Füge bei <strong>Worker-Token</strong> den Wert aus <code>.env</code> ein. Trage nur den Wert hinter dem Gleichheitszeichen ein.</li>
+<li>Lass <strong>ArcFace verfügbar machen</strong> für den ersten SFace-Test aus. Klicke auf <strong>Worker-Verbindung prüfen</strong>. Wenn SFace erfolgreich geprüft wurde, schalte <strong>Gesichts-Worker freigeben</strong> ein und speichere.</li>
+<li>Aktiviere pro gewünschter Kamera die Gesichtserkennung und wähle unter <strong>Standorte → Privatzonen &amp; KI → Gesichts-Engine</strong> den <strong>Gesichts-Worker im Heimnetz</strong>. Bei aktiven Privatzonen bleibt die Gesichtsauswertung auf Türwache.</li>
+</ul>
+<p>Für ArcFace ergänze in <code>.env</code> <code>FACE_WORKER_ARCFACE_MODEL=C:/Pfad/zu/w600k_r50.onnx</code> mit dem geprüften Modell, starte den Worker erneut und schalte im Panel <strong>ArcFace verfügbar machen</strong> ein. Prüfe und speichere die Verbindung. Lerne unter <strong>Gesichter</strong> mindestens ein Referenzfoto pro Person ein und wähle an der Kamera <strong>ArcFace im Heimnetz</strong>. Hinweise zu Modell, Lizenz und Betrieb auf einem zweiten Gerät stehen in der <a href="#raspberry-pi" data-topic="raspberry-pi">Heimnetz-Anleitung</a>.</p>
 <h2>Ollama optional</h2>
 <p><code>scripts/Start-Ollama.ps1 -Install</code> installiert den optionalen lokalen Modellserver. Dies ist unabhängig von der lokalen OpenCV-Erkennung. Ein bildfähiges Modell installieren, unter KI-Anbieter konfigurieren und gezielt einer Kamera zuordnen. Große VLMs können ohne GPU langsam sein.</p>
 <h2>Autostart</h2>
@@ -89,7 +117,8 @@ ssh -L 3210:127.0.0.1:3210 user@server
 <p><a href="#linux" data-topic="linux">Linux-Anleitung</a> verwenden. Bei diesem Ziel muss <code>uname -m</code> aarch64 zeigen. Ein 32-Bit-System ist nicht unterstützt. FFmpeg und die fixierten Python-Binärpakete müssen verfügbar sein; ansonsten abbrechen und Plattform prüfen.</p>
 <p>Eine Kamera verbinden, Bewegung und Klingeln einzeln testen, Clip mit Ton abspielen und nach Neustart erneut prüfen. Erst dann lokale KI einschalten. Für den Umzug vom Windows-Server eine verschlüsselte Sicherung verwenden. Die <a href="#operations" data-topic="operations">Wiederherstellung</a> schreibt absolute Clip-Pfade für den neuen Datenordner um.</p>
 <h2>Gesichts-Worker im Heimnetz</h2>
-<p>Auf dem zweiten Rechner Türwache samt OpenCV-Modellen installieren. Einen zufälligen Schlüssel erzeugen (<code>node -e &quot;console.log(require(&#39;node:crypto&#39;).randomBytes(32).toString(&#39;hex&#39;))&quot;</code>) und auf beiden Rechnern als <code>FACE_WORKER_TOKEN</code> setzen. Auf dem Rechner für den Worker in <code>.env</code> die folgenden Werte setzen:</p>
+<p>Wenn Türwache und der Worker auf demselben Windows-PC laufen, folge der <a href="#windows" data-topic="windows">Windows-Anleitung</a>.</p>
+<p>Auf dem zweiten Rechner Türwache samt OpenCV-Modellen installieren. Einen zufälligen Token erzeugen (<code>node -e &quot;console.log(require(&#39;node:crypto&#39;).randomBytes(32).toString(&#39;hex&#39;))&quot;</code>) und auf dem Worker in <code>.env</code> als <code>FACE_WORKER_TOKEN</code> hinterlegen. Dort auch die folgenden Werte setzen:</p>
 <pre><code>
 FACE_WORKER_HOST=192.168.1.10
 FACE_WORKER_PORT=3211
@@ -97,7 +126,10 @@ FACE_WORKER_CERT=/path/to/cert.pem
 FACE_WORKER_KEY=/path/to/key.pem
 # AI_PYTHON=/opt/tuerwache/.venv/bin/python
 </code></pre>
-<p>Den Worker mit <code>node --env-file=.env scripts/start-face-worker.mjs</code> starten. Auf dem Pi in <code>.env</code> <code>FACE_WORKER_URL=https://ki.home.arpa:3211</code> auf die tatsächliche Worker-Adresse setzen und Türwache neu starten. Das Zertifikat muss zur Adresse passen und in der Python-Umgebung des Pi vertrauenswürdig sein. In <strong>Standorte → Privatzonen &amp; KI</strong> die Engine für die gewünschten Kameras wählen.</p>
+<p>Den Worker mit <code>node --env-file=.env scripts/start-face-worker.mjs</code> starten. Auf dem Pi unter <strong>KI-Anbieter → Gesichts-Worker</strong> die Worker-Adresse und denselben Token eintragen. <strong>Worker-Verbindung prüfen</strong> verwendet ein synthetisches Testbild. Die Verbindung freigeben und speichern. Läuft der Worker auf dem Pi selbst, verwende <code>http://127.0.0.1:3211</code>. Auf einem anderen Gerät muss die HTTPS-Adresse zum Zertifikat passen und in der Python-Umgebung des Pi vertrauenswürdig sein. In <strong>Standorte → Privatzonen &amp; KI</strong> die Engine für die gewünschten Kameras wählen.</p>
+<h3>Optional ArcFace auf dem Worker nutzen</h3>
+<p>1. Auf dem leistungsstärkeren Worker <code>FACE_WORKER_ARCFACE_MODEL</code> auf das geprüfte Modell <code>w600k_r50.onnx</code> aus dem <a href="https://github.com/deepinsight/insightface/releases/tag/model-zoo" target="_blank" rel="noopener noreferrer">InsightFace-Paket buffalo_l</a> setzen und den Worker neu starten. Türwache liefert die Gewichte nicht mit. InsightFace gibt diese öffentlichen Gewichte für nichtkommerzielle Forschung frei. Ihre <a href="https://github.com/deepinsight/insightface/blob/master/python-package/docs/model_zoo.md" target="_blank" rel="noopener noreferrer">Lizenzbedingungen</a> gelten auch bei separatem Download. 2. Auf dem Pi unter <strong>KI-Anbieter → Gesichts-Worker</strong> <strong>ArcFace verfügbar machen</strong> aktivieren, die Verbindung prüfen und speichern. Unter <strong>Gesichter</strong> mindestens ein Referenzfoto für jede bekannte Person einlernen. Falls du genau dieselbe Datei erneut auswählst, ergänzt Türwache die bestehende Vorlage um ArcFace. 3. Pro Kamera unter <strong>Standorte → Privatzonen &amp; KI → Gesichts-Engine</strong> <strong>ArcFace im Heimnetz</strong> auswählen. Aufnahme, Gesichtssuche im Video und Namensabgleich laufen auf dem Pi. Nur ausgerichtete Gesichtsausschnitte gehen an den Worker, der die ArcFace-Merkmale berechnet.</p>
+<p>ArcFace nutzt die eigene Mindestähnlichkeit 0,30 und die Mehrbildbestätigung. Bei fehlenden ArcFace-Vorlagen, einem nicht erreichbaren Worker oder aktiven Privatzonen nutzt Türwache lokales SFace. Details stehen unter <strong>Gesichtserkennung im Clip</strong>.</p>
 <p>Übertragen werden ausgerichtete Gesichtsausschnitte an den eigenen Worker. Die gespeicherten Vorlagen, Namen und der Abgleich bleiben auf Türwache. Ist der Worker nicht erreichbar oder sind für die Kamera Privatzonen gesetzt, berechnet Türwache die Merkmale lokal. Auf Loopback ist für einen Test auch HTTP möglich.</p>
 <h2>ONVIF und RTSP</h2>
 <ul>
@@ -166,21 +198,6 @@ FACE_WORKER_KEY=/path/to/key.pem
 <p>Bewegungserkennung vergleicht kleine Graustufenbilder und kann auf Lichtwechsel oder Wetter reagieren. Unter <strong>Weitere Stream-Einstellungen</strong> lässt sich eine zweite RTSP-Adresse für die Bewegungserkennung hinterlegen. Türwache speichert den Hauptstream weiter in voller Auflösung und verbindet den Zweitstream bei Unterbrechungen separat neu.</p>
 <p>Personen- und Gesichtserkennung sind separate Auswertungen am gespeicherten Clip. Auf dem Raspberry Pi helfen ein kleiner Zweitstream und ein niedriger Grenzwert aktiver Streams unter <strong>Betrieb</strong>. Speicher- und SSD-Auslastung vor mehreren Dauerstreams prüfen. <a href="#raspberry-pi" data-topic="raspberry-pi">Raspberry-Pi-Anleitung</a></p></article>
 <article data-language="de" data-document="operations" hidden><h1>Sicherheit, Backup und Updates</h1>
-<h2>Quellcode für GitHub exportieren</h2>
-<p>Quellcode gehört in Git; Ring-Sitzungen, Gesichtsdateien und Schlüssel nicht. Der Export kopiert eine feste Auswahl an Quellordnern in einen neuen leeren Zielordner. Daten, Backups, APKs, Modellgewichte, Buildordner, node_modules und Git-Metadaten fehlen bewusst.</p>
-<pre><code>
-node scripts/prepare-repository.mjs --destination H:\Tuerwache-GitHub
-</code></pre>
-<p>Vor dem Push manuell eingebettete Zugangsdaten und mobile Projekt-IDs prüfen. Nach dem Klonen Abhängigkeiten und Modelle installieren. Der Export enthält den <a href="/license.txt">Lizenztext</a> für den eigenen Code.</p>
-<p>Für einen privaten Testexport ein leeres privates Repository wählen. Im geprüften Exportordner die folgenden Befehle verwenden und Kontoname sowie Repository ersetzen. Für die öffentliche Fassung gelten die Schritte unter <a href="#github" data-topic="github">GitHub, Lizenz und Geschäftsmodell</a>.</p>
-<pre><code>
-git add .
-git diff --cached --stat
-git commit -m &quot;Initial private version&quot;
-git remote add origin https://github.com/DEIN-KONTO/DEIN-PRIVATES-REPO.git
-git push -u origin main
-</code></pre>
-<p>Die SaaS-Codebasis separat verwalten.</p>
 <h2>Externer Zugriff</h2>
 <p>Standard: Loopback und Freigabe aus. Für Heimserver oder Cloud eigene HTTPS-Adresse, erlaubte Hosts, exakt vertraute Proxy-IP und MFA für alle Benutzer einrichten. Cloud benötigt einen AUTH_ENCRYPTION_KEY außerhalb des Datenvolumens. Erst danach unter Server &amp; Zugriff Betriebsort wählen und freigeben. Die vollständige Proxy-Anleitung steht in deploy/README.md.</p>
 <p>Keine öffentliche Weiterleitung direkt auf den Node-Port und keine beliebigen Forwarded-Header vertrauen. VPN ist eine weitere Option, benötigt ebenfalls richtige Konfiguration. Vor Kundenbetrieb die öffentliche Anmeldung unabhängig prüfen lassen. Es gibt keine 100-%-Sicherheitszusage.</p>
@@ -205,28 +222,15 @@ node scripts/restore.mjs --verification PRUEFUNGS-UUID --apply
 <h2>KI-Qualität</h2>
 <p>Am Clip Richtig/Falsch/Unsicher und optional eine Korrektur speichern. Die Bewertung gehört zur jeweiligen Beschreibungsversion und verändert sie nicht. Unter KI → KI-Qualität ausgewählte Modelle anhand derselben bis zu sechs Einzelbilder vergleichen. Cloud-Aufrufe benötigen ausdrückliche Bildfreigabe, zählen zum Tageslimit und können Gebühren verursachen. Vergleiche senden keine Discord-/Push-Nachrichten und überschreiben keine ursprüngliche Zusammenfassung. Auch Vergleichsergebnisse sind bewertbar. Es findet kein automatisches Training statt.</p>
 <h2>Update</h2>
-<p>Änderungen prüfen, Backup, stoppen, Quellcode aktualisieren und Installer mit passender AI-Option erneut ausführen. Starten und neues Ereignis mit Bild/Ton prüfen. Bei Fehlschlag alten Code und zugehöriges Datenbackup gemeinsam wiederherstellen. Nie zwei Prozesse gegen dieselbe JSON-Datenablage starten.</p>
-<h2>Nächste Schritte</h2>
-<p>Noch ausstehend: echte Linux-/Pi-Abnahme dieser neuen Funktionen, signierte iOS-App und Push-Abnahme auf echten Geräten. Unabhängiger Sicherheitsreview und regelmäßige Abhängigkeitsupdates vor breiter externer Nutzung. Diese Anleitung ist kein durchgeführter Audit.</p>
-<h2>Abhängigkeitsstand des Handy-Testbuilds</h2>
-<p>Expo Doctor meldet mit Expo 58.0.26 20/20 erfolgreiche Kompatibilitätsprüfungen. Das ist kein Sicherheits-Audit. <code>npm audit</code> meldet im mobilen SDK-/Werkzeugbaum weiterhin 42 betroffene Abhängigkeitseinträge (40 high, 2 moderate), zurückgeführt auf zwei Glob-/Regex-Advisories zu picomatch und minimatch. Die Anzahl entspricht nicht 42 unabhängig bestätigten Angriffspfaden. Es wurde kein erzwungener SDK-Downgrade vorgenommen. Vor einer Store-/Kundenfreigabe die Advisories und kompatible Updates erneut prüfen; das APK bleibt ein Testbuild. Der Server-Abhängigkeitsbaum ist davon getrennt.</p></article>
+<p>Änderungen prüfen, Backup, stoppen, Quellcode aktualisieren und Installer mit passender AI-Option erneut ausführen. Starten und neues Ereignis mit Bild/Ton prüfen. Bei Fehlschlag alten Code und zugehöriges Datenbackup gemeinsam wiederherstellen. Nie zwei Prozesse gegen dieselbe JSON-Datenablage starten.</p></article>
 <article data-language="de" data-document="architecture" hidden><h1>Architektur und Handy-Apps</h1>
 <h2>Datenfluss</h2>
-<p>Ring-Kamera → Ring-Cloud → Node-Server → Clip → Python-Erkennung → optionales VLM → Website/Handy/Discord. ring-client-api ist keine Zusage eines offiziellen Ring-SaaS-Vertrags. Die Kamera liefert keinen frei zugänglichen lokalen RTSP-Stream.</p>
-<p>src/server.mjs stellt HTTP/API bereit, ring-service.mjs verarbeitet Ereignisse, features.mjs koordiniert Analyse/Speicher/Meldungen. ai-service.mjs kommuniziert über begrenzte JSON-Nachrichten mit ai/analyze.py --worker. public/ enthält die deutsch/englische Website, mobile/ die Expo/React-Native-App.</p>
+<p>Ring-Kamera → Ring-Cloud → Node-Server → Clip → Python-Erkennung → optionales VLM → Website/Handy/Discord. Die Kamera liefert keinen frei zugänglichen lokalen RTSP-Stream.</p>
 <p>data/ ist eine private JSON-/Dateiablage für genau einen Serverprozess. Private APIs/Clips benötigen Anmeldung. Browseraktionen haben CSRF-Schutz; mobile Sitzungen eigene widerrufbare Tokens. Modellschlüssel gehen nicht an Browser oder App zurück.</p>
 <h2>Handy-Status</h2>
 <p>Android: ARM64-Test-APK unter Windows gebaut, Testsignatur, kein Play-Store-Release und noch nicht auf echtem Handy abgenommen. Serveranmeldung, Clips, Zeitstrahl und Livebild-Anbindung vorbereitet. Tatsächlichen Buildstand prüfen: Neue Webfunktionen sind nicht automatisch Teil eines älteren APKs.</p>
 <p>iOS: gemeinsamer Code vorhanden, kein signierter installierbarer Build. Apple-Developer-Zugang, Signierung und Geräte-/TestFlight-Abnahme fehlen. Echte Push-Zustellung benötigt Expo-/Firebase-/APNs-Projekte, Berechtigungen und neue Builds. Eine installierte Web-App richtet native Push nicht automatisch ein.</p>
-<p>Das Handy braucht eine erreichbare HTTPS-Adresse. 127.0.0.1 meint auf dem Handy das Handy selbst. Ring-Zugänge bleiben auf dem Server. Unter Handy-App steht der verfügbare Download-/Verbindungsstatus.</p>
-<h2>Entwicklung</h2>
-<pre><code>
-npm ci
-npm run check
-npm test
-node scripts/build-docs.mjs
-</code></pre>
-<p>Tests nutzen isolierte Ablagen. Echte OpenCV-Tests brauchen Modelle/Python und TEST_AI=1. test/preview.mjs enthält nur synthetische lokale UI-Daten. Vorschau-Zugänge niemals produktiv verwenden.</p></article>
+<p>Das Handy braucht eine erreichbare HTTPS-Adresse. 127.0.0.1 meint auf dem Handy das Handy selbst. Ring-Zugänge bleiben auf dem Server. Unter Handy-App steht der verfügbare Download-/Verbindungsstatus.</p></article>
 <article data-language="de" data-document="saas" hidden><h1>Lokaler Betrieb und Hilfe</h1>
 <p>Türwache ist ein kostenloser Kameraserver für den privaten Haushalt. Ring-Kameras stehen im Mittelpunkt. Die App läuft auf deinem Rechner, Mini-PC oder Raspberry Pi. Du verbindest dein Ring-Konto selbst auf diesem Gerät. Ring-Kameras verwenden weiterhin die Verbindung zu Ring. Türwache speichert Aufnahmen standardmäßig auf deinem Gerät. <a href="https://ring.com/de/de/terms" target="_blank" rel="noopener noreferrer">Ring-Nutzungsbedingungen</a></p>
 <h2>Selbst einrichten</h2>
@@ -235,22 +239,14 @@ node scripts/build-docs.mjs
 <p>Ein optionaler, einmalig bezahlter Termin kann bei Installation, Speicherort, automatischem Start und lokaler Datensicherung helfen. Für den Abschluss prüfst du am eigenen Gerät eine Aufnahme und den Neustart. Dein Ring-Konto verbindest du selbst. Für diesen Service bleiben Ring-Zugangsdaten, Sitzungen und Clips bei dir.</p>
 <p>Für weitere Hilfe kommen einzelne Wartungs- oder Wiederherstellungstermine infrage. Die App und ihre Anleitungen bleiben für den privaten Gebrauch kostenlos verfügbar. Die Bedingungen für Weitergabe und Änderungen stehen in der <a href="/license.txt">Privatnutzungslizenz</a>.</p>
 <p>Sobald der Betreiber Termine freigibt, sind die verfügbaren Zeiten und der einmalige Preis auf der Türwache-Website unter <strong>Einrichtung</strong> sichtbar.</p></article>
-<article data-language="de" data-document="github" hidden><h1>GitHub, Lizenz und Geschäftsmodell</h1>
-<h2>Was öffentlich ist</h2>
-<p>Türwache lässt sich kostenlos im eigenen Haushalt betreiben. Der Quellcode kann öffentlich gelesen und unter der Privatnutzungslizenz unentgeltlich geteilt werden. Wer eine Fassung ändert, veröffentlicht auch bei rein privatem Einsatz den zugehörigen Quellcode unter derselben Lizenz. Verkauf, entgeltliches Hosting, kommerzielle Nutzung und Weitergabe in bezahlten Paketen sind ausgeschlossen. Die genauen Bedingungen stehen im <a href="/license.txt">Lizenztext</a>.</p>
-<p>Auf GitHub eignet sich die Bezeichnung „öffentlich einsehbarer Quellcode für private Nutzung“. Die <a href="https://opensource.org/definition-annotated" target="_blank" rel="noopener noreferrer">Open Source Initiative</a> verlangt, dass auch kommerzielle Verwendung erlaubt ist. Ein öffentliches GitHub-Repository erlaubt das Anzeigen und Forken über GitHub. <a href="https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository" target="_blank" rel="noopener noreferrer">GitHub-Lizenzdokumentation</a></p>
-<p>Für Privatnutzer gibt es Anleitungen zum <a href="#saas" data-topic="saas">lokalen Betrieb und zum Einrichtungsservice</a>.</p>
-<h2>Veröffentlichung vorbereiten</h2>
-<ul>
-<li>Rechteinhaber und Lizenzkontakt eindeutig angeben. Vor der Veröffentlichung die eigene Lizenz juristisch prüfen lassen, insbesondere die Veröffentlichungspflicht bei ausschließlich privaten Änderungen und die Einbeziehung der Lizenzbedingungen. <a href="https://www.gesetze-im-internet.de/urhg/__31.html" target="_blank" rel="noopener noreferrer">§ 31 UrhG</a> · <a href="https://www.gesetze-im-internet.de/bgb/__305.html" target="_blank" rel="noopener noreferrer">§§ 305</a>, <a href="https://www.gesetze-im-internet.de/bgb/__307.html" target="_blank" rel="noopener noreferrer">307 BGB</a></li>
-<li>Bei Fremdbeiträgen festhalten, unter welchen Bedingungen sie übernommen werden dürfen. Bestehende Rechte aus früheren Veröffentlichungen gelten nach ihren ursprünglichen Bedingungen fort.</li>
-<li>Drittanbieterhinweise erhalten. Expo-Vorlagen, FFmpeg, KI-Modelle und andere Abhängigkeiten haben eigene Bedingungen. Vor dem Verteilen vorkompilierter Pakete die Distributionsbedingungen prüfen.</li>
-<li>Einen bereinigten GitHub-Export in einen neuen, leeren Ordner erstellen. Das Skript filtert Laufzeitdaten, private Konfiguration und Schlüssel. Den Export zusätzlich auf Zugangsdaten und private Dateien prüfen.</li>
-</ul>
-<pre><code>
-node scripts/prepare-repository.mjs --public --destination /pfad/zum/neuen/github-export
-</code></pre>
-<p>Der öffentliche Export enthält die beispielhaften Doku-Screenshots. Die Fotos der optionalen KI-Tests bleiben außerhalb des Exports. Die Anleitungen sind in der App unter <strong>System → Dokumentation</strong> erreichbar. Die Türwache-Website bindet dieselben Inhalte unter <code>/dokumentation/</code> ein.</p></article>
+<article data-language="de" data-document="github" hidden><h1>Download und Lizenz</h1>
+<h2>Türwache herunterladen</h2>
+<p>Die aktuelle Version findest du unter <a href="https://github.com/xKeRnx/tuerwache/releases/latest" target="_blank" rel="noopener noreferrer">GitHub Releases</a>. Lade <code>tuerwache-&lt;version&gt;.zip</code> herunter und entpacke das Archiv. Dort findest du auch die Änderungen und die SHA-256-Prüfsumme des Downloads.</p>
+<p>Zur Einrichtung gibt es Anleitungen für <a href="#windows" data-topic="windows">Windows</a>, <a href="#linux" data-topic="linux">Linux</a> und den <a href="#raspberry-pi" data-topic="raspberry-pi">Raspberry Pi</a>. Sichere bei einem Update zuerst deine Installation. Die Schritte stehen unter <a href="#operations" data-topic="operations">Betrieb und Sicherheit</a>.</p>
+<h2>Private Nutzung</h2>
+<p>Türwache ist für den privaten Gebrauch kostenlos. Der <a href="https://github.com/xKeRnx/tuerwache" target="_blank" rel="noopener noreferrer">Quellcode ist auf GitHub einsehbar</a>. Die <a href="/license.txt">Türwache-Privatnutzungslizenz</a> beschreibt die Bedingungen für Nutzung, Änderungen und Weitergabe.</p>
+<h2>Hilfe und Rückmeldungen</h2>
+<p>Fragen zur Einrichtung kannst du über die <a href="https://tuerwache.de/kontakt/" target="_blank" rel="noopener noreferrer">Kontaktseite</a> stellen. Fehler und Funktionswünsche kannst du <a href="https://github.com/xKeRnx/tuerwache/issues" target="_blank" rel="noopener noreferrer">auf GitHub melden</a>. Gib deine Türwache-Version, dein Betriebssystem und die Schritte zum Problem an. Halte Zugangsdaten und Kameraaufnahmen privat.</p></article>
 <article data-language="en" data-document="index" hidden><h1>Türwache documentation</h1>
 <p>Türwache is a private server for Ring and network cameras. Its web interface brings together clips, a timeline, local AI and notifications. Choose German or English in the header.</p>
 <h2>Start here</h2>
@@ -263,7 +259,7 @@ node scripts/prepare-repository.mjs --public --destination /pfad/zum/neuen/githu
 <li><a href="#operations" data-topic="operations">Security, backups and upgrades</a></li>
 <li><a href="#architecture" data-topic="architecture">Mobile apps and architecture</a></li>
 <li><a href="#saas" data-topic="saas">Local operation and help</a></li>
-<li><a href="#github" data-topic="github">GitHub, licensing and business model</a></li>
+<li><a href="#github" data-topic="github">Download and license</a></li>
 </ul>
 <h2>Development status</h2>
 <p>Windows and the owner&#39;s Ring Battery Doorbell Pro have been tested with real camera data. Live view and new recordings include audio when supplied by the camera. This private test worked without a Ring subscription or, according to the owner, a trial. This does not guarantee support for every Ring device or continued API availability.</p>
@@ -288,6 +284,34 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Start-Tuerwache.ps
 <h2>Configuration and startup</h2>
 <p>Optionally copy <code>.env.example</code> to <code>.env</code>. The new launch scripts read this file; plain <code>npm start</code> does not. The local <code>.venv/Scripts/python.exe</code> is selected automatically unless <code>AI_PYTHON</code> is configured. Stop with Ctrl+C and let ongoing work drain. Back up and stop before upgrading. Never run two instances against one data directory.</p>
 <p><code>Start-Tuerwache.cmd</code> uses the same launcher. Optional local VLM installation is separate: <code>scripts/Start-Ollama.ps1 -Install</code>. Configure a vision-capable model and select it per camera. Large models can be slow without a GPU.</p>
+<h2>Face worker on the same Windows PC</h2>
+<p>The <strong>Local on Türwache</strong> face engine runs SFace directly. You can also use <strong>ArcFace</strong> through the worker. Install Python and the OpenCV models as described under <strong>Install and start</strong>.</p>
+<h3>Start automatically with Türwache</h3>
+<p>Under <strong>AI providers → Face worker</strong>, select <strong>Automatically on this device</strong>. Leave <strong>Make ArcFace available</strong> off for the first SFace check. Check the connection, turn on <strong>Enable face worker</strong>, and save. The built-in worker starts whenever Türwache starts, with no address or token to enter. Under <strong>Sites → Privacy zones &amp; AI</strong>, you can select <strong>Built-in face worker</strong> as the face engine for each camera.</p>
+<p>For ArcFace, put the verified <code>w600k_r50.onnx</code> file in <code>ai/models</code>. Turn on <strong>Make ArcFace available</strong> in the panel, check the connection and save. See the <a href="#raspberry-pi" data-topic="raspberry-pi">local network guide</a> for the model source, license, and enrollment instructions.</p>
+<h3>Run the worker separately</h3>
+<p>For a manually started worker, select <strong>Separate worker on the local network</strong>. You can also run this separate instance on the same PC.</p>
+<h3>1. Set the token and start the worker</h3>
+<p>Open a second PowerShell window in the Türwache project folder. Put <code>.env</code> next to <code>package.json</code> in that folder. The <code>scripts/start-face-worker.mjs</code> launcher is already included.</p>
+<pre><code>
+Set-Location &#39;C:\Path\to\Tuerwache&#39;
+node -e &quot;console.log(require(&#39;node:crypto&#39;).randomBytes(32).toString(&#39;hex&#39;))&quot;
+if (-not (Test-Path -LiteralPath &#39;.env&#39;)) { New-Item -ItemType File -Path &#39;.env&#39; | Out-Null }
+notepad .env
+</code></pre>
+<p>Add <code>FACE_WORKER_TOKEN=YOUR_GENERATED_TOKEN</code> to <code>.env</code>, replacing the placeholder with the generated value. If the entry already exists, reuse its value. If you used the Windows installer with <code>-WithAI</code>, add <code>AI_PYTHON=.venv/Scripts/python.exe</code> if needed so the worker uses that Python environment.</p>
+<pre><code>
+node --env-file=.env scripts/start-face-worker.mjs
+</code></pre>
+<p>Keep the window open once you see <strong>Gesichts-Worker läuft auf HTTP an Port 3211.</strong> (the worker is running on HTTP port 3211). The Türwache app continues to run on port 3210.</p>
+<h3>2. Connect the worker in Türwache</h3>
+<ul>
+<li>As an administrator, open <strong>AI providers → Face worker</strong>. Enter <code>http://127.0.0.1:3211</code> for <strong>Worker address</strong>.</li>
+<li>For <strong>Worker token</strong>, paste the value from <code>.env</code> after the equals sign.</li>
+<li>Leave <strong>Make ArcFace available</strong> off for the first SFace check. Click <strong>Check worker connection</strong>. Once SFace passes, turn on <strong>Enable face worker</strong> and save.</li>
+<li>Turn on face recognition for each camera you want to use and select <strong>Private face worker</strong> under <strong>Sites → Privacy zones &amp; AI → Face engine</strong>. Cameras with privacy zones keep face processing on Türwache.</li>
+</ul>
+<p>For ArcFace, add <code>FACE_WORKER_ARCFACE_MODEL=C:/Path/to/w600k_r50.onnx</code> to <code>.env</code> with the verified model, restart the worker, and turn on <strong>Make ArcFace available</strong> in the panel. Check the connection and save. Enrol at least one reference photo per person under <strong>Faces</strong> and select <strong>ArcFace on the local network</strong> for the camera. See the <a href="#raspberry-pi" data-topic="raspberry-pi">local network setup guide</a> for the model, its license and setup on another device.</p>
 <h2>Automatic startup</h2>
 <p>For private testing, Windows Task Scheduler can run <code>powershell.exe -NoProfile -File C:\Path\Tuerwache\scripts\Start-Tuerwache.ps1</code> at user logon. Set the project working directory, disallow parallel instances and use a normal user. This task is not installed automatically. The documented Linux systemd service is preferable for an unattended server.</p></article>
 <article data-language="en" data-document="linux" hidden><h1>Linux and servers</h1>
@@ -340,7 +364,11 @@ ssh -L 3210:127.0.0.1:3210 user@server
 <p>Follow <a href="#linux" data-topic="linux">Linux setup</a>. For this target, <code>uname -m</code> should report aarch64. A 32-bit OS is unsupported. FFmpeg and pinned Python binary wheels must be available; stop and investigate otherwise.</p>
 <p>Test one camera, separate motion and doorbell events, audio playback, and restart recovery before enabling local AI. Use an encrypted backup to migrate from Windows. The <a href="#operations" data-topic="operations">restore process</a> rewrites absolute clip paths for the new data directory.</p>
 <h2>Private face worker</h2>
-<p>Install Türwache and its OpenCV models on the second computer. Configure a shared random <code>FACE_WORKER_TOKEN</code> and set <code>FACE_WORKER_HOST</code>, <code>FACE_WORKER_PORT</code>, <code>FACE_WORKER_CERT</code> and <code>FACE_WORKER_KEY</code> on that computer. Run <code>node --env-file=.env scripts/start-face-worker.mjs</code>. On the Pi, set <code>FACE_WORKER_URL</code> to the worker&#39;s HTTPS origin and restart the app. The Pi must trust the worker&#39;s certificate. Choose the network engine for each camera under <strong>Sites → Privacy zones &amp; AI</strong>.</p>
+<p>If Türwache and the worker run on the same Windows PC, follow the <a href="#windows" data-topic="windows">Windows guide</a>.</p>
+<p>Install Türwache and its OpenCV models on the worker computer. Configure a random <code>FACE_WORKER_TOKEN</code> and set <code>FACE_WORKER_HOST</code>, <code>FACE_WORKER_PORT</code>, <code>FACE_WORKER_CERT</code> and <code>FACE_WORKER_KEY</code> on that computer. Run <code>node --env-file=.env scripts/start-face-worker.mjs</code>. On the Pi, open <strong>AI providers → Face worker</strong>, enter the worker URL and the same token, check the connection, then enable it and save. The connection check uses a synthetic test image. Use <code>http://127.0.0.1:3211</code> for a worker on the same Pi. For a worker on another device, the Pi must trust its HTTPS certificate. Choose the network engine for each camera under <strong>Sites → Privacy zones &amp; AI</strong>.</p>
+<h3>Optional ArcFace on the worker</h3>
+<p>1. On the more powerful worker, set <code>FACE_WORKER_ARCFACE_MODEL</code> to the verified <code>w600k_r50.onnx</code> model from <a href="https://github.com/deepinsight/insightface/releases/tag/model-zoo" target="_blank" rel="noopener noreferrer">InsightFace buffalo_l</a> and restart the worker. Türwache does not distribute the weights. InsightFace publishes these weights for non-commercial research under its <a href="https://github.com/deepinsight/insightface/blob/master/python-package/docs/model_zoo.md" target="_blank" rel="noopener noreferrer">model terms</a>. 2. On the Pi, turn on <strong>Make ArcFace available</strong> under <strong>AI providers → Face worker</strong>, check the connection and save. Enrol at least one reference photo per known person under <strong>Faces</strong>. Selecting the exact same file again adds ArcFace to its existing template. 3. Select <strong>ArcFace on the local network</strong> for the camera under <strong>Sites → Privacy zones &amp; AI → Face engine</strong>. The Pi records the clips, detects faces and matches identities. The worker receives aligned face crops and returns ArcFace embeddings.</p>
+<p>ArcFace uses its own similarity threshold of 0.30 and the multi-frame confirmation rule. Türwache uses local SFace when ArcFace templates are missing, the worker is unavailable or privacy zones are active. See <strong>Face recognition in this clip</strong> for details.</p>
 <p>Only aligned face crops go to the worker. The gallery, names and matching stay on Türwache. A worker failure or configured privacy zones trigger local processing. Loopback HTTP is available for local testing.</p>
 <h2>ONVIF and RTSP</h2>
 <ul>
@@ -407,21 +435,6 @@ ssh -L 3210:127.0.0.1:3210 user@server
 <p>Motion detection compares small grayscale frames and can react to lighting changes or weather. Under <strong>More stream settings</strong>, you can supply a separate RTSP address for motion detection. The primary stream keeps its full recording resolution, and the substream reconnects independently after interruptions.</p>
 <p>Person and face detection run separately on saved clips. On a Raspberry Pi, use a small substream and a low limit for active streams under <strong>Operations</strong>. Check the storage load before adding multiple continuous streams. <a href="#raspberry-pi" data-topic="raspberry-pi">Raspberry Pi guide</a></p></article>
 <article data-language="en" data-document="operations" hidden><h1>Security, backups and upgrades</h1>
-<h2>Export source code for GitHub</h2>
-<p>Source belongs in Git; Ring sessions, faces and keys do not. The exporter copies allowlisted source into a new empty destination. It omits data, backups, APKs, weights, native builds, node_modules and Git metadata.</p>
-<pre><code>
-node scripts/prepare-repository.mjs --destination H:\Tuerwache-GitHub
-</code></pre>
-<p>Review embedded credentials and mobile project IDs before pushing. Install dependencies and models after cloning. The export includes the <a href="/license.txt">license text</a> for original code.</p>
-<p>For a private rehearsal, use an empty private repository and replace the account and repository below. For a public release, follow <a href="#github" data-topic="github">GitHub, licensing and business model</a>.</p>
-<pre><code>
-git add .
-git diff --cached --stat
-git commit -m &quot;Initial private version&quot;
-git remote add origin https://github.com/YOUR-ACCOUNT/YOUR-PRIVATE-REPO.git
-git push -u origin main
-</code></pre>
-<p>These are instructions only; nothing was uploaded. Keep SaaS and self-hosting in separate private repositories.</p>
 <h2>External access</h2>
 <p>Default: loopback, external access disabled. For home/cloud, configure HTTPS origin, allowed hosts, exact proxy IP and MFA for every user. Cloud needs a separate AUTH_ENCRYPTION_KEY outside the data volume. Then select deployment mode and enable access. Full proxy setup is in deploy/README.md.</p>
 <p>Do not forward public traffic directly to Node or trust arbitrary forwarding headers. VPN access also requires correct configuration. Independently review public authentication before serving customers. Perfect security is not promised.</p>
@@ -446,26 +459,14 @@ node scripts/restore.mjs --verification VERIFICATION-UUID --apply
 <h2>AI quality</h2>
 <p>Review a clip description as correct/incorrect/uncertain, with an optional correction. Reviews belong to that description version and do not replace it. Under AI → AI quality, compare configured models using the same up to six frames. Cloud comparisons require explicit consent to transmit images, consume the daily limit and may incur fees. Comparisons send no notifications and preserve the original description. Comparison results can also be rated. No automatic training occurs.</p>
 <h2>Upgrade</h2>
-<p>Review changes, back up, stop, update source, rerun installer with appropriate AI option, start and verify a new audio/video event. Roll back old source and its matching data backup together. Never use one JSON store from multiple server processes.</p>
-<p>Still pending: physical Linux/Pi acceptance of these new features, signed iOS installation and physical-device push acceptance. Independent security review/dependency maintenance before wider public use. This guide is not a completed audit.</p>
-<h2>Mobile test build dependencies</h2>
-<p>Expo Doctor with Expo 58.0.26 passes 20/20 compatibility checks; this is not a security audit. <code>npm audit</code> still reports 42 affected mobile SDK/tooling dependency entries (40 high, 2 moderate), traced to two glob/regex advisories concerning picomatch and minimatch. This is not 42 independently validated attack paths. No forced SDK downgrade was applied. Review advisories and compatible updates before store/customer release; the APK remains a test build. Server dependencies are a separate tree.</p></article>
+<p>Review changes, back up, stop, update source, rerun installer with appropriate AI option, start and verify a new audio/video event. Roll back old source and its matching data backup together. Never use one JSON store from multiple server processes.</p></article>
 <article data-language="en" data-document="architecture" hidden><h1>Architecture and mobile apps</h1>
-<p>Ring camera → Ring cloud → Node server → clip → Python recognition → optional VLM → web/mobile/Discord. ring-client-api does not establish an official Ring SaaS contract. The camera does not expose a freely accessible local RTSP stream.</p>
-<p>src/server.mjs provides HTTP/API, ring-service.mjs events, features.mjs analysis/storage/notifications, ai-service.mjs bounded JSON IPC with ai/analyze.py --worker. public/ contains the bilingual web UI; mobile/ contains Expo/React Native.</p>
+<p>Ring camera → Ring cloud → Node server → clip → Python recognition → optional VLM → web/mobile/Discord. The camera does not expose a freely accessible local RTSP stream.</p>
 <p>data/ is private JSON/file storage for one server process. Accounts protect private APIs/clips. Browser writes use CSRF; mobile sessions have separate revocable tokens. Model keys are not returned to apps/browsers.</p>
 <h2>Mobile status</h2>
 <p>Android: ARM64 test APK built on Windows, test-signed, not a Play Store release, not yet accepted on a physical phone. Server sign-in, clips, timeline and live integration are prepared. Verify actual build version: new web features are not automatically included in older APKs.</p>
 <p>iOS: shared code exists, no signed installable build. Apple Developer access, signing and device/TestFlight tests remain. Real push needs Expo/Firebase/APNs projects, permissions and new builds. Installing the web app does not configure native push.</p>
-<p>Phones need a reachable HTTPS address. On a phone, 127.0.0.1 refers to the phone itself. Ring credentials remain on the server. The Mobile app page shows available download/connection status.</p>
-<h2>Development</h2>
-<pre><code>
-npm ci
-npm run check
-npm test
-node scripts/build-docs.mjs
-</code></pre>
-<p>Tests use isolated storage. Real OpenCV tests require models/Python and TEST_AI=1. test/preview.mjs is synthetic UI data only; never use its credentials in production.</p></article>
+<p>Phones need a reachable HTTPS address. On a phone, 127.0.0.1 refers to the phone itself. Ring credentials remain on the server. The Mobile app page shows available download/connection status.</p></article>
 <article data-language="en" data-document="saas" hidden><h1>Local operation and help</h1>
 <p>Türwache is a free camera server for private households, focused on Ring cameras. The app runs on your computer, mini PC or Raspberry Pi. You connect your Ring account yourself on that device. Ring cameras still use their connection to Ring. By default, Türwache stores recordings on your device. <a href="https://ring.com/de/de/terms" target="_blank" rel="noopener noreferrer">Ring Terms of Service for Germany</a></p>
 <h2>Set up the app yourself</h2>
@@ -474,19 +475,11 @@ node scripts/build-docs.mjs
 <p>An optional, one-time paid appointment can cover installation, storage, automatic startup and local backups. At the end, you can test a recording and a restart on your own device. You connect your Ring account yourself. Your Ring credentials, sessions and clips stay with you during this service.</p>
 <p>Individual maintenance or recovery appointments are possible follow-up services. The app and its guides remain free for private use. The <a href="/license.txt">Private Use License</a> sets the terms for sharing and modifications.</p>
 <p>Once the operator publishes appointments, you can see the available times and one-time price under <strong>Einrichtung</strong> on the Türwache website.</p></article>
-<article data-language="en" data-document="github" hidden><h1>GitHub, licensing and business model</h1>
-<h2>What you can publish</h2>
-<p>Türwache can run free of charge in a private household. The source can be read publicly and shared free of charge under the private-use license. If you modify a version, publish the corresponding source under the same license, even for purely private use. Sale, paid hosting, business use and distribution as part of a paid bundle are prohibited. See the <a href="/license.txt">license text</a> for the full terms.</p>
-<p>Describe the GitHub repository as source available for private use. The <a href="https://opensource.org/definition-annotated" target="_blank" rel="noopener noreferrer">Open Source Initiative</a> requires commercial use to be permitted. A public GitHub repository can be viewed and forked through GitHub. <a href="https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository" target="_blank" rel="noopener noreferrer">GitHub licensing documentation</a></p>
-<p>For home users, see <a href="#saas" data-topic="saas">local operation and setup assistance</a>.</p>
-<h2>Release preparation</h2>
-<ul>
-<li>Clearly identify the rightsholder and a licensing contact. Before publication, have the custom license reviewed, especially the duty to publish purely private changes and how the terms are incorporated. <a href="https://www.gesetze-im-internet.de/urhg/__31.html" target="_blank" rel="noopener noreferrer">German Copyright Act, section 31</a> · <a href="https://www.gesetze-im-internet.de/bgb/__305.html" target="_blank" rel="noopener noreferrer">German Civil Code, sections 305</a> and <a href="https://www.gesetze-im-internet.de/bgb/__307.html" target="_blank" rel="noopener noreferrer">307</a></li>
-<li>Record the terms under which outside contributions can be accepted. Previously granted rights remain subject to their original terms.</li>
-<li>Keep third-party notices. Expo templates, FFmpeg, AI models and other dependencies have their own terms. Review redistribution rights before distributing compiled packages.</li>
-<li>Export the repository to a new empty folder. The source allowlist excludes runtime data, private settings and keys. Review the result for credentials and private files before publication.</li>
-</ul>
-<pre><code>
-node scripts/prepare-repository.mjs --public --destination /path/to/new-github-export
-</code></pre>
-<p>The public export includes example documentation screenshots. Photos used by optional AI tests are kept outside the export. The guides are available in the app under <strong>System → Documentation</strong>. The Türwache website serves the same material at <code>/dokumentation/</code>.</p></article></main><noscript>Diese Doku nutzt JavaScript zum Seitenwechsel. Alle Anleitungen liegen auch unter docs/ im Repository. Documentation is also available as Markdown in docs/.</noscript></div></body></html>
+<article data-language="en" data-document="github" hidden><h1>Download and license</h1>
+<h2>Download Türwache</h2>
+<p>Find the current version in <a href="https://github.com/xKeRnx/tuerwache/releases/latest" target="_blank" rel="noopener noreferrer">GitHub Releases</a>. Download and extract <code>tuerwache-&lt;version&gt;.zip</code>. The release also lists what changed and includes the download&#39;s SHA-256 checksum.</p>
+<p>Follow the setup guide for <a href="#windows" data-topic="windows">Windows</a>, <a href="#linux" data-topic="linux">Linux</a>, or <a href="#raspberry-pi" data-topic="raspberry-pi">Raspberry Pi</a>. Back up your installation before upgrading. See <a href="#operations" data-topic="operations">Operations and security</a> for the steps.</p>
+<h2>Private use</h2>
+<p>Türwache is free for private use. The <a href="https://github.com/xKeRnx/tuerwache" target="_blank" rel="noopener noreferrer">source code is available on GitHub</a>. The <a href="/license.txt">Türwache Private Use License</a> covers use, modifications, and redistribution.</p>
+<h2>Help and feedback</h2>
+<p>Use the <a href="https://tuerwache.de/en/contact/" target="_blank" rel="noopener noreferrer">contact page</a> for setup questions or <a href="https://github.com/xKeRnx/tuerwache/issues" target="_blank" rel="noopener noreferrer">GitHub Issues</a> for bug reports and feature requests. Include your Türwache version, operating system, and steps to reproduce the issue. Keep credentials and camera footage private.</p></article></main><noscript>Diese Doku nutzt JavaScript zum Seitenwechsel. Alle Anleitungen liegen auch unter docs/ im Repository. Documentation is also available as Markdown in docs/.</noscript></div></body></html>

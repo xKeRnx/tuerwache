@@ -93,4 +93,76 @@
     table.append(body); list.append(table);
   }
   window.addEventListener('tw-state', ({ detail }) => render(detail)); render(window.tw.getState());
+
+  const workerField = name => document.getElementById('face-worker-' + name);
+  const workerPanel = workerField('settings'), workerForm = workerField('form');
+  if (!workerForm) return;
+  const workerMode = workerField('mode');
+  const workerUrl = workerField('url'), workerToken = workerField('token'), workerEnabled = workerField('enabled'), workerArcFace = workerField('arcface');
+  const workerSave = workerField('save'), workerCheck = workerField('check'), workerClear = workerField('clear'), workerStatus = workerField('status');
+  let workerConfig, workerDirty = false, workerPending = false;
+  function renderWorkerMode() {
+    const external = workerMode.value === 'external';
+    workerField('external').hidden = !external;
+    workerField('local-note').hidden = external;
+    workerUrl.disabled = workerToken.disabled = workerPending || !external;
+    workerClear.hidden = !external || workerConfig?.mode === 'local' || !workerConfig?.tokenSet;
+  }
+  function renderWorker(next, force = false) {
+    const config = next?.settings?.faceWorker;
+    workerPanel.hidden = !config;
+    if (!config) { workerToken.value = ''; workerDirty = false; workerConfig = null; return; }
+    if (!force && (workerDirty || JSON.stringify(config) === JSON.stringify(workerConfig))) return;
+    workerConfig = config;
+    workerMode.value = config.mode ?? 'external';
+    workerUrl.value = config.url;
+    workerToken.value = '';
+    workerEnabled.checked = config.enabled;
+    workerArcFace.checked = config.arcface;
+    renderWorkerMode();
+    workerField('source').hidden = !config.fromEnvironment;
+    workerField('badge').textContent = config.enabled ? 'Freigegeben' : config.tokenSet ? 'Deaktiviert' : 'Noch nicht eingerichtet';
+    workerField('token-note').textContent = config.tokenSet ? 'Leer lassen, um den gespeicherten Token zu behalten.' : 'Verwende denselben Token wie auf dem Worker.';
+  }
+  function workerInput() {
+    const mode = workerMode.value;
+    return { mode, enabled: workerEnabled.checked, arcface: workerArcFace.checked, ...(mode === 'external' && { url: workerUrl.value.trim(), token: workerToken.value }) };
+  }
+  async function workerAction(path, input, message, commit = false) {
+    if (workerPending) return;
+    workerPending = true;
+    for (const control of workerForm.elements) control.disabled = true;
+    workerStatus.textContent = path.endsWith('/check') ? 'Verbindung wird geprüft …' : 'Wird gespeichert …';
+    try {
+      const ok = await window.tw.action(path, input);
+      workerStatus.textContent = ok ? message : 'Aktion fehlgeschlagen. Details stehen in der Meldung.';
+      if (ok && commit) { workerDirty = false; renderWorker(window.tw.getState(), true); }
+    } finally {
+      for (const control of workerForm.elements) control.disabled = false;
+      workerPending = false;
+      renderWorkerMode();
+    }
+  }
+  workerForm.addEventListener('input', () => { workerDirty = true; workerStatus.textContent = ''; });
+  workerMode.onchange = renderWorkerMode;
+  workerForm.onsubmit = event => {
+    event.preventDefault();
+    workerAction('/api/face-worker/save', workerInput(), 'Worker-Einstellungen gespeichert.', true);
+  };
+  workerCheck.onclick = () => {
+    if (!workerForm.reportValidity()) return;
+    workerAction('/api/face-worker/check', workerInput(), workerArcFace.checked ? 'Worker erreichbar. SFace und ArcFace geprüft.' : 'Worker erreichbar. SFace geprüft.');
+  };
+  workerClear.onclick = () => workerAction('/api/face-worker/save', { clearToken: true }, 'Worker-Token entfernt. Die Verbindung ist deaktiviert.', true);
+  window.addEventListener('tw-state', ({ detail }) => renderWorker(detail));
+  window.addEventListener('tw-route', ({ detail }) => {
+    if (detail === '/ai') return;
+    workerToken.value = '';
+    if (!workerPending) {
+      workerDirty = false;
+      workerStatus.textContent = '';
+      renderWorker(window.tw.getState(), true);
+    }
+  });
+  renderWorker(window.tw.getState());
 })();

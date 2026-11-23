@@ -27,6 +27,48 @@ Optional `.env.example` nach `.env` kopieren. Die neuen Startskripte laden diese
 
 Der Doppelklick auf `Start-Tuerwache.cmd` nutzt denselben Starter. Das Fenster offen lassen; mit Strg+C sauber stoppen. Bei einem Update zuerst stoppen und ein Backup anlegen. Kein zweites Exemplar gegen dieselbe Datenablage starten.
 
+## Gesichts-Worker auf demselben Windows-PC
+
+Die Gesichts-Engine **Lokal auf Türwache** verwendet SFace direkt. Über den Worker kannst du auch **ArcFace** nutzen. Dafür müssen Python und die OpenCV-Modelle eingerichtet sein, wie unter **Installieren und starten** beschrieben.
+
+### Automatisch mit Türwache starten
+
+Wähle unter **KI-Anbieter → Gesichts-Worker** die Option **Automatisch auf diesem Gerät**. Lass **ArcFace verfügbar machen** für den ersten SFace-Test aus. Prüfe die Verbindung, schalte **Gesichts-Worker freigeben** ein und speichere. Bei jedem Türwache-Start läuft der integrierte Worker mit. Er braucht weder eine Adresse im Panel noch einen selbst erzeugten Token. Unter **Standorte → Privatzonen & KI** kannst du **Integrierter Gesichts-Worker** pro Kamera als Gesichts-Engine wählen.
+
+Für ArcFace lege die geprüfte Datei `w600k_r50.onnx` unter `ai/models` ab. Aktiviere dann **ArcFace verfügbar machen** im Panel, prüfe die Verbindung und speichere. Modellquelle, Lizenz und das Einlernen der Vorlagen stehen in der [Heimnetz-Anleitung](raspberry-pi.md).
+
+### Worker separat betreiben
+
+Für einen manuell gestarteten Worker wähle im Panel **Separat im Heimnetz**. Auch eine externe Worker-Instanz auf demselben PC ist möglich.
+
+### 1. Token hinterlegen und Worker starten
+
+Öffne ein zweites PowerShell-Fenster und wechsle in den Türwache-Projektordner. Die Datei `.env` gehört direkt in diesen Ordner neben `package.json`. Der Starter `scripts/start-face-worker.mjs` ist bereits vorhanden.
+
+```powershell
+Set-Location 'C:\Pfad\zu\Tuerwache'
+node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"
+if (-not (Test-Path -LiteralPath '.env')) { New-Item -ItemType File -Path '.env' | Out-Null }
+notepad .env
+```
+
+Füge in `.env` die Zeile `FACE_WORKER_TOKEN=DEIN_ERZEUGTER_TOKEN` hinzu und ersetze den Platzhalter durch den ausgegebenen Wert. Gibt es den Eintrag schon, verwende den vorhandenen Wert. Wenn du den Windows-Installer mit `-WithAI` verwendet hast, ergänze bei Bedarf `AI_PYTHON=.venv/Scripts/python.exe`, damit auch der Worker die virtuelle Umgebung nutzt.
+
+```powershell
+node --env-file=.env scripts/start-face-worker.mjs
+```
+
+Sobald **Gesichts-Worker läuft auf HTTP an Port 3211.** erscheint, lass das Fenster offen. Türwache läuft parallel auf Port 3210.
+
+### 2. Worker in Türwache verbinden
+
+- Öffne als Administrator **KI-Anbieter → Gesichts-Worker**. Gib bei **Worker-Adresse** `http://127.0.0.1:3211` ein.
+- Füge bei **Worker-Token** den Wert aus `.env` ein. Trage nur den Wert hinter dem Gleichheitszeichen ein.
+- Lass **ArcFace verfügbar machen** für den ersten SFace-Test aus. Klicke auf **Worker-Verbindung prüfen**. Wenn SFace erfolgreich geprüft wurde, schalte **Gesichts-Worker freigeben** ein und speichere.
+- Aktiviere pro gewünschter Kamera die Gesichtserkennung und wähle unter **Standorte → Privatzonen & KI → Gesichts-Engine** den **Gesichts-Worker im Heimnetz**. Bei aktiven Privatzonen bleibt die Gesichtsauswertung auf Türwache.
+
+Für ArcFace ergänze in `.env` `FACE_WORKER_ARCFACE_MODEL=C:/Pfad/zu/w600k_r50.onnx` mit dem geprüften Modell, starte den Worker erneut und schalte im Panel **ArcFace verfügbar machen** ein. Prüfe und speichere die Verbindung. Lerne unter **Gesichter** mindestens ein Referenzfoto pro Person ein und wähle an der Kamera **ArcFace im Heimnetz**. Hinweise zu Modell, Lizenz und Betrieb auf einem zweiten Gerät stehen in der [Heimnetz-Anleitung](raspberry-pi.md).
+
 ## Ollama optional
 
 `scripts/Start-Ollama.ps1 -Install` installiert den optionalen lokalen Modellserver. Dies ist unabhängig von der lokalen OpenCV-Erkennung. Ein bildfähiges Modell installieren, unter KI-Anbieter konfigurieren und gezielt einer Kamera zuordnen. Große VLMs können ohne GPU langsam sein.
