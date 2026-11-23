@@ -91,6 +91,13 @@ test('Admin prüft und speichert den Worker über HTTP ohne Neustart, Benutzer o
   const local = { mode: 'local', enabled: true, arcface: false };
   assert.equal((await post('/api/face-worker/save', local, admin)).status, 200);
   assert.equal((await post('/api/face-worker/check', local, admin)).status, 200);
+  assert.equal((await post('/api/face-worker/download-arcface', {}, viewer)).status, 403);
+  assert.equal(limited.arcFaceModel, undefined);
+  if (features.managedFaceWorker.arcFaceModel.status().canDownload) {
+    const missingModel = await post('/api/face-worker/check', { ...local, arcface: true }, admin);
+    assert.equal(missingModel.status, 400);
+    assert.match((await missingModel.json()).error, /Lade das Modell/);
+  }
   const managed = await features.managedFaceWorker.running;
   assert.equal(managed.server.address().address, '127.0.0.1');
   assert.equal(managed.ai.completedJobs, 1);

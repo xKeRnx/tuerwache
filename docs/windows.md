@@ -33,9 +33,9 @@ Die Gesichts-Engine **Lokal auf Türwache** verwendet SFace direkt. Über den Wo
 
 ### Automatisch mit Türwache starten
 
-Wähle unter **KI-Anbieter → Gesichts-Worker** die Option **Automatisch auf diesem Gerät**. Lass **ArcFace verfügbar machen** für den ersten SFace-Test aus. Prüfe die Verbindung, schalte **Gesichts-Worker freigeben** ein und speichere. Bei jedem Türwache-Start läuft der integrierte Worker mit. Er braucht weder eine Adresse im Panel noch einen selbst erzeugten Token. Unter **Standorte → Privatzonen & KI** kannst du **Integrierter Gesichts-Worker** pro Kamera als Gesichts-Engine wählen.
+Wähle unter **KI-Anbieter → Gesichts-Worker** die Option **Automatisch auf diesem Gerät**. Lass **ArcFace für Kameras freigeben** für den ersten SFace-Test aus. Prüfe die Verbindung, schalte **Gesichts-Worker freigeben** ein und speichere. Bei jedem Türwache-Start läuft der integrierte Worker mit. Er braucht weder eine Adresse im Panel noch einen selbst erzeugten Token. Unter **Standorte → Privatzonen & KI** kannst du **Integrierter Gesichts-Worker** pro Kamera als Gesichts-Engine wählen.
 
-Für ArcFace lege die geprüfte Datei `w600k_r50.onnx` unter `ai/models` ab. Aktiviere dann **ArcFace verfügbar machen** im Panel, prüfe die Verbindung und speichere. Modellquelle, Lizenz und das Einlernen der Vorlagen stehen in der [Heimnetz-Anleitung](raspberry-pi.md).
+Wenn du das InsightFace-Modell für nichtkommerzielle Forschung verwenden möchtest, klicke auf **ArcFace herunterladen (289 MB)**. Türwache legt den Ordner `models` in seinem Datenverzeichnis an, lädt das offizielle Archiv und prüft dessen Prüfsumme und die der enthaltenen Modelldatei. Sobald der Modellstatus die Installation meldet, aktiviere **ArcFace für Kameras freigeben** und prüfe die Verbindung. Bei **SFace und ArcFace geprüft** kannst du speichern, Referenzfotos einlernen und die Engine pro Kamera wählen. Alternativ erkennt der integrierte Worker eine manuell abgelegte `w600k_r50.onnx` unter `ai/models` im Projektordner. [Modell und Lizenz](raspberry-pi.md)
 
 ### Worker separat betreiben
 
@@ -64,10 +64,10 @@ Sobald **Gesichts-Worker läuft auf HTTP an Port 3211.** erscheint, lass das Fen
 
 - Öffne als Administrator **KI-Anbieter → Gesichts-Worker**. Gib bei **Worker-Adresse** `http://127.0.0.1:3211` ein.
 - Füge bei **Worker-Token** den Wert aus `.env` ein. Trage nur den Wert hinter dem Gleichheitszeichen ein.
-- Lass **ArcFace verfügbar machen** für den ersten SFace-Test aus. Klicke auf **Worker-Verbindung prüfen**. Wenn SFace erfolgreich geprüft wurde, schalte **Gesichts-Worker freigeben** ein und speichere.
+- Lass **ArcFace für Kameras freigeben** für den ersten SFace-Test aus. Klicke auf **Worker-Verbindung prüfen**. Wenn SFace erfolgreich geprüft wurde, schalte **Gesichts-Worker freigeben** ein und speichere.
 - Aktiviere pro gewünschter Kamera die Gesichtserkennung und wähle unter **Standorte → Privatzonen & KI → Gesichts-Engine** den **Gesichts-Worker im Heimnetz**. Bei aktiven Privatzonen bleibt die Gesichtsauswertung auf Türwache.
 
-Für ArcFace ergänze in `.env` `FACE_WORKER_ARCFACE_MODEL=C:/Pfad/zu/w600k_r50.onnx` mit dem geprüften Modell, starte den Worker erneut und schalte im Panel **ArcFace verfügbar machen** ein. Prüfe und speichere die Verbindung. Lerne unter **Gesichter** mindestens ein Referenzfoto pro Person ein und wähle an der Kamera **ArcFace im Heimnetz**. Hinweise zu Modell, Lizenz und Betrieb auf einem zweiten Gerät stehen in der [Heimnetz-Anleitung](raspberry-pi.md).
+Für ArcFace ergänze in `.env` `FACE_WORKER_ARCFACE_MODEL=C:/Pfad/zu/w600k_r50.onnx` mit dem geprüften Modell, starte den Worker erneut und schalte im Panel **ArcFace für Kameras freigeben** ein. Prüfe und speichere die Verbindung. Lerne unter **Gesichter** mindestens ein Referenzfoto pro Person ein und wähle an der Kamera **ArcFace im Heimnetz**. Hinweise zu Modell, Lizenz und Betrieb auf einem zweiten Gerät stehen in der [Heimnetz-Anleitung](raspberry-pi.md).
 
 ## Ollama optional
 

@@ -2,25 +2,26 @@ import { randomBytes } from 'node:crypto';
 import { once } from 'node:events';
 import { mkdtemp, rmdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
-import { createFaceWorker, verifyArcFaceModel } from '../scripts/start-face-worker.mjs';
+import { join } from 'node:path';
+import { createFaceWorker } from '../scripts/start-face-worker.mjs';
 import { AIService } from './ai-service.mjs';
+import { ArcFaceModel } from './arcface-model.mjs';
 
 export class ManagedFaceWorker {
-  constructor(projectRoot) {
+  constructor(projectRoot, dataRoot) {
     this.projectRoot = projectRoot;
-    this.model = resolve(process.env.FACE_WORKER_ARCFACE_MODEL || join(projectRoot, 'ai', 'models', 'w600k_r50.onnx'));
+    this.arcFaceModel = new ArcFaceModel(projectRoot, dataRoot);
   }
 
   async start() {
     const directory = await mkdtemp(join(tmpdir(), 'tuerwache-integrated-worker-'));
-    const ai = new AIService(directory, this.projectRoot, { jobTimeout: 15000, pythonEnv: { FACE_WORKER_ARCFACE_MODEL: this.model } });
+    const ai = new AIService(directory, this.projectRoot, { jobTimeout: 15000 });
     try {
       if (!ai.state().modelsReady) throw Error('Für den integrierten Worker zuerst die OpenCV-Modelle installieren.');
       const token = randomBytes(32).toString('hex');
       const server = createFaceWorker({ run: async data => {
-        if (data.model === 'arcface-w600k-r50-v1') await this.checkArcFace();
-        return ai.run(data);
+        if (data.model !== 'arcface-w600k-r50-v1') return ai.run(data);
+        return ai.run({ ...data, arcFaceModelPath: await this.arcFaceModel.verify() });
       } }, token, undefined, { enableArcFace: true });
       server.listen(0, '127.0.0.1');
       await once(server, 'listening');
@@ -33,14 +34,6 @@ export class ManagedFaceWorker {
     }
   }
 
-  checkArcFace() {
-    this.verifiedModel ??= verifyArcFaceModel(this.model).catch(() => {
-      this.verifiedModel = null;
-      throw Error('Für ArcFace das geprüfte Modell w600k_r50.onnx im Modellordner hinterlegen.');
-    });
-    return this.verifiedModel;
-  }
-
   async connection(config) {
     if (config.mode !== 'local') return config;
     this.running ??= this.start().catch(error => { this.running = null; throw error; });
@@ -49,6 +42,7 @@ export class ManagedFaceWorker {
   }
 
   async close() {
+    await this.arcFaceModel.close();
     const worker = await this.running?.catch(() => null);
     if (!worker) return;
     const closed = new Promise(done => worker.server.close(done));

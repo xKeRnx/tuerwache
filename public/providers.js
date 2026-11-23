@@ -99,20 +99,33 @@
   if (!workerForm) return;
   const workerMode = workerField('mode');
   const workerUrl = workerField('url'), workerToken = workerField('token'), workerEnabled = workerField('enabled'), workerArcFace = workerField('arcface');
-  const workerSave = workerField('save'), workerCheck = workerField('check'), workerClear = workerField('clear'), workerStatus = workerField('status');
-  let workerConfig, workerDirty = false, workerPending = false;
+  const workerCheck = workerField('check'), workerClear = workerField('clear'), workerStatus = workerField('status'), workerDownload = workerField('download');
+  let workerConfig, arcModel, workerDirty = false, workerPending = false;
   function renderWorkerMode() {
     const external = workerMode.value === 'external';
     workerField('external').hidden = !external;
     workerField('local-note').hidden = external;
     workerUrl.disabled = workerToken.disabled = workerPending || !external;
     workerClear.hidden = !external || workerConfig?.mode === 'local' || !workerConfig?.tokenSet;
+    workerField('model').hidden = external || !arcModel;
+    const modelStatus = {
+      missing: 'ArcFace ist noch nicht installiert.', found: 'ArcFace-Datei gefunden. Schalte ArcFace ein und prüfe die Verbindung.',
+      downloading: 'ArcFace wird auf dem Server heruntergeladen und geprüft …', ready: 'ArcFace-Modell installiert und Prüfsumme bestätigt.',
+      error: 'Das ArcFace-Modell konnte nicht geladen oder geprüft werden.',
+    };
+    const modelText = modelStatus[arcModel?.state] || '';
+    const modelNote = workerField('model-status');
+    if (modelNote.dataset.status !== modelText) { modelNote.dataset.status = modelText; modelNote.textContent = modelText; }
+    workerField('model-download-options').hidden = !arcModel?.canDownload;
+    workerDownload.disabled = workerPending || !arcModel?.canDownload;
+    workerArcFace.disabled = workerPending || !external && !workerArcFace.checked && !['found', 'ready'].includes(arcModel?.state);
   }
   function renderWorker(next, force = false) {
     const config = next?.settings?.faceWorker;
+    arcModel = next?.arcFaceModel;
     workerPanel.hidden = !config;
     if (!config) { workerToken.value = ''; workerDirty = false; workerConfig = null; return; }
-    if (!force && (workerDirty || JSON.stringify(config) === JSON.stringify(workerConfig))) return;
+    if (!force && (workerDirty || JSON.stringify(config) === JSON.stringify(workerConfig))) { renderWorkerMode(); return; }
     workerConfig = config;
     workerMode.value = config.mode ?? 'external';
     workerUrl.value = config.url;
@@ -132,7 +145,7 @@
     if (workerPending) return;
     workerPending = true;
     for (const control of workerForm.elements) control.disabled = true;
-    workerStatus.textContent = path.endsWith('/check') ? 'Verbindung wird geprüft …' : 'Wird gespeichert …';
+    workerStatus.textContent = path.endsWith('/check') ? 'Verbindung wird geprüft …' : path.endsWith('/download-arcface') ? 'Download wird gestartet …' : 'Wird gespeichert …';
     try {
       const ok = await window.tw.action(path, input);
       workerStatus.textContent = ok ? message : 'Aktion fehlgeschlagen. Details stehen in der Meldung.';
@@ -154,6 +167,8 @@
     workerAction('/api/face-worker/check', workerInput(), workerArcFace.checked ? 'Worker erreichbar. SFace und ArcFace geprüft.' : 'Worker erreichbar. SFace geprüft.');
   };
   workerClear.onclick = () => workerAction('/api/face-worker/save', { clearToken: true }, 'Worker-Token entfernt. Die Verbindung ist deaktiviert.', true);
+  workerDownload.onclick = () => workerAction('/api/face-worker/download-arcface', {}, 'ArcFace-Download gestartet. Der Status wird hier aktualisiert.');
+  workerArcFace.onchange = renderWorkerMode;
   window.addEventListener('tw-state', ({ detail }) => renderWorker(detail));
   window.addEventListener('tw-route', ({ detail }) => {
     if (detail === '/ai') return;

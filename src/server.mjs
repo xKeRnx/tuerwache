@@ -167,7 +167,7 @@ export function createLocalServer(service, { port = 3210, publicRoot = join(root
       });
       if((url.pathname.startsWith('/api/')||url.pathname.startsWith('/clips/')||url.pathname.startsWith('/live/'))&&!limits.allow(`${user?.id||'anonymous'}:${context.address}`,user?900:120)){response.setHeader('Retry-After','60');json(response,429,{error:'Zu viele Anfragen. Bitte eine Minute warten.'});return;}
       if (bearer && !user) { json(response, 401, { error: 'Handy-Anmeldung abgelaufen. Bitte erneut anmelden.' }); return; }
-      const bootstrap = {appVersion:'0.13.1', setupRequired: accounts?.setupRequired ?? false, user: user ? { id: user.id, name: user.name, role: user.role, roleName: cameraAccess.role(user.role)?.name } : null, csrf: user?.csrf || csrf };
+      const bootstrap = {appVersion:'0.13.2', setupRequired: accounts?.setupRequired ?? false, user: user ? { id: user.id, name: user.name, role: user.role, roleName: cameraAccess.role(user.role)?.name } : null, csrf: user?.csrf || csrf };
       if ((request.method === 'GET' || request.method === 'HEAD') && ['/api/mobile/app', '/api/mobile/download/android'].includes(url.pathname)) {
         if (!user) { json(response, 401, { error: 'Bitte in Türwache anmelden.' }); return; }
         const info = await distribution.info();
@@ -265,7 +265,8 @@ export function createLocalServer(service, { port = 3210, publicRoot = join(root
           state.message = state.phase === 'connected' ? 'Kameras verbunden.' : 'Keine aktive Kameraverbindung.';
         }
         const faceWorker = admin ? service.features?.settings.faceWorker() : null;
-        json(response, 200, { ...state, ...bootstrap, access:user?access?.state(user):undefined,quietHours:user?accounts.quietHours(user):undefined,mobile: mobile && user ? { devices: mobile.list(user), currentDeviceId: user.mobileId || null } : null, live: user ? service.live?.state(user) || null : null, ...(admin ? { users: accounts?.list() ?? [], roles: cameraAccess?.roles, cameraActions, networkCameras: service.networkCameras?.state() || [], faceWorkerConfigured: Boolean(faceWorker?.enabled), arcFaceConfigured: Boolean(faceWorker?.enabled && faceWorker.arcface) } : {}) }); return;
+        const arcFaceModel = admin ? service.features?.managedFaceWorker?.arcFaceModel.status() : undefined;
+        json(response, 200, { ...state, ...bootstrap, access:user?access?.state(user):undefined,quietHours:user?accounts.quietHours(user):undefined,mobile: mobile && user ? { devices: mobile.list(user), currentDeviceId: user.mobileId || null } : null, live: user ? service.live?.state(user) || null : null, ...(admin ? { users: accounts?.list() ?? [], roles: cameraAccess?.roles, cameraActions, networkCameras: service.networkCameras?.state() || [], faceWorkerConfigured: Boolean(faceWorker?.enabled), arcFaceConfigured: Boolean(faceWorker?.enabled && faceWorker.arcface), arcFaceModel } : {}) }); return;
       }
       if (request.method === 'POST' && url.pathname.startsWith('/api/')) {
         const authentication = ['/api/auth/setup', '/api/auth/login'].includes(url.pathname);
@@ -358,7 +359,10 @@ export function createLocalServer(service, { port = 3210, publicRoot = join(root
             }
             service.features.updateCamera(body.cameraId, body.profile); break;
           case '/api/discord/test': await service.features.discord.test(); break;
-          case '/api/face-worker/save': await service.features.settings.update({ faceWorker: body }); service.features.startFaceWorker(); break;
+          case '/api/face-worker/save': await service.features.saveFaceWorker(body); break;
+          case '/api/face-worker/download-arcface':
+            service.features.managedFaceWorker.arcFaceModel.download();
+            json(response, 202, { ok: true }); return;
           case '/api/face-worker/check': {
             if (!limits.allow('face-worker-check:' + user?.id, 8)) { json(response, 429, { error: 'Zu viele Worker-Prüfungen.' }); return; }
             await service.features.checkFaceWorker(body);

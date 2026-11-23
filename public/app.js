@@ -196,7 +196,7 @@ function renderEvents() {
 
 function render() {
   if (!state) return;
-  if(state.appVersion&&state.appVersion!=='0.13.1'&&!document.getElementById('version-update')){const banner=element('aside','face-prompt');banner.id='version-update';banner.append(element('span','','Eine neue Türwache-Version ist verfügbar.'));const update=element('button','button','Neue Version laden');update.type='button';update.onclick=()=>location.reload();banner.append(update);document.querySelector('.heading').after(banner);}
+  if(state.appVersion&&state.appVersion!=='0.13.2'&&!document.getElementById('version-update')){const banner=element('aside','face-prompt');banner.id='version-update';banner.append(element('span','','Eine neue Türwache-Version ist verfügbar.'));const update=element('button','button','Neue Version laden');update.type='button';update.onclick=()=>location.reload();banner.append(update);document.querySelector('.heading').after(banner);}
   const signedIn = Boolean(state.user);
   document.body.classList.toggle('signed-out', !signedIn);
   $('auth-screen').hidden = signedIn;

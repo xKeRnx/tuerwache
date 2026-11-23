@@ -7,10 +7,14 @@ import { readJson, writeJson } from './storage.mjs';
 import { environmentFaceWorker } from './face-worker-config.mjs';
 
 export const MAX_FACE_TEMPLATES = 12;
+export function pythonInvocation() {
+  if (process.env.AI_PYTHON) return [process.env.AI_PYTHON, []];
+  return process.platform === 'win32' ? ['py', ['-3.12']] : ['python3', []];
+}
 const validEmbedding = (vector, length) => Array.isArray(vector) && vector.length === length && vector.every(Number.isFinite);
 export class AIService {
-  constructor(root, projectRoot, { spawnImpl = spawn, startupTimeout = 20_000, jobTimeout = 120_000, faceWorker = environmentFaceWorker, pythonEnv = {} } = {}) {
-    this.root = root; this.projectRoot = projectRoot; this.file = join(root, 'known-faces.json'); this.faceWorker = faceWorker; this.pythonEnv = pythonEnv;
+  constructor(root, projectRoot, { spawnImpl = spawn, startupTimeout = 20_000, jobTimeout = 120_000, faceWorker = environmentFaceWorker } = {}) {
+    this.root = root; this.projectRoot = projectRoot; this.file = join(root, 'known-faces.json'); this.faceWorker = faceWorker;
     this.people = readJson(this.file, []).map(({ embedding, ...person }) => ({ ...person, revision: person.revision || createHash('sha256').update(JSON.stringify(embedding || person.templates)).digest('hex'), templates: person.templates || (embedding ? [{ id: 'legacy', at: person.at, embedding }] : []) }));
     this.busy = false; this.pendingJobs = 0; this.tail = Promise.resolve(); this.spawn = spawnImpl; this.startupTimeout = startupTimeout; this.jobTimeout = jobTimeout; this.worker = null; this.workerStatus = 'stopped'; this.completedJobs = 0; this.closed = false;
     for (const name of readdirSync(root)) if (/^enrollment-[a-f0-9-]{36}\.image$/.test(name)) unlinkSync(join(root, name));
@@ -31,9 +35,9 @@ export class AIService {
   refWorker() { const child = this.worker.child; child.ref(); child.stdin.ref?.(); child.stdout.ref?.(); }
   async ensureWorker() {
     if (this.worker) { this.refWorker(); return this.worker.ready; }
-    const python = process.env.AI_PYTHON || (process.platform === 'win32' ? 'py' : 'python3');
-    const args = [...(process.platform === 'win32' && !process.env.AI_PYTHON ? ['-3.12'] : []), '-u', join(this.projectRoot, 'ai', 'analyze.py'), '--worker'];
-    const child = this.spawn(python, args, { windowsHide: true, env: { ...process.env, ...this.pythonEnv, OPENCV_IO_MAX_IMAGE_PIXELS: '16777216' }, stdio: ['pipe', 'pipe', 'ignore'] });
+    const [python, prefix] = pythonInvocation();
+    const args = [...prefix, '-u', join(this.projectRoot, 'ai', 'analyze.py'), '--worker'];
+    const child = this.spawn(python, args, { windowsHide: true, env: { ...process.env, OPENCV_IO_MAX_IMAGE_PIXELS: '16777216' }, stdio: ['pipe', 'pipe', 'ignore'] });
     let accept, reject;
     const job = { child, buffer: '', pending: null, initialized: false, ready: new Promise((resolve, fail) => { accept = resolve; reject = fail; }) }; this.worker = job; this.workerStatus = 'starting';
     job.fail = message => {

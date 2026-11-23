@@ -14,7 +14,7 @@ import {AIQuality} from './ai-quality.mjs';
 export class Features {
   constructor(service, projectRoot) {
     this.service = service; this.settings = new Settings(service.storage);
-    this.managedFaceWorker = new ManagedFaceWorker(projectRoot);
+    this.managedFaceWorker = new ManagedFaceWorker(projectRoot, service.storage.root);
     this.cloud = new CloudStorage(); this.ai = new AIService(service.storage.root, projectRoot, { faceWorker: () => this.workerConnection() });
     this.jobs = new JobTracker(); this.cloudTail = Promise.resolve(); this.pending = new Set(); this.closed = false;
     this.discord = new DiscordNotifications(this);
@@ -41,8 +41,14 @@ export class Features {
   startFaceWorker() { void this.workerConnection(); }
   async checkFaceWorker(input) {
     const config = this.settings.previewFaceWorker(input);
-    if (config.mode === 'local' && config.arcface) await this.managedFaceWorker.checkArcFace();
+    if (config.mode === 'local' && config.arcface) await this.managedFaceWorker.arcFaceModel.verify();
     return this.ai.checkFaceWorker(await this.managedFaceWorker.connection(config));
+  }
+  async saveFaceWorker(input) {
+    const config = this.settings.previewFaceWorker(input);
+    if (config.mode === 'local' && config.enabled && config.arcface) await this.managedFaceWorker.arcFaceModel.verify();
+    await this.settings.update({ faceWorker: input });
+    this.startFaceWorker();
   }
   state(admin) { return { cameraProfiles: Object.fromEntries(Object.keys(this.settings.value.cameraProfiles).map(id => [id, this.settings.profile(id)])), ...(admin ? { settings: this.settings.public(),faceSuggestions:this.faceSuggestions.list() } : {}), ...(admin?{operations:this.operations.state(),aiQuality:this.quality.state()}:{}), summaryService: this.summaries.state(admin), ai: { ...this.ai.state(), ...(admin ? {} : { people: [] }) } }; }
   path(entry) { return join(entry.directory || this.service.storage.clips, entry.clip); }

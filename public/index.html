@@ -9,28 +9,28 @@
   <link rel="stylesheet" href="/style.css">
   <link rel="stylesheet" href="/settings.css">
   <link rel="stylesheet" href="/pages.css">
-  <link rel="stylesheet" href="/design.css?v=0.13.1">
+  <link rel="stylesheet" href="/design.css?v=0.13.2">
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="apple-touch-icon" href="/icon-192.png">
-  <script src="/translations.js?v=0.13.1" defer></script>
-  <script src="/i18n.js?v=0.13.1" defer></script>
-  <script src="/app.js?v=0.13.1" defer></script>
-  <script src="/settings.js?v=0.13.1" defer></script>
+  <script src="/translations.js?v=0.13.2" defer></script>
+  <script src="/i18n.js?v=0.13.2" defer></script>
+  <script src="/app.js?v=0.13.2" defer></script>
+  <script src="/settings.js?v=0.13.2" defer></script>
   <script src="/network-cameras.js?v=1" defer></script>
-  <script src="/hls.min.js?v=0.13.1" defer></script>
-  <script src="/live.js?v=0.13.1" defer></script>
-  <script src="/router.js?v=0.13.1" defer></script>
-  <script src="/design.js?v=0.13.1" defer></script>
-  <script src="/clips.js?v=0.13.1" defer></script>
-  <script src="/access.js?v=0.13.1" defer></script>
-  <script src="/face-suggestions.js?v=0.13.1" defer></script>
-  <script src="/timeline.js?v=0.13.1" defer></script>
-  <script src="/face-library.js?v=0.13.1" defer></script>
-  <script src="/providers.js?v=0.13.1" defer></script>
-  <script src="/mobile-info.js?v=0.13.1" defer></script>
-  <link rel="stylesheet" href="/operations.css?v=0.13.1">
-  <script src="/operations.js?v=0.13.1" defer></script>
-  <script src="/management.js?v=0.13.1" defer></script>
+  <script src="/hls.min.js?v=0.13.2" defer></script>
+  <script src="/live.js?v=0.13.2" defer></script>
+  <script src="/router.js?v=0.13.2" defer></script>
+  <script src="/design.js?v=0.13.2" defer></script>
+  <script src="/clips.js?v=0.13.2" defer></script>
+  <script src="/access.js?v=0.13.2" defer></script>
+  <script src="/face-suggestions.js?v=0.13.2" defer></script>
+  <script src="/timeline.js?v=0.13.2" defer></script>
+  <script src="/face-library.js?v=0.13.2" defer></script>
+  <script src="/providers.js?v=0.13.2" defer></script>
+  <script src="/mobile-info.js?v=0.13.2" defer></script>
+  <link rel="stylesheet" href="/operations.css?v=0.13.2">
+  <script src="/operations.js?v=0.13.2" defer></script>
+  <script src="/management.js?v=0.13.2" defer></script>
 </head>
 <body class="signed-out">
   <section id="auth-screen" class="auth-screen" hidden>
@@ -57,7 +57,7 @@
   <aside class="rail">
     <a class="brand" href="/" aria-label="Türwache Startseite"><img src="/icon.svg" alt="" width="36" height="36"><span>türwache<span class="brand-dot">.</span></span></a>
     <nav id="main-navigation" aria-label="Hauptnavigation"></nav>
-    <div class="rail-bottom"><span class="local-dot"></span><span>Auf deinem Server<span class="rail-muted">Türwache · v0.13.1</span></span></div>
+    <div class="rail-bottom"><span class="local-dot"></span><span>Auf deinem Server<span class="rail-muted">Türwache · v0.13.2</span></span></div>
   </aside>
   <main id="overview">
     <header class="topbar"><span id="signed-in">DEIN PRIVATER KAMERASERVER</span><div class="account-actions"><span class="badge" id="connection-badge">Verbindung prüfen …</span><button class="text-button" id="app-logout">Abmelden</button></div></header>
@@ -178,7 +178,14 @@
           </div>
           <div>
             <label class="toggle-row"><span>Gesichts-Worker freigeben</span><input id="face-worker-enabled" type="checkbox" role="switch"></label>
-            <label class="toggle-row"><span>ArcFace verfügbar machen<span class="muted">Das ArcFace-Modell muss auf dem Worker eingerichtet sein.</span></span><input id="face-worker-arcface" type="checkbox" role="switch"></label>
+            <label class="toggle-row"><span>ArcFace für Kameras freigeben<span class="muted">Macht ArcFace als zusätzliche Gesichts-Engine pro Kamera auswählbar.</span></span><input id="face-worker-arcface" type="checkbox" role="switch"></label>
+            <div id="face-worker-model" hidden>
+              <p id="face-worker-model-status" class="small-note" role="status"></p>
+              <div id="face-worker-model-download-options" hidden>
+                <p class="small-note">InsightFace stellt die Modellgewichte für nichtkommerzielle Forschung bereit. <a href="https://github.com/deepinsight/insightface/blob/master/python-package/docs/model_zoo.md#model-licenses" target="_blank" rel="noopener noreferrer">Modelllizenz ansehen</a></p>
+                <button id="face-worker-download" class="button" type="button">ArcFace herunterladen (289 MB)</button>
+              </div>
+            </div>
             <p class="small-note" id="face-worker-source" hidden>Die aktuelle Verbindung stammt aus der Serverkonfiguration. Speichern übernimmt die Verwaltung in dieses Panel.</p>
             <div class="form-end">
               <a class="text-button" href="/docs#windows">Worker unter Windows einrichten</a>

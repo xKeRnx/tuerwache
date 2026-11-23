@@ -457,6 +457,20 @@ Worker-Token|Worker token
 Gesichts-Worker freigeben|Enable face worker
 ArcFace verfügbar machen|Make ArcFace available
 Das ArcFace-Modell muss auf dem Worker eingerichtet sein.|The ArcFace model must be set up on the worker.
+ArcFace für Kameras freigeben|Enable ArcFace for cameras
+Macht ArcFace als zusätzliche Gesichts-Engine pro Kamera auswählbar.|Makes ArcFace available as an additional face engine for each camera.
+ArcFace ist noch nicht installiert.|ArcFace is not installed yet.
+ArcFace-Datei gefunden. Schalte ArcFace ein und prüfe die Verbindung.|ArcFace model file found. Enable ArcFace and check the connection.
+ArcFace wird auf dem Server heruntergeladen und geprüft …|Downloading and verifying ArcFace on the server …
+ArcFace-Modell installiert und Prüfsumme bestätigt.|ArcFace model installed and checksum verified.
+Das ArcFace-Modell konnte nicht geladen oder geprüft werden.|The ArcFace model could not be downloaded or verified.
+InsightFace stellt die Modellgewichte für nichtkommerzielle Forschung bereit.|InsightFace provides the model weights for non-commercial research.
+Modelllizenz ansehen|View model license
+ArcFace herunterladen (289 MB)|Download ArcFace (289 MB)
+Download wird gestartet …|Starting download …
+ArcFace-Download gestartet. Der Status wird hier aktualisiert.|ArcFace download started. The status will update here.
+ArcFace fehlt. Lade das Modell unter KI-Anbieter → Gesichts-Worker herunter.|ArcFace is missing. Download the model under AI providers → Face worker.
+Die ArcFace-Datei konnte nicht geprüft werden. Lade das Modell erneut herunter oder prüfe den konfigurierten Pfad.|The ArcFace file could not be verified. Download the model again or check its configured path.
 Die aktuelle Verbindung stammt aus der Serverkonfiguration. Speichern übernimmt die Verwaltung in dieses Panel.|The current connection comes from the server configuration. Save here to manage the connection from this panel.
 Worker unter Windows einrichten|Set up a worker on Windows
 Worker im Heimnetz einrichten|Set up a worker on the local network

@@ -33,9 +33,9 @@ The **Local on Türwache** face engine runs SFace directly. You can also use **A
 
 ### Start automatically with Türwache
 
-Under **AI providers → Face worker**, select **Automatically on this device**. Leave **Make ArcFace available** off for the first SFace check. Check the connection, turn on **Enable face worker**, and save. The built-in worker starts whenever Türwache starts, with no address or token to enter. Under **Sites → Privacy zones & AI**, you can select **Built-in face worker** as the face engine for each camera.
+Under **AI providers → Face worker**, select **Automatically on this device**. Leave **Enable ArcFace for cameras** off for the first SFace check. Check the connection, turn on **Enable face worker**, and save. The built-in worker starts whenever Türwache starts, with no address or token to enter. Under **Sites → Privacy zones & AI**, you can select **Built-in face worker** as the face engine for each camera.
 
-For ArcFace, put the verified `w600k_r50.onnx` file in `ai/models`. Turn on **Make ArcFace available** in the panel, check the connection and save. See the [local network guide](raspberry-pi.en.md) for the model source, license, and enrollment instructions.
+To use the InsightFace model for non-commercial research, click **Download ArcFace (289 MB)**. Türwache creates a `models` folder in its data directory, downloads the official archive, and verifies both the archive and the model file. Once the model status confirms installation, turn on **Enable ArcFace for cameras** and check the connection. Once both models pass, save, enrol reference photos, and select the engine per camera. The built-in worker also detects a `w600k_r50.onnx` file placed manually in the project's `ai/models` folder. [Model and license](raspberry-pi.en.md)
 
 ### Run the worker separately
 
@@ -64,10 +64,10 @@ Keep the window open once you see **Gesichts-Worker läuft auf HTTP an Port 3211
 
 - As an administrator, open **AI providers → Face worker**. Enter `http://127.0.0.1:3211` for **Worker address**.
 - For **Worker token**, paste the value from `.env` after the equals sign.
-- Leave **Make ArcFace available** off for the first SFace check. Click **Check worker connection**. Once SFace passes, turn on **Enable face worker** and save.
+- Leave **Enable ArcFace for cameras** off for the first SFace check. Click **Check worker connection**. Once SFace passes, turn on **Enable face worker** and save.
 - Turn on face recognition for each camera you want to use and select **Private face worker** under **Sites → Privacy zones & AI → Face engine**. Cameras with privacy zones keep face processing on Türwache.
 
-For ArcFace, add `FACE_WORKER_ARCFACE_MODEL=C:/Path/to/w600k_r50.onnx` to `.env` with the verified model, restart the worker, and turn on **Make ArcFace available** in the panel. Check the connection and save. Enrol at least one reference photo per person under **Faces** and select **ArcFace on the local network** for the camera. See the [local network setup guide](raspberry-pi.en.md) for the model, its license and setup on another device.
+For ArcFace, add `FACE_WORKER_ARCFACE_MODEL=C:/Path/to/w600k_r50.onnx` to `.env` with the verified model, restart the worker, and turn on **Enable ArcFace for cameras** in the panel. Check the connection and save. Enrol at least one reference photo per person under **Faces** and select **ArcFace on the local network** for the camera. See the [local network setup guide](raspberry-pi.en.md) for the model, its license and setup on another device.
 
 ## Automatic startup
 

@@ -27,14 +27,14 @@ MAX_ARCFACE_CROPS = 48
 ARCFACE_THRESHOLD = 0.30
 
 
-def resource(name):
+def resource(name, model_path=None):
     if name not in _CACHE:
         if name == "detector":
             _CACHE[name] = cv.FaceDetectorYN.create(str(MODELS / "yunet.onnx"), "", (320, 320), FACE_SCORE, 0.3, 1000)
         elif name == "recognizer":
             _CACHE[name] = cv.FaceRecognizerSF.create(str(MODELS / "sface.onnx"), "")
         elif name == "arcface":
-            path = os.environ.get("FACE_WORKER_ARCFACE_MODEL")
+            path = model_path or os.environ.get("FACE_WORKER_ARCFACE_MODEL")
             if not path:
                 raise ValueError("ArcFace ist auf diesem Gesichts-Worker nicht eingerichtet.")
             _CACHE[name] = cv.dnn.readNetFromONNX(path)
@@ -235,7 +235,7 @@ def main(data):
         limit = ARC_BATCH if model == ARC_MODEL else LIMIT
         if not isinstance(images, list) or not 1 <= len(images) <= limit:
             raise ValueError("Ungültige Anzahl Gesichtsausschnitte.")
-        engine = resource("arcface" if model == ARC_MODEL else "recognizer")
+        engine = resource("arcface", data.get("arcFaceModelPath")) if model == ARC_MODEL else resource("recognizer")
         compute = arcface_embedding if model == ARC_MODEL else embedding
         vectors = []
         for image in images:

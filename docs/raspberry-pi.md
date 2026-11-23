@@ -20,7 +20,7 @@ Eine Kamera verbinden, Bewegung und Klingeln einzeln testen, Clip mit Ton abspie
 
 ## Gesichts-Worker im Heimnetz
 
-Wenn Türwache und der Worker auf demselben Windows-PC laufen, folge der [Windows-Anleitung](windows.md).
+Wenn Türwache und der Worker auf demselben Gerät laufen, kannst du unter **KI-Anbieter → Gesichts-Worker** den integrierten Worker wählen und das ArcFace-Modell direkt im Panel herunterladen. Die [Anleitung für den integrierten Worker](windows.md) zeigt die Einstellungen.
 
 Auf dem zweiten Rechner Türwache samt OpenCV-Modellen installieren. Einen zufälligen Token erzeugen (`node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"`) und auf dem Worker in `.env` als `FACE_WORKER_TOKEN` hinterlegen. Dort auch die folgenden Werte setzen:
 
@@ -37,7 +37,7 @@ Den Worker mit `node --env-file=.env scripts/start-face-worker.mjs` starten. Auf
 ### Optional ArcFace auf dem Worker nutzen
 
 1. Auf dem leistungsstärkeren Worker `FACE_WORKER_ARCFACE_MODEL` auf das geprüfte Modell `w600k_r50.onnx` aus dem [InsightFace-Paket buffalo_l](https://github.com/deepinsight/insightface/releases/tag/model-zoo) setzen und den Worker neu starten. Türwache liefert die Gewichte nicht mit. InsightFace gibt diese öffentlichen Gewichte für nichtkommerzielle Forschung frei. Ihre [Lizenzbedingungen](https://github.com/deepinsight/insightface/blob/master/python-package/docs/model_zoo.md) gelten auch bei separatem Download.
-2. Auf dem Pi unter **KI-Anbieter → Gesichts-Worker** **ArcFace verfügbar machen** aktivieren, die Verbindung prüfen und speichern. Unter **Gesichter** mindestens ein Referenzfoto für jede bekannte Person einlernen. Falls du genau dieselbe Datei erneut auswählst, ergänzt Türwache die bestehende Vorlage um ArcFace.
+2. Auf dem Pi unter **KI-Anbieter → Gesichts-Worker** **ArcFace für Kameras freigeben** aktivieren, die Verbindung prüfen und speichern. Unter **Gesichter** mindestens ein Referenzfoto für jede bekannte Person einlernen. Falls du genau dieselbe Datei erneut auswählst, ergänzt Türwache die bestehende Vorlage um ArcFace.
 3. Pro Kamera unter **Standorte → Privatzonen & KI → Gesichts-Engine** **ArcFace im Heimnetz** auswählen. Aufnahme, Gesichtssuche im Video und Namensabgleich laufen auf dem Pi. Nur ausgerichtete Gesichtsausschnitte gehen an den Worker, der die ArcFace-Merkmale berechnet.
 
 ArcFace nutzt die eigene Mindestähnlichkeit 0,30 und die Mehrbildbestätigung. Bei fehlenden ArcFace-Vorlagen, einem nicht erreichbaren Worker oder aktiven Privatzonen nutzt Türwache lokales SFace. Details stehen unter **Gesichtserkennung im Clip**.

@@ -20,14 +20,14 @@ Test one camera, separate motion and doorbell events, audio playback, and restar
 
 ## Private face worker
 
-If Türwache and the worker run on the same Windows PC, follow the [Windows guide](windows.en.md).
+If Türwache and the worker run on the same device, select the built-in worker under **AI providers → Face worker** and download ArcFace from the panel. See the [built-in worker guide](windows.en.md) for the settings.
 
 Install Türwache and its OpenCV models on the worker computer. Configure a random `FACE_WORKER_TOKEN` and set `FACE_WORKER_HOST`, `FACE_WORKER_PORT`, `FACE_WORKER_CERT` and `FACE_WORKER_KEY` on that computer. Run `node --env-file=.env scripts/start-face-worker.mjs`. On the Pi, open **AI providers → Face worker**, enter the worker URL and the same token, check the connection, then enable it and save. The connection check uses a synthetic test image. Use `http://127.0.0.1:3211` for a worker on the same Pi. For a worker on another device, the Pi must trust its HTTPS certificate. Choose the network engine for each camera under **Sites → Privacy zones & AI**.
 
 ### Optional ArcFace on the worker
 
 1. On the more powerful worker, set `FACE_WORKER_ARCFACE_MODEL` to the verified `w600k_r50.onnx` model from [InsightFace buffalo_l](https://github.com/deepinsight/insightface/releases/tag/model-zoo) and restart the worker. Türwache does not distribute the weights. InsightFace publishes these weights for non-commercial research under its [model terms](https://github.com/deepinsight/insightface/blob/master/python-package/docs/model_zoo.md).
-2. On the Pi, turn on **Make ArcFace available** under **AI providers → Face worker**, check the connection and save. Enrol at least one reference photo per known person under **Faces**. Selecting the exact same file again adds ArcFace to its existing template.
+2. On the Pi, turn on **Enable ArcFace for cameras** under **AI providers → Face worker**, check the connection and save. Enrol at least one reference photo per known person under **Faces**. Selecting the exact same file again adds ArcFace to its existing template.
 3. Select **ArcFace on the local network** for the camera under **Sites → Privacy zones & AI → Face engine**. The Pi records the clips, detects faces and matches identities. The worker receives aligned face crops and returns ArcFace embeddings.
 
 ArcFace uses its own similarity threshold of 0.30 and the multi-frame confirmation rule. Türwache uses local SFace when ArcFace templates are missing, the worker is unavailable or privacy zones are active. See **Face recognition in this clip** for details.
